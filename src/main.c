@@ -118,77 +118,88 @@ int main(void) {
         // ══════════════════════════════════════
         if (ecran_actuel == ECRAN_LISTE) {
 
-            DrawText("EasySalaire", 20, 20, 30, DARKBLUE);
-            DrawText("Liste des employes", 20, 60, 18, GRAY);
-            DrawLine(20, 85, 780, 85, LIGHTGRAY);
+    // ─── Header ───────────────────────────
+    DrawText("EasySalaire", 20, 15, 30, DARKBLUE);
+    DrawLine(20, 52, 780, 52, LIGHTGRAY);
 
-            if (GuiButton((Rectangle){650, 20, 120, 35}, "Ajouter")) {
-                ecran_actuel = ECRAN_FORMULAIRE;
-            }
-            // ─── Barre de recherche ───────────────────
-            DrawText("Recherche :", 30, 55, 15, DARKGRAY);
-            Rectangle r_recherche = {150, 50, 250, 28};
-
-            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                   Vector2 souris = GetMousePosition();
-                   champ_recherche = CheckCollisionPointRec(souris, r_recherche);
-            }
-
-            GuiTextBox(r_recherche, recherche, 50, champ_recherche);
-
-            DrawText("Nom",         30,  100, 15, DARKGRAY);
-            DrawText("Prenom",      180, 100, 15, DARKGRAY);
-            DrawText("Poste",       330, 100, 15, DARKGRAY);
-            DrawText("Salaire net", 500, 100, 15, DARKGRAY);
-            DrawText("Action",      660, 100, 15, DARKGRAY);
-            DrawLine(20, 120, 780, 120, LIGHTGRAY);
-
-            if (nb_employes == 0) {
-                DrawText("Aucun employe enregistre.",
-                         250, 300, 16, GRAY);
-            }
-
-            int count = 0;
-for (int i = 0; i < nb_employes; i++) {
-
-    // Filtre par nom
-    if (strlen(recherche) > 0 &&
-        strstr(employes[i].nom, recherche) == NULL &&
-        strstr(employes[i].prenom, recherche) == NULL) {
-        continue; // skip si ne correspond pas
+    // ─── Bouton Ajouter ───────────────────
+    if (GuiButton((Rectangle){650, 15, 120, 30}, "Ajouter")) {
+        ecran_actuel = ECRAN_FORMULAIRE;
     }
 
-    int y = 130 + count * 45;
-    Color ligne = (count % 2 == 0) ? RAYWHITE
-                : (Color){240,240,240,255};
-    DrawRectangle(20, y, 760, 40, ligne);
+    // ─── Barre de recherche ───────────────
+    DrawText("Recherche :", 20, 65, 14, DARKGRAY);
+    Rectangle r_recherche = {120, 61, 200, 26};
 
-    DrawText(employes[i].nom,    30,  y+12, 14, DARKGRAY);
-    DrawText(employes[i].prenom, 180, y+12, 14, DARKGRAY);
-    DrawText(employes[i].poste,  330, y+12, 14, DARKGRAY);
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        Vector2 souris = GetMousePosition();
+        champ_recherche = CheckCollisionPointRec(souris, r_recherche);
+    }
+    GuiTextBox(r_recherche, recherche, 50, champ_recherche);
 
-    char net[30];
-    sprintf(net, "%.2f TND", employes[i].salaire_net);
-    DrawText(net, 500, y+12, 14, DARKGREEN);
-
-    if (GuiButton((Rectangle){650, y+8, 90, 26}, "Voir fiche")) {
-        employe_selectionne = i;
-        ecran_actuel = ECRAN_FICHE;
+    // Bouton effacer recherche
+    if (GuiButton((Rectangle){330, 61, 60, 26}, "Effacer")) {
+        recherche[0] = '\0';
     }
 
-    count++;
-}
+    DrawText("Liste des employes", 20, 98, 16, GRAY);
+    DrawLine(20, 118, 780, 118, LIGHTGRAY);
 
-// Message si aucun résultat
-if (count == 0) {
-    DrawText("Aucun resultat trouve.",
-             250, 300, 16, GRAY);
-}
+    // ─── En-têtes colonnes ────────────────
+    DrawRectangle(20, 119, 760, 28, (Color){230,240,255,255});
+    DrawText("Nom",         35,  126, 14, DARKBLUE);
+    DrawText("Prenom",      180, 126, 14, DARKBLUE);
+    DrawText("Poste",       330, 126, 14, DARKBLUE);
+    DrawText("Salaire net", 490, 126, 14, DARKBLUE);
+    DrawText("Action",      650, 126, 14, DARKBLUE);
+    DrawLine(20, 147, 780, 147, LIGHTGRAY);
 
-            char total[50];
-            sprintf(total, "Total : %d employe(s)", nb_employes);
-            DrawText(total, 20, 570, 14, GRAY);
+    // ─── Liste filtrée ────────────────────
+    int count = 0;
+    for (int i = 0; i < nb_employes; i++) {
+
+        if (strlen(recherche) > 0 &&
+            strstr(employes[i].nom,    recherche) == NULL &&
+            strstr(employes[i].prenom, recherche) == NULL) {
+            continue;
         }
+
+        int y = 155 + count * 42;
+        Color ligne = (count % 2 == 0) ? RAYWHITE
+                    : (Color){245,248,255,255};
+        DrawRectangle(20, y, 760, 38, ligne);
+
+        DrawText(employes[i].nom,    35,  y+12, 13, DARKGRAY);
+        DrawText(employes[i].prenom, 180, y+12, 13, DARKGRAY);
+        DrawText(employes[i].poste,  330, y+12, 13, DARKGRAY);
+
+        char net[30];
+        sprintf(net, "%.2f TND", employes[i].salaire_net);
+        DrawText(net, 490, y+12, 13, DARKGREEN);
+
+        if (GuiButton((Rectangle){645, y+7, 95, 24}, "Voir fiche")) {
+            employe_selectionne = i;
+            ecran_actuel = ECRAN_FICHE;
+        }
+
+        count++;
+    }
+
+    if (nb_employes == 0) {
+        DrawText("Aucun employe enregistre.",
+                 280, 320, 15, GRAY);
+    } else if (count == 0) {
+        DrawText("Aucun resultat trouve.",
+                 280, 320, 15, GRAY);
+    }
+
+    // ─── Footer ───────────────────────────
+    DrawLine(20, 555, 780, 555, LIGHTGRAY);
+    char total[50];
+    sprintf(total, "Total : %d employe(s)  |  Affichés : %d",
+            nb_employes, count);
+    DrawText(total, 20, 562, 12, GRAY);
+}
         // ══════════════════════════════════════
         // ÉCRAN FICHE
         // ══════════════════════════════════════
