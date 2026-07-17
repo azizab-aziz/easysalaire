@@ -17,10 +17,6 @@
 					<Add directory=" C:/EasySalaire/lib/raygui" />
 				</Compiler>
 				<Linker>
-					<Add option="lraylib" />
-					<Add option="lopengl32" />
-					<Add option="lgdi32" />
-					<Add option="lwinmm" />
 					<Add directory="C:/EasySalaire/lib/raylib" />
 				</Linker>
 			</Target>

@@ -15,6 +15,8 @@ typedef enum {
 int main(void) {
 
     InitWindow(800, 600, "EasySalaire");
+    SetWindowState(FLAG_WINDOW_RESIZABLE);
+    SetWindowMinSize(600, 400);
     SetTargetFPS(60);
 
     Employe employes[MAX_EMPLOYES];
