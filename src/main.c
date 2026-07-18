@@ -70,6 +70,22 @@ int main(void) {
                 else if (CheckCollisionPointRec(souris, r_prime))  champ_actif = 5;
                 else champ_actif = -1;
             }
+            // ─── Navigation clavier ───────────────────
+            if (IsKeyPressed(KEY_TAB)) {
+                if (IsKeyDown(KEY_LEFT_SHIFT))
+                   champ_actif = (champ_actif - 1 + 6) % 6; // ← Shift+Tab = remonter
+                else
+                   champ_actif = (champ_actif + 1) % 6;      // → Tab = descendre
+            }
+
+            if (IsKeyPressed(KEY_DOWN))
+               champ_actif = (champ_actif + 1) % 6;  // ↓ flèche bas
+
+            if (IsKeyPressed(KEY_UP))
+               champ_actif = (champ_actif - 1 + 6) % 6; // ↑ flèche haut
+
+            if (IsKeyPressed(KEY_ENTER))
+               champ_actif = (champ_actif + 1) % 6;  // Enter = champ suivant
 
             // Labels
             DrawText("Nom :",          20, 113, 16, DARKGRAY);
