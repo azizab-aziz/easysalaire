@@ -11,7 +11,7 @@ A lightweight employee management desktop application built in C, using [raylib]
 ## Screenshots
 
 
-Add screenshots here once you have them. Example:
+
 ![Form screen](assets/screenshots/form.png)
 ![Form screen](assets/screenshots/form1.png)
 ![Employee list](assets/screenshots/list.png)
