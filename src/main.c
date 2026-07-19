@@ -56,107 +56,118 @@ int main(void) {
         // ══════════════════════════════════════
         if (ecran_actuel == ECRAN_FORMULAIRE) {
 
-            DrawText("EasySalaire", 20, 20, 30, DARKBLUE);
-            DrawText("Ajouter un employe", 20, 60, 18, GRAY);
-            DrawLine(20, 85, 780, 85, LIGHTGRAY);
+    int W = GetScreenWidth();
+    int H = GetScreenHeight();
+    int cx = W / 2;  // center X
 
-            // Définition des rectangles
-            Rectangle r_nom    = {200, 105, 300, 32};
-            Rectangle r_prenom = {200, 150, 300, 32};
-            Rectangle r_poste  = {200, 195, 300, 32};
-            Rectangle r_base   = {200, 240, 300, 32};
-            Rectangle r_hsup   = {200, 285, 300, 32};
-            Rectangle r_prime  = {200, 330, 300, 32};
+    // ─── Header ───────────────────────────
+    DrawText("EasySalaire", 20, 15, 30, DARKBLUE);
+    DrawLine(20, 52, W - 20, 52, LIGHTGRAY);
+    DrawText("Ajouter un employe", 20, 62, 16, GRAY);
 
-            // Clic souris → changer champ actif
-            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                Vector2 souris = GetMousePosition();
-                if (CheckCollisionPointRec(souris, r_nom))    champ_actif = 0;
-                else if (CheckCollisionPointRec(souris, r_prenom)) champ_actif = 1;
-                else if (CheckCollisionPointRec(souris, r_poste))  champ_actif = 2;
-                else if (CheckCollisionPointRec(souris, r_base))   champ_actif = 3;
-                else if (CheckCollisionPointRec(souris, r_hsup))   champ_actif = 4;
-                else if (CheckCollisionPointRec(souris, r_prime))  champ_actif = 5;
-                else champ_actif = -1;
-            }
-            // ─── Navigation clavier ───────────────────
-            if (IsKeyPressed(KEY_TAB)) {
-                if (IsKeyDown(KEY_LEFT_SHIFT))
-                   champ_actif = (champ_actif - 1 + 6) % 6; // ← Shift+Tab = remonter
-                else
-                   champ_actif = (champ_actif + 1) % 6;      // → Tab = descendre
-            }
+    // ─── Form dimensions ──────────────────
+    int field_w = 300;
+    int label_x = cx - 200;
+    int field_x = cx - 50;
+    int start_y = H / 2 - 160;
+    int gap     = 48;
 
-            if (IsKeyPressed(KEY_DOWN))
-               champ_actif = (champ_actif + 1) % 6;  // ↓ flèche bas
+    Rectangle r_nom    = {field_x, start_y + gap*0, field_w, 32};
+    Rectangle r_prenom = {field_x, start_y + gap*1, field_w, 32};
+    Rectangle r_poste  = {field_x, start_y + gap*2, field_w, 32};
+    Rectangle r_base   = {field_x, start_y + gap*3, field_w, 32};
+    Rectangle r_hsup   = {field_x, start_y + gap*4, field_w, 32};
+    Rectangle r_prime  = {field_x, start_y + gap*5, field_w, 32};
 
-            if (IsKeyPressed(KEY_UP))
-               champ_actif = (champ_actif - 1 + 6) % 6; // ↑ flèche haut
+    // ─── Mouse click ──────────────────────
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        Vector2 souris = GetMousePosition();
+        if      (CheckCollisionPointRec(souris, r_nom))    champ_actif = 0;
+        else if (CheckCollisionPointRec(souris, r_prenom)) champ_actif = 1;
+        else if (CheckCollisionPointRec(souris, r_poste))  champ_actif = 2;
+        else if (CheckCollisionPointRec(souris, r_base))   champ_actif = 3;
+        else if (CheckCollisionPointRec(souris, r_hsup))   champ_actif = 4;
+        else if (CheckCollisionPointRec(souris, r_prime))  champ_actif = 5;
+        else champ_actif = -1;
+    }
 
-            if (IsKeyPressed(KEY_ENTER))
-               champ_actif = (champ_actif + 1) % 6;  // Enter = champ suivant
+    // ─── Keyboard navigation ──────────────
+    if (IsKeyPressed(KEY_TAB)) {
+        if (IsKeyDown(KEY_LEFT_SHIFT))
+            champ_actif = (champ_actif - 1 + 6) % 6;
+        else
+            champ_actif = (champ_actif + 1) % 6;
+    }
+    if (IsKeyPressed(KEY_DOWN))  champ_actif = (champ_actif + 1) % 6;
+    if (IsKeyPressed(KEY_UP))    champ_actif = (champ_actif - 1 + 6) % 6;
+    if (IsKeyPressed(KEY_ENTER)) champ_actif = (champ_actif + 1) % 6;
 
-            // Labels
-            DrawText("Nom :",          20, 113, 16, DARKGRAY);
-            DrawText("Prenom :",       20, 158, 16, DARKGRAY);
-            DrawText("Poste :",        20, 203, 16, DARKGRAY);
-            DrawText("Salaire base :", 20, 248, 16, DARKGRAY);
-            DrawText("Heures sup :",   20, 293, 16, DARKGRAY);
-            DrawText("Prime :",        20, 338, 16, DARKGRAY);
+    // ─── Labels ───────────────────────────
+    DrawText("Nom :",          label_x, start_y + gap*0 + 8, 16, DARKGRAY);
+    DrawText("Prenom :",       label_x, start_y + gap*1 + 8, 16, DARKGRAY);
+    DrawText("Poste :",        label_x, start_y + gap*2 + 8, 16, DARKGRAY);
+    DrawText("Salaire base :", label_x, start_y + gap*3 + 8, 16, DARKGRAY);
+    DrawText("Heures sup :",   label_x, start_y + gap*4 + 8, 16, DARKGRAY);
+    DrawText("Prime :",        label_x, start_y + gap*5 + 8, 16, DARKGRAY);
 
-            // Champs texte
-            GuiTextBox(r_nom,    nom,    50, champ_actif == 0);
-            GuiTextBox(r_prenom, prenom, 50, champ_actif == 1);
-            GuiTextBox(r_poste,  poste,  50, champ_actif == 2);
-            GuiTextBox(r_base,   base,   20, champ_actif == 3);
-            GuiTextBox(r_hsup,   hsup,   20, champ_actif == 4);
-            GuiTextBox(r_prime,  prime,  20, champ_actif == 5);
+    // ─── Fields ───────────────────────────
+    GuiTextBox(r_nom,    nom,    50, champ_actif == 0);
+    GuiTextBox(r_prenom, prenom, 50, champ_actif == 1);
+    GuiTextBox(r_poste,  poste,  50, champ_actif == 2);
+    GuiTextBox(r_base,   base,   20, champ_actif == 3);
+    GuiTextBox(r_hsup,   hsup,   20, champ_actif == 4);
+    GuiTextBox(r_prime,  prime,  20, champ_actif == 5);
 
-            // Bouton Ajouter
-            if (GuiButton((Rectangle){200, 390, 130, 35}, "Ajouter")) {
-                if (strlen(nom) > 0 && strlen(base) > 0) {
-                    Employe e;
-                    strcpy(e.nom,    nom);
-                    strcpy(e.prenom, prenom);
-                    strcpy(e.poste,  poste);
-                    e.salaire_base = atof(base);
-                    e.heures_sup   = atof(hsup);
-                    e.prime        = atof(prime);
-                    ajouterEmploye(employes, &nb_employes, e);
+    // ─── Buttons ──────────────────────────
+    int btn_y  = start_y + gap*6 + 10;
+    int btn_w  = 130;
+    int btn_h  = 35;
 
-                    nom[0] = prenom[0] = poste[0] = '\0';
-                    base[0] = hsup[0] = prime[0] = '\0';
-                    champ_actif = -1;
-                }
-            }
-
-            // Bouton Voir liste
-            if (GuiButton((Rectangle){350, 390, 130, 35}, "Voir liste")) {
-                ecran_actuel = ECRAN_LISTE;
-            }
-
-            char msg[50];
-            sprintf(msg, "Employes enregistres : %d", nb_employes);
-            DrawText(msg, 20, 450, 14, GRAY);
+    if (GuiButton((Rectangle){cx - 140, btn_y, btn_w, btn_h}, "Ajouter")) {
+        if (strlen(nom) > 0 && strlen(base) > 0) {
+            Employe e;
+            strcpy(e.nom,    nom);
+            strcpy(e.prenom, prenom);
+            strcpy(e.poste,  poste);
+            e.salaire_base = atof(base);
+            e.heures_sup   = atof(hsup);
+            e.prime        = atof(prime);
+            ajouterEmploye(employes, &nb_employes, e);
+            nom[0] = prenom[0] = poste[0] = '\0';
+            base[0] = hsup[0] = prime[0] = '\0';
+            champ_actif = -1;
         }
+    }
+
+    if (GuiButton((Rectangle){cx + 10, btn_y, btn_w, btn_h}, "Voir liste")) {
+        ecran_actuel = ECRAN_LISTE;
+    }
+
+    // ─── Counter ──────────────────────────
+    char msg[50];
+    sprintf(msg, "Employes enregistres : %d", nb_employes);
+    DrawText(msg, 20, H - 30, 13, GRAY);
+}
 
         // ══════════════════════════════════════
         // ÉCRAN LISTE
         // ══════════════════════════════════════
-        if (ecran_actuel == ECRAN_LISTE) {
+       if (ecran_actuel == ECRAN_LISTE) {
+
+    int W = GetScreenWidth();
+    int H = GetScreenHeight();
 
     // ─── Header ───────────────────────────
     DrawText("EasySalaire", 20, 15, 30, DARKBLUE);
-    DrawLine(20, 52, 780, 52, LIGHTGRAY);
+    DrawLine(20, 52, W - 20, 52, LIGHTGRAY);
 
-    // ─── Bouton Ajouter ───────────────────
-    if (GuiButton((Rectangle){650, 15, 120, 30}, "Ajouter")) {
+    if (GuiButton((Rectangle){W - 150, 15, 120, 30}, "Ajouter")) {
         ecran_actuel = ECRAN_FORMULAIRE;
     }
 
-    // ─── Barre de recherche ───────────────
+    // ─── Search bar ───────────────────────
     DrawText("Recherche :", 20, 65, 14, DARKGRAY);
-    Rectangle r_recherche = {120, 61, 200, 26};
+    Rectangle r_recherche = {120, 61, 220, 26};
 
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         Vector2 souris = GetMousePosition();
@@ -164,24 +175,29 @@ int main(void) {
     }
     GuiTextBox(r_recherche, recherche, 50, champ_recherche);
 
-    // Bouton effacer recherche
-    if (GuiButton((Rectangle){330, 61, 60, 26}, "Effacer")) {
+    if (GuiButton((Rectangle){350, 61, 70, 26}, "Effacer")) {
         recherche[0] = '\0';
     }
 
     DrawText("Liste des employes", 20, 98, 16, GRAY);
-    DrawLine(20, 118, 780, 118, LIGHTGRAY);
+    DrawLine(20, 118, W - 20, 118, LIGHTGRAY);
 
-    // ─── En-têtes colonnes ────────────────
-    DrawRectangle(20, 119, 760, 28, (Color){230,240,255,255});
-    DrawText("Nom",         35,  126, 14, DARKBLUE);
-    DrawText("Prenom",      180, 126, 14, DARKBLUE);
-    DrawText("Poste",       330, 126, 14, DARKBLUE);
-    DrawText("Salaire net", 490, 126, 14, DARKBLUE);
-    DrawText("Action",      650, 126, 14, DARKBLUE);
-    DrawLine(20, 147, 780, 147, LIGHTGRAY);
+    // ─── Column headers ───────────────────
+    float col1 = W * 0.04f;
+    float col2 = W * 0.22f;
+    float col3 = W * 0.40f;
+    float col4 = W * 0.60f;
+    float col5 = W * 0.80f;
 
-    // ─── Liste filtrée ────────────────────
+    DrawRectangle(20, 119, W - 40, 28, (Color){230,240,255,255});
+    DrawText("Nom",         col1, 126, 14, DARKBLUE);
+    DrawText("Prenom",      col2, 126, 14, DARKBLUE);
+    DrawText("Poste",       col3, 126, 14, DARKBLUE);
+    DrawText("Salaire net", col4, 126, 14, DARKBLUE);
+    DrawText("Action",      col5, 126, 14, DARKBLUE);
+    DrawLine(20, 147, W - 20, 147, LIGHTGRAY);
+
+    // ─── Filtered list ────────────────────
     int count = 0;
     for (int i = 0; i < nb_employes; i++) {
 
@@ -192,19 +208,19 @@ int main(void) {
         }
 
         int y = 155 + count * 42;
-        Color ligne = (count % 2 == 0) ? RAYWHITE
-                    : (Color){245,248,255,255};
-        DrawRectangle(20, y, 760, 38, ligne);
+        Color bg = (count % 2 == 0) ? RAYWHITE
+                 : (Color){245,248,255,255};
+        DrawRectangle(20, y, W - 40, 38, bg);
 
-        DrawText(employes[i].nom,    35,  y+12, 13, DARKGRAY);
-        DrawText(employes[i].prenom, 180, y+12, 13, DARKGRAY);
-        DrawText(employes[i].poste,  330, y+12, 13, DARKGRAY);
+        DrawText(employes[i].nom,    col1, y+12, 13, DARKGRAY);
+        DrawText(employes[i].prenom, col2, y+12, 13, DARKGRAY);
+        DrawText(employes[i].poste,  col3, y+12, 13, DARKGRAY);
 
         char net[30];
         sprintf(net, "%.2f TND", employes[i].salaire_net);
-        DrawText(net, 490, y+12, 13, DARKGREEN);
+        DrawText(net, col4, y+12, 13, DARKGREEN);
 
-        if (GuiButton((Rectangle){645, y+7, 95, 24}, "Voir fiche")) {
+        if (GuiButton((Rectangle){col5, y+7, 110, 24}, "Voir fiche")) {
             employe_selectionne = i;
             ecran_actuel = ECRAN_FICHE;
         }
@@ -212,20 +228,17 @@ int main(void) {
         count++;
     }
 
-    if (nb_employes == 0) {
-        DrawText("Aucun employe enregistre.",
-                 280, 320, 15, GRAY);
-    } else if (count == 0) {
-        DrawText("Aucun resultat trouve.",
-                 280, 320, 15, GRAY);
-    }
+    if (nb_employes == 0)
+        DrawText("Aucun employe enregistre.", W/2 - 120, H/2, 15, GRAY);
+    else if (count == 0)
+        DrawText("Aucun resultat trouve.",    W/2 - 100, H/2, 15, GRAY);
 
     // ─── Footer ───────────────────────────
-    DrawLine(20, 555, 780, 555, LIGHTGRAY);
-    char total[50];
-    sprintf(total, "Total : %d employe(s)  |  Affichés : %d",
+    DrawLine(20, H - 30, W - 20, H - 30, LIGHTGRAY);
+    char total[60];
+    sprintf(total, "Total : %d employe(s)  |  Affiches : %d",
             nb_employes, count);
-    DrawText(total, 20, 562, 12, GRAY);
+    DrawText(total, 20, H - 22, 12, GRAY);
 }
         // ══════════════════════════════════════
         // ÉCRAN FICHE
