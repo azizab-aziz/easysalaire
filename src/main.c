@@ -9,7 +9,8 @@
 typedef enum {
     ECRAN_FORMULAIRE,
     ECRAN_LISTE,
-    ECRAN_FICHE
+    ECRAN_FICHE,
+    ECRAN_MODIFICATION
 } Ecran;
 
 int main(void) {
@@ -35,6 +36,14 @@ int main(void) {
 
     // ─── Champ actif ──────────────────────────
     int champ_actif = -1;
+    // ─── Champ actif modification ─────────────
+    char mod_nom[50]    = "";
+    char mod_prenom[50] = "";
+    char mod_poste[50]  = "";
+    char mod_base[20]   = "";
+    char mod_hsup[20]   = "";
+    char mod_prime[20]  = "";
+    int  champ_mod      = -1;
     // 0=nom, 1=prenom, 2=poste, 3=base, 4=hsup, 5=prime
 
     while (!WindowShouldClose()) {
@@ -302,7 +311,98 @@ int main(void) {
                 employe_selectionne = -1;
                 ecran_actuel = ECRAN_LISTE;
             }
+            if (GuiButton((Rectangle){385, 520, 150, 35}, "Modifier")) {
+                 // Pré-remplir les champs avec les données actuelles
+                 strcpy(mod_nom,    employes[employe_selectionne].nom);
+                 strcpy(mod_prenom, employes[employe_selectionne].prenom);
+                 strcpy(mod_poste,  employes[employe_selectionne].poste);
+                 sprintf(mod_base,  "%.2f", employes[employe_selectionne].salaire_base);
+                 sprintf(mod_hsup,  "%.2f", employes[employe_selectionne].heures_sup);
+                 sprintf(mod_prime, "%.2f", employes[employe_selectionne].prime);
+                 champ_mod = -1;
+                 ecran_actuel = ECRAN_MODIFICATION;
+          }
         }
+        // ══════════════════════════════════════
+        // ÉCRAN MODIFICATION
+        // ══════════════════════════════════════
+        if (ecran_actuel == ECRAN_MODIFICATION && employe_selectionne >= 0) {
+
+           // ─── Header ───────────────────────
+           DrawText("EasySalaire", 20, 15, 30, DARKBLUE);
+           DrawLine(20, 52, 780, 52, LIGHTGRAY);
+           DrawText("Modifier un employe", 20, 62, 16, GRAY);
+
+           // ─── Rectangles ───────────────────
+           Rectangle rm_nom    = {220, 100, 300, 32};
+           Rectangle rm_prenom = {220, 145, 300, 32};
+           Rectangle rm_poste  = {220, 190, 300, 32};
+           Rectangle rm_base   = {220, 235, 300, 32};
+           Rectangle rm_hsup   = {220, 280, 300, 32};
+           Rectangle rm_prime  = {220, 325, 300, 32};
+
+    // ─── Navigation souris ────────────
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        Vector2 souris = GetMousePosition();
+        if      (CheckCollisionPointRec(souris, rm_nom))    champ_mod = 0;
+        else if (CheckCollisionPointRec(souris, rm_prenom)) champ_mod = 1;
+        else if (CheckCollisionPointRec(souris, rm_poste))  champ_mod = 2;
+        else if (CheckCollisionPointRec(souris, rm_base))   champ_mod = 3;
+        else if (CheckCollisionPointRec(souris, rm_hsup))   champ_mod = 4;
+        else if (CheckCollisionPointRec(souris, rm_prime))  champ_mod = 5;
+        else champ_mod = -1;
+    }
+
+    // ─── Navigation clavier ───────────
+    if (IsKeyPressed(KEY_TAB)) {
+        if (IsKeyDown(KEY_LEFT_SHIFT))
+            champ_mod = (champ_mod - 1 + 6) % 6;
+        else
+            champ_mod = (champ_mod + 1) % 6;
+    }
+    if (IsKeyPressed(KEY_DOWN))
+        champ_mod = (champ_mod + 1) % 6;
+    if (IsKeyPressed(KEY_UP))
+        champ_mod = (champ_mod - 1 + 6) % 6;
+
+    // ─── Labels ───────────────────────
+    DrawText("Nom :",          20, 108, 16, DARKGRAY);
+    DrawText("Prenom :",       20, 153, 16, DARKGRAY);
+    DrawText("Poste :",        20, 198, 16, DARKGRAY);
+    DrawText("Salaire base :", 20, 243, 16, DARKGRAY);
+    DrawText("Heures sup :",   20, 288, 16, DARKGRAY);
+    DrawText("Prime :",        20, 333, 16, DARKGRAY);
+
+    // ─── Champs pré-remplis ───────────
+    GuiTextBox(rm_nom,    mod_nom,    50, champ_mod == 0);
+    GuiTextBox(rm_prenom, mod_prenom, 50, champ_mod == 1);
+    GuiTextBox(rm_poste,  mod_poste,  50, champ_mod == 2);
+    GuiTextBox(rm_base,   mod_base,   20, champ_mod == 3);
+    GuiTextBox(rm_hsup,   mod_hsup,   20, champ_mod == 4);
+    GuiTextBox(rm_prime,  mod_prime,  20, champ_mod == 5);
+
+    // ─── Bouton Sauvegarder ───────────
+    if (GuiButton((Rectangle){220, 385, 150, 35}, "Sauvegarder")) {
+        if (strlen(mod_nom) > 0 && strlen(mod_base) > 0) {
+            strcpy(employes[employe_selectionne].nom,    mod_nom);
+            strcpy(employes[employe_selectionne].prenom, mod_prenom);
+            strcpy(employes[employe_selectionne].poste,  mod_poste);
+            employes[employe_selectionne].salaire_base = atof(mod_base);
+            employes[employe_selectionne].heures_sup   = atof(mod_hsup);
+            employes[employe_selectionne].prime        = atof(mod_prime);
+
+            // Recalcul automatique
+            calculNet(&employes[employe_selectionne]);
+
+            ecran_actuel = ECRAN_FICHE;
+        }
+    }
+
+    // ─── Bouton Annuler ───────────────
+    if (GuiButton((Rectangle){385, 385, 150, 35}, "Annuler")) {
+        ecran_actuel = ECRAN_FICHE;
+    }
+}
 
         EndDrawing();
     }
