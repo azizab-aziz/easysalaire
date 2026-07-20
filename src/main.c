@@ -8,7 +8,7 @@
 
 // ─── Colors ───────────────────────────────────
 // ─── Colors ───────────────────────────────────
-static Color COL_BG      = {244, 246, 249, 255};
+static Color COL_BG = {215, 225, 240, 255};
 static Color COL_HEADER  = {26,  43,  74,  255};
 static Color COL_ACCENT  = {37,  99,  235, 255};
 static Color COL_TEXT    = {30,  41,  59,  255};
@@ -29,6 +29,9 @@ typedef enum {
 int main(void) {
 
     InitWindow(900, 650, "EasySalaire");
+    Font font = LoadFontEx("C:/Windows/Fonts/segoeui.ttf", 20, 0, 0);
+    SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR);
+    GuiSetFont(font);
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetWindowMinSize(700, 500);
     SetTargetFPS(60);
@@ -73,8 +76,8 @@ int main(void) {
                      24, 75, 18, COL_MUTED);
 
             // ─── Card ─────────────────────────
-            int card_w = 520;
-            int card_h = 460;
+            int card_w = W * 0.45f;
+            int card_h = H * 0.75f;
             int card_x = (W - card_w) / 2;
             int card_y = (H - card_h) / 2;
 
@@ -430,8 +433,8 @@ int main(void) {
 
             DrawText("Modifier un employe", 24, 75, 18, COL_MUTED);
 
-            int card_w = 520;
-            int card_h = 460;
+            int card_w = W * 0.45f;
+            int card_h = H * 0.75f;
             int card_x = (W - card_w) / 2;
             int card_y = (H - card_h) / 2;
 
@@ -536,6 +539,7 @@ int main(void) {
 
         EndDrawing();
     }
+    UnloadFont(font);
 
     CloseWindow();
     return 0;
