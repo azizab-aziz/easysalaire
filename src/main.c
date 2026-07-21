@@ -76,7 +76,7 @@ int main(void) {
                      24, 75, 18, COL_MUTED);
 
             // ─── Card ─────────────────────────
-            int card_w = W * 0.45f;
+            int card_w = 480;
             int card_h = H * 0.75f;
             int card_x = (W - card_w) / 2;
             int card_y = (H - card_h) / 2;
@@ -91,7 +91,7 @@ int main(void) {
             // ─── Fields ───────────────────────
             int lx  = card_x + 30;
             int fx  = card_x + 180;
-            int fw  = 290;
+            int fw  = card_w - 290;
             int fh  = 36;
             int fy  = card_y + 30;
             int gap = 62;
@@ -433,7 +433,7 @@ int main(void) {
 
             DrawText("Modifier un employe", 24, 75, 18, COL_MUTED);
 
-            int card_w = W * 0.45f;
+            int card_w = 480;
             int card_h = H * 0.75f;
             int card_x = (W - card_w) / 2;
             int card_y = (H - card_h) / 2;
@@ -447,10 +447,10 @@ int main(void) {
 
             int lx  = card_x + 30;
             int fx  = card_x + 180;
-            int fw  = 290;
+            int fw  = card_w - 220;
             int fh  = 36;
             int fy  = card_y + 30;
-            int gap = 62;
+            int gap = (card_h - 100) / 62;
 
             Rectangle rm_nom    = {fx, fy + gap*0, fw, fh};
             Rectangle rm_prenom = {fx, fy + gap*1, fw, fh};
