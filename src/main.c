@@ -125,17 +125,44 @@ int main(void) {
                 else champ_actif = -1;
             }
 
-            // Keyboard
+
+            // ─── Keyboard navigation ──────────────────
             if (IsKeyPressed(KEY_TAB)) {
                 if (IsKeyDown(KEY_LEFT_SHIFT))
-                    champ_actif = (champ_actif - 1 + 6) % 6;
+                  champ_actif = (champ_actif - 1 + 6) % 6;
                 else
-                    champ_actif = (champ_actif + 1) % 6;
-            }
-            if (IsKeyPressed(KEY_DOWN))  champ_actif = (champ_actif + 1) % 6;
-            if (IsKeyPressed(KEY_UP))    champ_actif = (champ_actif - 1 + 6) % 6;
-            if (IsKeyPressed(KEY_ENTER)) champ_actif = (champ_actif + 1) % 6;
+                  champ_actif = (champ_actif + 1) % 6;
+           }
+if (IsKeyPressed(KEY_DOWN))
+    champ_actif = (champ_actif + 1) % 6;
+if (IsKeyPressed(KEY_UP))
+    champ_actif = (champ_actif - 1 + 6) % 6;
 
+if (IsKeyPressed(KEY_ENTER)) {
+    // Check if all fields are filled
+    if (strlen(nom)    > 0 &&
+        strlen(prenom) > 0 &&
+        strlen(poste)  > 0 &&
+        strlen(base)   > 0 &&
+        strlen(hsup)   > 0 &&
+        strlen(prime)  > 0) {
+        // All filled → same as clicking Ajouter
+        Employe e;
+        strcpy(e.nom,    nom);
+        strcpy(e.prenom, prenom);
+        strcpy(e.poste,  poste);
+        e.salaire_base = atof(base);
+        e.heures_sup   = atof(hsup);
+        e.prime        = atof(prime);
+        ajouterEmploye(employes, &nb_employes, e);
+        nom[0] = prenom[0] = poste[0] = '\0';
+        base[0] = hsup[0] = prime[0] = '\0';
+        champ_actif = 0; // back to first field
+    } else {
+        // Not all filled → go to next field
+        champ_actif = (champ_actif + 1) % 6;
+    }
+}
             // Labels
             const char *labels[] = {
                 "Nom :", "Prenom :", "Poste :",
