@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 // ─── Colors ───────────────────────────────────
 // ─── Colors ───────────────────────────────────
@@ -291,10 +292,26 @@ if (IsKeyPressed(KEY_ENTER)) {
             int count = 0;
             for (int i = 0; i < nb_employes; i++) {
 
-                if (strlen(recherche) > 0 &&
-                    strstr(employes[i].nom,    recherche) == NULL &&
-                    strstr(employes[i].prenom, recherche) == NULL)
-                    continue;
+                   if (strlen(recherche) > 0) {
+                       char r_lower[50], nom_lower[50], prenom_lower[50];
+
+                       // Copy and convert to lowercase
+                       for (int j = 0; recherche[j]; j++)
+                          r_lower[j] = tolower(recherche[j]);
+                       r_lower[strlen(recherche)] = '\0';
+
+                       for (int j = 0; employes[i].nom[j]; j++)
+                          nom_lower[j] = tolower(employes[i].nom[j]);
+                       nom_lower[strlen(employes[i].nom)] = '\0';
+
+                       for (int j = 0; employes[i].prenom[j]; j++)
+                          prenom_lower[j] = tolower(employes[i].prenom[j]);
+                        prenom_lower[strlen(employes[i].prenom)] = '\0';
+
+                       if (strstr(nom_lower,    r_lower) == NULL &&
+                          strstr(prenom_lower, r_lower) == NULL)
+                          continue;
+}
 
                 int ry = table_y + 36 + count * row_h;
                 Color bg = (count % 2 == 0) ? COL_CARD : COL_ROW_ALT;
