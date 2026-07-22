@@ -29,12 +29,23 @@ typedef enum {
 int main(void) {
 
     InitWindow(900, 650, "EasySalaire");
-    Font font = LoadFontEx("C:/Windows/Fonts/segoeui.ttf", 20, 0, 0);
-    SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR);
-    GuiSetFont(font);
+    InitWindow(900, 650, "EasySalaire");
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetWindowMinSize(700, 500);
     SetTargetFPS(60);
+
+   // ─── Load font ────────────────────────────
+   Font font = LoadFontEx("C:/Windows/Fonts/segoeui.ttf", 24, 0, 256);
+   SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR);
+   GuiSetFont(font);
+   GuiSetStyle(DEFAULT, TEXT_SIZE, 16);
+
+   // ─── Icon ─────────────────────────────────
+   Image icon = LoadImage("easysalaire.ico.png");
+   SetWindowIcon(icon);
+   UnloadImage(icon);
+
+
 
     Employe employes[MAX_EMPLOYES];
     int nb_employes        = 0;
@@ -64,7 +75,7 @@ int main(void) {
         // HEADER BAR (all screens)
         // ══════════════════════════════════════
         DrawRectangle(0, 0, W, 58, COL_HEADER);
-        DrawText("EasySalaire", 24, 14, 28, WHITE);
+        DrawTextEx(font,"EasySalaire", (Vector2){24, 14}, 28,1, WHITE);
 
         // ══════════════════════════════════════
         // ÉCRAN FORMULAIRE
@@ -72,8 +83,8 @@ int main(void) {
         if (ecran_actuel == ECRAN_FORMULAIRE) {
 
             // Subtitle
-            DrawText("Ajouter un employe",
-                     24, 75, 18, COL_MUTED);
+            DrawTextEx(font,"Ajouter un employe",
+                     (Vector2){24, 75}, 18,1, COL_MUTED);
 
             // ─── Card ─────────────────────────
             int card_w = 480;
@@ -132,8 +143,7 @@ int main(void) {
                 "Salaire base :", "Heures sup :", "Prime :"
             };
             for (int i = 0; i < 6; i++)
-                DrawText(labels[i], lx, fy + gap*i + 10,
-                         16, COL_TEXT);
+                DrawTextEx(font, labels[i], (Vector2){lx, fy + gap*i + 10}, 16, 1, COL_TEXT);
 
             // Active field highlight
             Rectangle rects[] = {
@@ -192,7 +202,7 @@ int main(void) {
             // Counter
             char msg[50];
             sprintf(msg, "Employes enregistres : %d", nb_employes);
-            DrawText(msg, 24, H - 28, 13, COL_MUTED);
+            DrawTextEx(font,msg,(Vector2){ 24, H - 28}, 13,1, COL_MUTED);
         }
 
         // ══════════════════════════════════════
@@ -201,7 +211,7 @@ int main(void) {
         if (ecran_actuel == ECRAN_LISTE) {
 
             // Subtitle
-            DrawText("Liste des employes", 24, 75, 18, COL_MUTED);
+            DrawTextEx(font,"Liste des employes", (Vector2) {24, 75}, 18,1, COL_MUTED);
 
             // Ajouter button in header
             DrawRectangleRounded(
@@ -214,7 +224,7 @@ int main(void) {
 
             // ─── Search bar ───────────────────
             int sb_y = 105;
-            DrawText("Recherche :", 24, sb_y + 8, 15, COL_TEXT);
+            DrawTextEx(font,"Recherche :", (Vector2){24, sb_y + 8}, 15,1, COL_TEXT);
             Rectangle r_rech = {140, sb_y, 250, 34};
             DrawRectangleRec(r_rech, COL_CARD);
             DrawRectangleLinesEx(r_rech,
@@ -245,11 +255,11 @@ int main(void) {
             float c4 = 20  + (W-40)*0.62f;
             float c5 = 20  + (W-40)*0.80f;
 
-            DrawText("Nom",         c1, table_y + 10, 14, WHITE);
-            DrawText("Prenom",      c2, table_y + 10, 14, WHITE);
-            DrawText("Poste",       c3, table_y + 10, 14, WHITE);
-            DrawText("Salaire net", c4, table_y + 10, 14, WHITE);
-            DrawText("Action",      c5, table_y + 10, 14, WHITE);
+           DrawTextEx(font, "Nom",         (Vector2){c1, table_y + 10}, 14, 1, WHITE);
+           DrawTextEx(font, "Prenom",      (Vector2){c2, table_y + 10}, 14, 1, WHITE);
+           DrawTextEx(font, "Poste",       (Vector2){c3, table_y + 10}, 14, 1, WHITE);
+           DrawTextEx(font, "Salaire net", (Vector2){c4, table_y + 10}, 14, 1, WHITE);
+           DrawTextEx(font, "Action",      (Vector2){c5, table_y + 10}, 14, 1, WHITE);
 
             // Rows
             int count = 0;
@@ -265,13 +275,13 @@ int main(void) {
                 DrawRectangle(20, ry, W - 40, row_h, bg);
                 DrawRectangle(20, ry + row_h - 1, W - 40, 1, COL_BORDER);
 
-                DrawText(employes[i].nom,    c1, ry+15, 15, COL_TEXT);
-                DrawText(employes[i].prenom, c2, ry+15, 15, COL_TEXT);
-                DrawText(employes[i].poste,  c3, ry+15, 15, COL_TEXT);
+                DrawTextEx(font, employes[i].nom,    (Vector2){c1, ry+15}, 15, 1, COL_TEXT);
+                DrawTextEx(font, employes[i].prenom, (Vector2){c2, ry+15}, 15, 1, COL_TEXT);
+                DrawTextEx(font, employes[i].poste,  (Vector2){c3, ry+15}, 15, 1, COL_TEXT);
 
                 char net[30];
                 sprintf(net, "%.2f TND", employes[i].salaire_net);
-                DrawText(net, c4, ry+15, 15, COL_SUCCESS);
+                DrawTextEx(font, net, (Vector2){c4, ry+15}, 15, 1, COL_SUCCESS);
 
                 DrawRectangleRounded(
                     (Rectangle){c5, ry+8, 110, 28},
@@ -285,11 +295,10 @@ int main(void) {
             }
 
             if (nb_employes == 0)
-                DrawText("Aucun employe enregistre.",
-                         W/2 - 130, H/2, 16, COL_MUTED);
+                DrawTextEx(font,"Aucun employe enregistre.",
+                         (Vector2){W/2 - 130, H/2}, 16,1, COL_MUTED);
             else if (count == 0)
-                DrawText("Aucun resultat trouve.",
-                         W/2 - 110, H/2, 16, COL_MUTED);
+                DrawTextEx(font,"Aucun resultat trouve.", (Vector2){W/2 - 110, H/2}, 16,1, COL_MUTED);
 
             // Footer
             DrawRectangle(0, H - 36, W, 36, COL_CARD);
@@ -297,7 +306,7 @@ int main(void) {
             char total[60];
             sprintf(total, "Total : %d employe(s)   Affiches : %d",
                     nb_employes, count);
-            DrawText(total, 24, H - 24, 13, COL_MUTED);
+            DrawTextEx(font, total, (Vector2){24, H - 24}, 13, 1, COL_MUTED);
         }
 
         // ══════════════════════════════════════
@@ -308,7 +317,7 @@ int main(void) {
             Employe *e   = &employes[employe_selectionne];
             float brut   = calculBrut(e);
 
-            DrawText("Fiche de paie", 24, 75, 18, COL_MUTED);
+            DrawTextEx(font,"Fiche de paie", (Vector2){ 24, 75}, 18,1, COL_MUTED);
 
             int cx    = W / 2;
             int card_w = 520;
@@ -322,13 +331,13 @@ int main(void) {
            DrawRectangleLinesEx(
     (Rectangle){card_x, cy, card_w, 100},
     1.5f, COL_BORDER);
-            DrawText("Informations",  card_x + 20, cy + 12, 13, COL_ACCENT);
-            DrawText("Nom :",         card_x + 20, cy + 34, 15, COL_MUTED);
-            DrawText(e->nom,          card_x + 120, cy + 34, 15, COL_TEXT);
-            DrawText("Prenom :",      card_x + 20, cy + 56, 15, COL_MUTED);
-            DrawText(e->prenom,       card_x + 120, cy + 56, 15, COL_TEXT);
-            DrawText("Poste :",       card_x + 20, cy + 78, 15, COL_MUTED);
-            DrawText(e->poste,        card_x + 120, cy + 78, 15, COL_TEXT);
+            DrawTextEx(font, "Informations",  (Vector2){card_x + 20, cy + 12}, 13, 1, COL_ACCENT);
+            DrawTextEx(font, "Nom :",         (Vector2){card_x + 20, cy + 34}, 15, 1, COL_MUTED);
+            DrawTextEx(font, e->nom,          (Vector2){card_x + 120, cy + 34}, 15, 1, COL_TEXT);
+            DrawTextEx(font, "Prenom :",      (Vector2){card_x + 20, cy + 56}, 15, 1, COL_MUTED);
+            DrawTextEx(font, e->prenom,       (Vector2){card_x + 120, cy + 56}, 15, 1, COL_TEXT);
+            DrawTextEx(font, "Poste :",       (Vector2){card_x + 20, cy + 78}, 15, 1, COL_MUTED);
+            DrawTextEx(font, e->poste,        (Vector2){card_x + 120, cy + 78}, 15, 1, COL_TEXT);
 
             // Salary card
             int sc_y = cy + 115;
@@ -339,39 +348,37 @@ int main(void) {
     (Rectangle){card_x, sc_y, card_w, 210},
     1.5f, COL_BORDER);
 
-            DrawText("Calcul du salaire",
-                     card_x + 20, sc_y + 12, 13, COL_ACCENT);
+            DrawTextEx(font,"Calcul du salaire", (Vector2){card_x + 20, sc_y + 12}, 13,1, COL_ACCENT);
 
             char txt[60];
             int lx = card_x + 20;
             int vx = card_x + 320;
 
-            sprintf(txt, "%.2f TND", e->salaire_base);
-            DrawText("Salaire base :", lx, sc_y + 40, 15, COL_MUTED);
-            DrawText(txt,              vx, sc_y + 40, 15, COL_TEXT);
+           sprintf(txt, "%.2f TND", e->salaire_base);
+           DrawTextEx(font, "Salaire base :", (Vector2){lx, sc_y + 40}, 15, 1, COL_MUTED);
+           DrawTextEx(font, txt,              (Vector2){vx, sc_y + 40}, 15, 1, COL_TEXT);
 
-            sprintf(txt, "+ %.2f TND", e->heures_sup * 1.5f);
-            DrawText("Heures sup :",   lx, sc_y + 68, 15, COL_MUTED);
-            DrawText(txt,              vx, sc_y + 68, 15, COL_SUCCESS);
+           sprintf(txt, "+ %.2f TND", e->heures_sup * 1.5f);
+           DrawTextEx(font, "Heures sup :",   (Vector2){lx, sc_y + 68}, 15, 1, COL_MUTED);
+           DrawTextEx(font, txt,              (Vector2){vx, sc_y + 68}, 15, 1, COL_SUCCESS);
 
-            sprintf(txt, "+ %.2f TND", e->prime);
-            DrawText("Prime :",        lx, sc_y + 96, 15, COL_MUTED);
-            DrawText(txt,              vx, sc_y + 96, 15, COL_SUCCESS);
+           sprintf(txt, "+ %.2f TND", e->prime);
+           DrawTextEx(font, "Prime :",        (Vector2){lx, sc_y + 96}, 15, 1, COL_MUTED);
+           DrawTextEx(font, txt,              (Vector2){vx, sc_y + 96}, 15, 1, COL_SUCCESS);
 
-            DrawRectangle(card_x + 20, sc_y + 122,
-                          card_w - 40, 1, COL_BORDER);
+           DrawRectangle(card_x + 20, sc_y + 122, card_w - 40, 1, COL_BORDER);
 
-            sprintf(txt, "%.2f TND", brut);
-            DrawText("Salaire brut :", lx, sc_y + 132, 16, COL_TEXT);
-            DrawText(txt,              vx, sc_y + 132, 16, COL_TEXT);
+           sprintf(txt, "%.2f TND", brut);
+           DrawTextEx(font, "Salaire brut :", (Vector2){lx, sc_y + 132}, 16, 1, COL_TEXT);
+           DrawTextEx(font, txt,              (Vector2){vx, sc_y + 132}, 16, 1, COL_TEXT);
 
-            sprintf(txt, "- %.2f TND", e->cnss);
-            DrawText("CNSS (9.18%) :", lx, sc_y + 160, 15, COL_MUTED);
-            DrawText(txt,              vx, sc_y + 160, 15, COL_DANGER);
+           sprintf(txt, "- %.2f TND", e->cnss);
+           DrawTextEx(font, "CNSS (9.18%) :", (Vector2){lx, sc_y + 160}, 15, 1, COL_MUTED);
+           DrawTextEx(font, txt,              (Vector2){vx, sc_y + 160}, 15, 1, COL_DANGER);
 
-            sprintf(txt, "- %.2f TND", e->ir);
-            DrawText("IR :",           lx, sc_y + 186, 15, COL_MUTED);
-            DrawText(txt,              vx, sc_y + 186, 15, COL_DANGER);
+           sprintf(txt, "- %.2f TND", e->ir);
+           DrawTextEx(font, "IR :",           (Vector2){lx, sc_y + 186}, 15, 1, COL_MUTED);
+           DrawTextEx(font, txt,              (Vector2){vx, sc_y + 186}, 15, 1, COL_DANGER);
 
             // Net card
             int net_y = sc_y + 225;
@@ -382,8 +389,8 @@ int main(void) {
     (Rectangle){card_x, net_y, card_w, 54},
     1.5f, (Color){134, 239, 172, 255});
             sprintf(txt, "%.2f TND", e->salaire_net);
-            DrawText("SALAIRE NET :", lx, net_y + 17, 18, COL_TEXT);
-            DrawText(txt, vx, net_y + 17, 20, COL_SUCCESS);
+            DrawTextEx(font,"SALAIRE NET :",  (Vector2){ lx, net_y + 17}, 18,1, COL_TEXT);
+            DrawTextEx(font, txt, (Vector2){vx, net_y + 17}, 20, 1, COL_SUCCESS);
 
             // Buttons
             int btn_y = net_y + 70;
@@ -431,10 +438,10 @@ int main(void) {
         // ══════════════════════════════════════
         if (ecran_actuel == ECRAN_MODIFICATION && employe_selectionne >= 0) {
 
-            DrawText("Modifier un employe", 24, 75, 18, COL_MUTED);
+            DrawTextEx(font,"Modifier un employe", (Vector2){ 24, 75}, 18,1, COL_MUTED);
 
-            int card_w = 480;
-            int card_h = H * 0.75f;
+            int card_w = 500;
+            int card_h = 480;
             int card_x = (W - card_w) / 2;
             int card_y = (H - card_h) / 2;
 
@@ -446,11 +453,12 @@ int main(void) {
     1.5f, COL_BORDER);
 
             int lx  = card_x + 30;
-            int fx  = card_x + 180;
-            int fw  = card_w - 220;
+            int fx  = card_x + 190;
+            int fw  = 270;
             int fh  = 36;
-            int fy  = card_y + 30;
-            int gap = (card_h - 100) / 62;
+            int fy  = card_y + 35;
+            int gap = 62;
+
 
             Rectangle rm_nom    = {fx, fy + gap*0, fw, fh};
             Rectangle rm_prenom = {fx, fy + gap*1, fw, fh};
@@ -486,8 +494,7 @@ int main(void) {
                 "Salaire base :", "Heures sup :", "Prime :"
             };
             for (int i = 0; i < 6; i++)
-                DrawText(labels[i], lx, fy + gap*i + 10,
-                         16, COL_TEXT);
+                DrawTextEx(font, labels[i], (Vector2){lx, fy + gap*i + 10}, 16, 1, COL_TEXT);
 
             Rectangle rects[] = {
                 rm_nom, rm_prenom, rm_poste,
