@@ -12,9 +12,9 @@ A lightweight employee management desktop application built in C, using [raylib]
 
 
 
-![Form screen](assets/screenshots/form.png)
-![Form screen](assets/screenshots/form1.png)
-![Employee list](assets/screenshots/list.png)
+![Form screen](assets/screenshots/form2.png)
+![Form screen](assets/screenshots/form21.png)
+![Employee list](assets/screenshots/list2.png)
 
 
 ## Features
