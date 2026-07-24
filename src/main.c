@@ -87,8 +87,8 @@ int main(void) {
                      (Vector2){24, 75}, 18,1, COL_MUTED);
 
             // ─── Card ─────────────────────────
-            int card_w = 480;
-            int card_h = H * 0.75f;
+            int card_w = 560;
+            int card_h = H * 0.85f;
             int card_x = (W - card_w) / 2;
             int card_y = (H - card_h) / 2;
 
@@ -102,10 +102,10 @@ int main(void) {
             // ─── Fields ───────────────────────
             int lx  = card_x + 30;
             int fx  = card_x + 180;
-            int fw  = card_w - 290;
+            int fw  = card_w - 230;
             int fh  = 36;
             int fy  = card_y + 30;
-            int gap = 62;
+            int gap = 72;
 
             Rectangle r_nom    = {fx, fy + gap*0, fw, fh};
             Rectangle r_prenom = {fx, fy + gap*1, fw, fh};
