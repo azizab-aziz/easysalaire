@@ -90,7 +90,7 @@ int main(void) {
             int card_w = 560;
             int card_h = H * 0.85f;
             int card_x = (W - card_w) / 2;
-            int card_y = (H - card_h) / 2;
+            int card_y = 70+ (H - card_h - 70 ) / 2;
 
             DrawRectangleRounded(
                 (Rectangle){card_x, card_y, card_w, card_h},
