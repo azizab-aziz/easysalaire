@@ -363,9 +363,9 @@ if (IsKeyPressed(KEY_ENTER)) {
             DrawTextEx(font,"Fiche de paie", (Vector2){ 24, 75}, 18,1, COL_MUTED);
 
             int cx    = W / 2;
-            int card_w = 520;
+            int card_w = 650;
             int card_x = cx - card_w / 2;
-            int cy    = 110;
+            int cy    = 80;
 
             // Info card
             DrawRectangleRounded(
@@ -383,7 +383,7 @@ if (IsKeyPressed(KEY_ENTER)) {
             DrawTextEx(font, e->poste,        (Vector2){card_x + 120, cy + 78}, 15, 1, COL_TEXT);
 
             // Salary card
-            int sc_y = cy + 115;
+            int sc_y = cy + 120;
             DrawRectangleRounded(
                 (Rectangle){card_x, sc_y, card_w, 210},
                 0.04f, 8, COL_CARD);
@@ -395,7 +395,7 @@ if (IsKeyPressed(KEY_ENTER)) {
 
             char txt[60];
             int lx = card_x + 20;
-            int vx = card_x + 320;
+            int vx = card_x + 400;
 
            sprintf(txt, "%.2f TND", e->salaire_base);
            DrawTextEx(font, "Salaire base :", (Vector2){lx, sc_y + 40}, 15, 1, COL_MUTED);
