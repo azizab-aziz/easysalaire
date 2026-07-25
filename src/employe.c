@@ -100,3 +100,27 @@ void sauvegarderFiche(Employe *e) {
 
     fclose(f);
 }
+
+void sauvegarderCSV(Employe tab[], int nb) {
+    FILE *f = fopen("employes.csv", "w");
+    if (f == NULL) return;
+
+    // Header
+    fprintf(f, "Nom,Prenom,Poste,Salaire Base,Heures Sup,Prime,CNSS,IR,Salaire Net\n");
+
+    // Data
+    for (int i = 0; i < nb; i++) {
+        fprintf(f, "%s,%s,%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
+            tab[i].nom,
+            tab[i].prenom,
+            tab[i].poste,
+            tab[i].salaire_base,
+            tab[i].heures_sup,
+            tab[i].prime,
+            tab[i].cnss,
+            tab[i].ir,
+            tab[i].salaire_net);
+    }
+
+    fclose(f);
+}

@@ -33,4 +33,7 @@ void supprimerEmploye(Employe tab[], int *nb, int index);
 
 void sauvegarderFiche(Employe *e);
 
+void sauvegarderFiche(Employe *e);
+void sauvegarderCSV(Employe tab[], int nb);
+
 #endif
