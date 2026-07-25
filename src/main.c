@@ -465,13 +465,38 @@ if (IsKeyPressed(KEY_ENTER)) {
                 ecran_actuel = ECRAN_MODIFICATION;
             }
 
-            DrawRectangleRounded(
+
+                             DrawRectangleRounded(
     (Rectangle){card_x + 320, btn_y, btn_w, btn_h},
     0.3f, 8, (Color){22, 163, 74, 255});
 if (GuiButton((Rectangle){card_x + 320, btn_y, btn_w, btn_h},
               "Sauvegarder")) {
     popup_save = 1;
 }
+
+
+
+
+
+DrawRectangleRounded(
+    (Rectangle){card_x + 480, btn_y, btn_w, btn_h},
+    0.3f, 8, COL_DANGER);
+if (GuiButton((Rectangle){card_x + 480, btn_y, btn_w, btn_h},
+              "Supprimer")) {
+
+
+                supprimerEmploye(employes, &nb_employes,
+                                 employe_selectionne);
+                employe_selectionne = -1;
+                ecran_actuel = ECRAN_LISTE;
+            }
+
+        }
+
+
+
+
+
 
 // ─── Popup choix format ───────────────────
 if (popup_save == 1) {
@@ -505,7 +530,7 @@ if (popup_save == 1) {
         0.3f, 8, COL_ACCENT);
     if (GuiButton((Rectangle){px + 20, py + 90, 120, 38},
                   "Fiche .txt")) {
-        sauvegarderFiche(e);
+        sauvegarderFiche(&employes[employe_selectionne]);
         popup_save = 0;
     }
 
@@ -529,19 +554,8 @@ if (popup_save == 1) {
     }
 }
 
-DrawRectangleRounded(
-    (Rectangle){card_x + 480, btn_y, btn_w, btn_h},
-    0.3f, 8, COL_DANGER);
-if (GuiButton((Rectangle){card_x + 480, btn_y, btn_w, btn_h},
-              "Supprimer")) {
 
 
-                supprimerEmploye(employes, &nb_employes,
-                                 employe_selectionne);
-                employe_selectionne = -1;
-                ecran_actuel = ECRAN_LISTE;
-            }
-        }
 
         // ══════════════════════════════════════
         // ÉCRAN MODIFICATION
