@@ -31,4 +31,6 @@ float calculNet(Employe *e);
 void ajouterEmploye(Employe tab[], int *nb, Employe e);
 void supprimerEmploye(Employe tab[], int *nb, int index);
 
+void sauvegarderFiche(Employe *e);
+
 #endif

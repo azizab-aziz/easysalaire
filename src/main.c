@@ -465,10 +465,20 @@ if (IsKeyPressed(KEY_ENTER)) {
             }
 
             DrawRectangleRounded(
-                (Rectangle){card_x + 320, btn_y, btn_w, btn_h},
-                0.3f, 8, COL_DANGER);
-            if (GuiButton((Rectangle){card_x + 320, btn_y, btn_w, btn_h},
-                          "Supprimer")) {
+    (Rectangle){card_x + 320, btn_y, btn_w, btn_h},
+    0.3f, 8, (Color){22, 163, 74, 255});
+if (GuiButton((Rectangle){card_x + 320, btn_y, btn_w, btn_h},
+              "Sauvegarder")) {
+    sauvegarderFiche(e);
+}
+
+DrawRectangleRounded(
+    (Rectangle){card_x + 480, btn_y, btn_w, btn_h},
+    0.3f, 8, COL_DANGER);
+if (GuiButton((Rectangle){card_x + 480, btn_y, btn_w, btn_h},
+              "Supprimer")) {
+
+
                 supprimerEmploye(employes, &nb_employes,
                                  employe_selectionne);
                 employe_selectionne = -1;

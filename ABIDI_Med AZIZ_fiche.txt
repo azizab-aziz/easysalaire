@@ -1,0 +1,25 @@
+========================================
+         FICHE DE PAIE - EasySalaire   
+========================================
+
+INFORMATIONS PERSONNELLES
+-------------------------
+Nom          : ABIDI
+Prenom       : Med AZIZ
+Poste        : CHEF PROJET 
+
+CALCUL DU SALAIRE
+-------------------------
+Salaire base : 3500.00 TND
+Heures sup   : + 18.00 TND
+Prime        : + 560.00 TND
+Salaire brut : 4078.00 TND
+
+RETENUES
+-------------------------
+CNSS (9.18%) : - 374.36 TND
+IR            : - 1073.13 TND
+
+========================================
+SALAIRE NET  : 2630.51 TND
+========================================

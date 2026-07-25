@@ -1,4 +1,5 @@
 #include "employe.h"
+#include <stdio.h>
 
 // ─── Calcul salaire brut ──────────────────────
 float calculBrut(Employe *e) {
@@ -61,4 +62,41 @@ void supprimerEmploye(Employe tab[], int *nb, int index) {
         tab[i] = tab[i + 1];
     }
     (*nb)--;
+}
+void sauvegarderFiche(Employe *e) {
+    char filename[100];
+    sprintf(filename, "%s_%s_fiche.txt", e->nom, e->prenom);
+
+    FILE *f = fopen(filename, "w");
+    if (f == NULL) return;
+
+    float brut = calculBrut(e);
+
+    fprintf(f, "========================================\n");
+    fprintf(f, "         FICHE DE PAIE - EasySalaire   \n");
+    fprintf(f, "========================================\n\n");
+
+    fprintf(f, "INFORMATIONS PERSONNELLES\n");
+    fprintf(f, "-------------------------\n");
+    fprintf(f, "Nom          : %s\n", e->nom);
+    fprintf(f, "Prenom       : %s\n", e->prenom);
+    fprintf(f, "Poste        : %s\n", e->poste);
+
+    fprintf(f, "\nCALCUL DU SALAIRE\n");
+    fprintf(f, "-------------------------\n");
+    fprintf(f, "Salaire base : %.2f TND\n", e->salaire_base);
+    fprintf(f, "Heures sup   : + %.2f TND\n", e->heures_sup * 1.5f);
+    fprintf(f, "Prime        : + %.2f TND\n", e->prime);
+    fprintf(f, "Salaire brut : %.2f TND\n", brut);
+
+    fprintf(f, "\nRETENUES\n");
+    fprintf(f, "-------------------------\n");
+    fprintf(f, "CNSS (9.18%%) : - %.2f TND\n", e->cnss);
+    fprintf(f, "IR            : - %.2f TND\n", e->ir);
+
+    fprintf(f, "\n========================================\n");
+    fprintf(f, "SALAIRE NET  : %.2f TND\n", e->salaire_net);
+    fprintf(f, "========================================\n");
+
+    fclose(f);
 }
