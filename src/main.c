@@ -56,7 +56,8 @@ int main(void) {
     int  champ_recherche = 0;
     int  champ_actif     = -1;
     int  champ_mod       = -1;
-    int popup_save = 0;  // 0=off, 1=show popup
+    int popup_save = 0; // 0=off, 1=show popup
+    int save_index = -1;
 
     char nom[50]   = "", prenom[50] = "", poste[50] = "";
     char base[20]  = "", hsup[20]   = "", prime[20] = "";
@@ -248,6 +249,7 @@ if (IsKeyPressed(KEY_ENTER)) {
             if (GuiButton((Rectangle){W - 160, 10, 135, 38},
                           "Ajouter")) {
                 ecran_actuel = ECRAN_FORMULAIRE;
+                employe_selectionne = -1;
             }
 
             // ─── Search bar ───────────────────
@@ -356,7 +358,7 @@ if (IsKeyPressed(KEY_ENTER)) {
         // ══════════════════════════════════════
         // ÉCRAN FICHE
         // ══════════════════════════════════════
-        if (ecran_actuel == ECRAN_FICHE && employe_selectionne >= 0) {
+        if (ecran_actuel == ECRAN_FICHE && employe_selectionne >= 0 && popup_save == 0) {
 
             Employe *e   = &employes[employe_selectionne];
             float brut   = calculBrut(e);
@@ -466,11 +468,12 @@ if (IsKeyPressed(KEY_ENTER)) {
             }
 
 
-                             DrawRectangleRounded(
+DrawRectangleRounded(
     (Rectangle){card_x + 320, btn_y, btn_w, btn_h},
-    0.3f, 8, (Color){22, 163, 74, 255});
+    0.3f, 8, COL_SUCCESS);
 if (GuiButton((Rectangle){card_x + 320, btn_y, btn_w, btn_h},
-              "Sauvegarder")) {
+              "Enregistrer")) {
+    save_index = employe_selectionne;
     popup_save = 1;
 }
 
@@ -496,7 +499,7 @@ if (GuiButton((Rectangle){card_x + 480, btn_y, btn_w, btn_h},
 // ══════════════════════════════════════
         // ÉCRAN MODIFICATION
         // ══════════════════════════════════════
-        if (ecran_actuel == ECRAN_MODIFICATION && employe_selectionne >= 0) {
+        if (ecran_actuel == ECRAN_MODIFICATION && employe_selectionne >= 0 && popup_save == 0) {
 
             DrawTextEx(font,"Modifier un employe", (Vector2){ 24, 75}, 18,1, COL_MUTED);
 
@@ -638,10 +641,11 @@ if (popup_save == 1) {
         (Rectangle){px + 20, py + 90, 120, 38},
         0.3f, 8, COL_ACCENT);
     if (GuiButton((Rectangle){px + 20, py + 90, 120, 38},
-                  "Fiche .txt")) {
-        sauvegarderFiche(&employes[employe_selectionne]);
-        popup_save = 0;
-    }
+              "Fiche .txt")) {
+    if (save_index >= 0)
+        sauvegarderFiche(&employes[save_index]);
+    popup_save = 0;
+}
 
     // Bouton CSV
     DrawRectangleRounded(
