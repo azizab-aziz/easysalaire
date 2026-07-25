@@ -493,71 +493,7 @@ if (GuiButton((Rectangle){card_x + 480, btn_y, btn_w, btn_h},
 
         }
 
-
-
-
-
-
-// ─── Popup choix format ───────────────────
-if (popup_save == 1) {
-
-    // Fond semi-transparent
-    DrawRectangle(0, 0, W, H, (Color){0, 0, 0, 120});
-
-    // Popup card
-    int pw = 320;
-    int ph = 180;
-    int px = (W - pw) / 2;
-    int py = (H - ph) / 2;
-
-    DrawRectangleRounded(
-        (Rectangle){px, py, pw, ph},
-        0.08f, 8, COL_CARD);
-    DrawRectangleLinesEx(
-        (Rectangle){px, py, pw, ph},
-        1.5f, COL_BORDER);
-
-    DrawTextEx(font, "Choisir le format",
-               (Vector2){px + 20, py + 20},
-               17, 1, COL_TEXT);
-    DrawTextEx(font, "Comment voulez-vous sauvegarder ?",
-               (Vector2){px + 20, py + 48},
-               13, 1, COL_MUTED);
-
-    // Bouton TXT
-    DrawRectangleRounded(
-        (Rectangle){px + 20, py + 90, 120, 38},
-        0.3f, 8, COL_ACCENT);
-    if (GuiButton((Rectangle){px + 20, py + 90, 120, 38},
-                  "Fiche .txt")) {
-        sauvegarderFiche(&employes[employe_selectionne]);
-        popup_save = 0;
-    }
-
-    // Bouton CSV
-    DrawRectangleRounded(
-        (Rectangle){px + 160, py + 90, 120, 38},
-        0.3f, 8, (Color){22, 163, 74, 255});
-    if (GuiButton((Rectangle){px + 160, py + 90, 120, 38},
-                  "Liste .csv")) {
-        sauvegarderCSV(employes, nb_employes);
-        popup_save = 0;
-    }
-
-    // Bouton Annuler
-    DrawRectangleRounded(
-        (Rectangle){px + 90, py + 138, 120, 30},
-        0.3f, 8, COL_BORDER);
-    if (GuiButton((Rectangle){px + 90, py + 138, 120, 30},
-                  "Annuler")) {
-        popup_save = 0;
-    }
-}
-
-
-
-
-        // ══════════════════════════════════════
+// ══════════════════════════════════════
         // ÉCRAN MODIFICATION
         // ══════════════════════════════════════
         if (ecran_actuel == ECRAN_MODIFICATION && employe_selectionne >= 0) {
@@ -667,6 +603,70 @@ if (popup_save == 1) {
                 ecran_actuel = ECRAN_FICHE;
             }
         }
+
+
+
+
+// ─── Popup choix format ───────────────────
+if (popup_save == 1) {
+
+    // Fond semi-transparent
+    DrawRectangle(0, 0, W, H, (Color){0, 0, 0, 120});
+
+    // Popup card
+    int pw = 320;
+    int ph = 180;
+    int px = (W - pw) / 2;
+    int py = (H - ph) / 2;
+
+    DrawRectangleRounded(
+        (Rectangle){px, py, pw, ph},
+        0.08f, 8, COL_CARD);
+    DrawRectangleLinesEx(
+        (Rectangle){px, py, pw, ph},
+        1.5f, COL_BORDER);
+
+    DrawTextEx(font, "Choisir le format",
+               (Vector2){px + 20, py + 20},
+               17, 1, COL_TEXT);
+    DrawTextEx(font, "Comment voulez-vous sauvegarder ?",
+               (Vector2){px + 20, py + 48},
+               13, 1, COL_MUTED);
+
+    // Bouton TXT
+    DrawRectangleRounded(
+        (Rectangle){px + 20, py + 90, 120, 38},
+        0.3f, 8, COL_ACCENT);
+    if (GuiButton((Rectangle){px + 20, py + 90, 120, 38},
+                  "Fiche .txt")) {
+        sauvegarderFiche(&employes[employe_selectionne]);
+        popup_save = 0;
+    }
+
+    // Bouton CSV
+    DrawRectangleRounded(
+        (Rectangle){px + 160, py + 90, 120, 38},
+        0.3f, 8, (Color){22, 163, 74, 255});
+    if (GuiButton((Rectangle){px + 160, py + 90, 120, 38},
+                  "Liste .csv")) {
+        sauvegarderCSV(employes, nb_employes);
+        popup_save = 0;
+    }
+
+    // Bouton Annuler
+    DrawRectangleRounded(
+        (Rectangle){px + 90, py + 138, 120, 30},
+        0.3f, 8, COL_BORDER);
+    if (GuiButton((Rectangle){px + 90, py + 138, 120, 30},
+                  "Annuler")) {
+        popup_save = 0;
+    }
+}
+
+
+
+
+
 
         EndDrawing();
     }
