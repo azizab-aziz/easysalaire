@@ -440,59 +440,56 @@ if (IsKeyPressed(KEY_ENTER)) {
 
             // Buttons
             int btn_y = net_y + 70;
-            int btn_w = 145;
+            int btn_w = (card_w - 60) / 4;  // auto width based on card
             int btn_h = 38;
 
-            DrawRectangleRounded(
-                (Rectangle){card_x, btn_y, btn_w, btn_h},
-                0.3f, 8, COL_BORDER);
-            if (GuiButton((Rectangle){card_x, btn_y, btn_w, btn_h},
-                          "Retour liste")) {
-                ecran_actuel = ECRAN_LISTE;
-                employe_selectionne = -1;
-            }
-
-            DrawRectangleRounded(
-                (Rectangle){card_x + 160, btn_y, btn_w, btn_h},
-                0.3f, 8, COL_ACCENT);
-            if (GuiButton((Rectangle){card_x + 160, btn_y, btn_w, btn_h},
-                          "Modifier")) {
-                strcpy(mod_nom,    e->nom);
-                strcpy(mod_prenom, e->prenom);
-                strcpy(mod_poste,  e->poste);
-                sprintf(mod_base,  "%.2f", e->salaire_base);
-                sprintf(mod_hsup,  "%.2f", e->heures_sup);
-                sprintf(mod_prime, "%.2f", e->prime);
-                champ_mod = -1;
-                ecran_actuel = ECRAN_MODIFICATION;
-            }
-
-
+          // Retour liste
 DrawRectangleRounded(
-    (Rectangle){card_x + 320, btn_y, btn_w, btn_h},
+    (Rectangle){card_x, btn_y, btn_w, btn_h},
+    0.3f, 8, COL_BORDER);
+if (GuiButton((Rectangle){card_x, btn_y, btn_w, btn_h},
+              "Retour liste")) {
+    ecran_actuel = ECRAN_LISTE;
+    employe_selectionne = -1;
+}
+
+// Modifier
+DrawRectangleRounded(
+    (Rectangle){card_x + btn_w + 20, btn_y, btn_w, btn_h},
+    0.3f, 8, COL_ACCENT);
+if (GuiButton((Rectangle){card_x + btn_w + 20, btn_y, btn_w, btn_h},
+              "Modifier")) {
+    strcpy(mod_nom,    e->nom);
+    strcpy(mod_prenom, e->prenom);
+    strcpy(mod_poste,  e->poste);
+    sprintf(mod_base,  "%.2f", e->salaire_base);
+    sprintf(mod_hsup,  "%.2f", e->heures_sup);
+    sprintf(mod_prime, "%.2f", e->prime);
+    champ_mod = -1;
+    ecran_actuel = ECRAN_MODIFICATION;
+}
+
+// Enregistrer
+DrawRectangleRounded(
+    (Rectangle){card_x + (btn_w + 20)*2, btn_y, btn_w, btn_h},
     0.3f, 8, COL_SUCCESS);
-if (GuiButton((Rectangle){card_x + 320, btn_y, btn_w, btn_h},
+if (GuiButton((Rectangle){card_x + (btn_w + 20)*2, btn_y, btn_w, btn_h},
               "Enregistrer")) {
     save_index = employe_selectionne;
     popup_save = 1;
 }
 
-
-
-
-
+// Supprimer
 DrawRectangleRounded(
-    (Rectangle){card_x + 480, btn_y, btn_w, btn_h},
+    (Rectangle){card_x + (btn_w + 20)*3, btn_y, btn_w, btn_h},
     0.3f, 8, COL_DANGER);
-if (GuiButton((Rectangle){card_x + 480, btn_y, btn_w, btn_h},
+if (GuiButton((Rectangle){card_x + (btn_w + 20)*3, btn_y, btn_w, btn_h},
               "Supprimer")) {
-
-
-                supprimerEmploye(employes, &nb_employes,
-                                 employe_selectionne);
-                employe_selectionne = -1;
-                ecran_actuel = ECRAN_LISTE;
-            }
+    supprimerEmploye(employes, &nb_employes,
+                     employe_selectionne);
+    employe_selectionne = -1;
+    ecran_actuel = ECRAN_LISTE;
+}
 
         }
 
