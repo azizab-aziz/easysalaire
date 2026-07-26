@@ -610,56 +610,66 @@ if (GuiButton((Rectangle){card_x + (btn_w + 20)*3, btn_y, btn_w, btn_h},
 // ─── Popup choix format ───────────────────
 if (popup_save == 1) {
 
-    // Fond semi-transparent
-    DrawRectangle(0, 0, W, H, (Color){0, 0, 0, 120});
+    // Block ALL input to screens below
+    DrawRectangle(0, 0, W, H, (Color){0, 0, 0, 150});
 
-    // Popup card
-    int pw = 320;
-    int ph = 180;
+    int pw = 340;
+    int ph = 200;
     int px = (W - pw) / 2;
     int py = (H - ph) / 2;
 
+    // Card
     DrawRectangleRounded(
         (Rectangle){px, py, pw, ph},
         0.08f, 8, COL_CARD);
     DrawRectangleLinesEx(
         (Rectangle){px, py, pw, ph},
-        1.5f, COL_BORDER);
+        2.0f, COL_ACCENT);
 
-    DrawTextEx(font, "Choisir le format",
-               (Vector2){px + 20, py + 20},
+    DrawTextEx(font, "Enregistrer la fiche",
+               (Vector2){px + 20, py + 18},
                17, 1, COL_TEXT);
-    DrawTextEx(font, "Comment voulez-vous sauvegarder ?",
+    DrawTextEx(font, "Choisissez le format de sauvegarde :",
                (Vector2){px + 20, py + 48},
                13, 1, COL_MUTED);
 
-    // Bouton TXT
-    DrawRectangleRounded(
-        (Rectangle){px + 20, py + 90, 120, 38},
-        0.3f, 8, COL_ACCENT);
-    if (GuiButton((Rectangle){px + 20, py + 90, 120, 38},
-              "Fiche .txt")) {
-    if (save_index >= 0)
-        sauvegarderFiche(&employes[save_index]);
-    popup_save = 0;
-}
+    // Block mouse clicks outside popup
+    Vector2 mouse = GetMousePosition();
+    bool mouse_in_popup = CheckCollisionPointRec(mouse,
+        (Rectangle){px, py, pw, ph});
 
-    // Bouton CSV
+    // Fiche .txt button
     DrawRectangleRounded(
-        (Rectangle){px + 160, py + 90, 120, 38},
-        0.3f, 8, (Color){22, 163, 74, 255});
-    if (GuiButton((Rectangle){px + 160, py + 90, 120, 38},
+        (Rectangle){px + 20, py + 90, 130, 42},
+        0.3f, 8, COL_ACCENT);
+    if (GuiButton((Rectangle){px + 20, py + 90, 130, 42},
+                  "Fiche .txt")) {
+        if (save_index >= 0)
+            sauvegarderFiche(&employes[save_index]);
+        popup_save = 0;
+    }
+
+    // Liste .csv button
+    DrawRectangleRounded(
+        (Rectangle){px + 170, py + 90, 130, 42},
+        0.3f, 8, COL_SUCCESS);
+    if (GuiButton((Rectangle){px + 170, py + 90, 130, 42},
                   "Liste .csv")) {
         sauvegarderCSV(employes, nb_employes);
         popup_save = 0;
     }
 
-    // Bouton Annuler
+    // Annuler button
     DrawRectangleRounded(
-        (Rectangle){px + 90, py + 138, 120, 30},
+        (Rectangle){px + 100, py + 148, 130, 36},
         0.3f, 8, COL_BORDER);
-    if (GuiButton((Rectangle){px + 90, py + 138, 120, 30},
+    if (GuiButton((Rectangle){px + 100, py + 148, 130, 36},
                   "Annuler")) {
+        popup_save = 0;
+    }
+
+    // Close if click outside
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !mouse_in_popup) {
         popup_save = 0;
     }
 }
