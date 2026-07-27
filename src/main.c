@@ -200,9 +200,9 @@ if (IsKeyPressed(KEY_ENTER)) {
 
             // Ajouter button (accent)
             DrawRectangleRounded(
-                (Rectangle){card_x + 60, btn_y, btn_w, btn_h},
+                (Rectangle){card_x + 60,btn_y,  btn_w, btn_h},
                 0.3f, 8, COL_ACCENT);
-            if (GuiButton((Rectangle){card_x + 60, btn_y, btn_w, btn_h},
+            if (GuiButton((Rectangle){card_x + 60,btn_y, btn_w, btn_h},
                           "Ajouter")) {
                 if (strlen(nom) > 0 && strlen(base) > 0) {
                     Employe e;
@@ -221,9 +221,9 @@ if (IsKeyPressed(KEY_ENTER)) {
 
             // Voir liste button
             DrawRectangleRounded(
-                (Rectangle){card_x + 220, btn_y, btn_w, btn_h},
+                (Rectangle){card_x + 220,btn_y,  btn_w, btn_h},
                 0.3f, 8, COL_BORDER);
-            if (GuiButton((Rectangle){card_x + 220, btn_y, btn_w, btn_h},
+            if (GuiButton((Rectangle){card_x + 220,btn_y,  btn_w, btn_h},
                           "Voir liste")) {
                 ecran_actuel = ECRAN_LISTE;
             }
@@ -365,7 +365,7 @@ if (IsKeyPressed(KEY_ENTER)) {
 
             DrawTextEx(font,"Fiche de paie", (Vector2){ 24, 75}, 18,1, COL_MUTED);
 
-            int card_w = (W > 800) ? 700 : W - 60;
+            int card_w = (W > 900) ? 750 : W - 60;
             int card_x = (W - card_w) / 2;
             int cy     = 80;
             int vx     = card_x + card_w * 0.62f;
@@ -427,6 +427,7 @@ if (IsKeyPressed(KEY_ENTER)) {
 
             // Net card
             int net_y = sc_y + 225;
+            int btn_y = net_y + 65;
             DrawRectangleRounded(
                 (Rectangle){card_x, net_y, card_w, 54},
                 0.04f, 8, (Color){220, 252, 231, 255});
@@ -436,11 +437,10 @@ if (IsKeyPressed(KEY_ENTER)) {
             sprintf(txt, "%.2f TND", e->salaire_net);
             DrawTextEx(font,"SALAIRE NET :",  (Vector2){ lx, net_y + 17}, 18,1, COL_TEXT);
             DrawTextEx(font, txt, (Vector2){vx, net_y + 17}, 20, 1, COL_SUCCESS);
-
-           int btn_y  = net_y + 70;
-int btn_w  = (card_w - 80) / 4;
-int btn_h  = 38;
+int btn_h   = 38;
+int btn_w   = (card_w - 80) / 4;
 int btn_gap = (card_w - btn_w * 4) / 5;
+
 
 // Retour liste
 DrawRectangleRounded(
