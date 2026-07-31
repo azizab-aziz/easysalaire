@@ -29,6 +29,8 @@ typedef enum {
 
 int main(void) {
 
+
+    SetConfigFlags(FLAG_WINDOW_HIGHDPI);
     InitWindow(900, 650, "EasySalaire");
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetWindowMinSize(700, 500);
@@ -70,6 +72,9 @@ int main(void) {
         int W = GetScreenWidth();
         int H = GetScreenHeight();
 
+        Vector2 dpiScale = GetWindowScaleDPI();
+        SetMouseScale(1.0f / dpiScale.x, 1.0f / dpiScale.y);
+
         BeginDrawing();
         ClearBackground(COL_BG);
 
@@ -78,6 +83,12 @@ int main(void) {
         // ══════════════════════════════════════
         DrawRectangle(0, 0, W, 58, COL_HEADER);
         DrawTextEx(font,"EasySalaire", (Vector2){24, 14}, 28,1, WHITE);
+
+
+
+        DrawText(TextFormat("Mouse: %.0f, %.0f | DPI: %.2f, %.2f",
+    GetMousePosition().x, GetMousePosition().y, dpiScale.x, dpiScale.y),
+    10, H - 60, 14, RED);
 
         // ══════════════════════════════════════
         // ÉCRAN FORMULAIRE
@@ -193,18 +204,21 @@ if (IsKeyPressed(KEY_ENTER)) {
             GuiTextBox(r_hsup,   hsup,   20, champ_actif == 4);
             GuiTextBox(r_prime,  prime,  20, champ_actif == 5);
 
-            // Buttons
-            int btn_y = card_y + card_h - 60;
-            int btn_w = 140;
-            int btn_h = 38;
 
-            // Ajouter button (accent)
-            DrawRectangleRounded(
-                (Rectangle){card_x + 60,btn_y,  btn_w, btn_h},
-                0.3f, 8, COL_ACCENT);
-            if (GuiButton((Rectangle){card_x + 60,btn_y, btn_w, btn_h},
+           int btn_w = 140;
+            int btn_gap = 20;
+            int total_btn_w = btn_w * 2 + btn_gap;
+            int btn_x = card_x + (card_w - total_btn_w) / 2;
+            int btn_y = fy + gap * 6 + 5;
+
+            if (GuiButton((Rectangle){btn_x, btn_y, btn_w, 38},
                           "Ajouter")) {
-                if (strlen(nom) > 0 && strlen(base) > 0) {
+                if (strlen(nom)    > 0 &&
+                    strlen(prenom) > 0 &&
+                    strlen(poste)  > 0 &&
+                    strlen(base)   > 0 &&
+                    strlen(hsup)   > 0 &&
+                    strlen(prime)  > 0) {
                     Employe e;
                     strcpy(e.nom,    nom);
                     strcpy(e.prenom, prenom);
@@ -215,18 +229,15 @@ if (IsKeyPressed(KEY_ENTER)) {
                     ajouterEmploye(employes, &nb_employes, e);
                     nom[0] = prenom[0] = poste[0] = '\0';
                     base[0] = hsup[0] = prime[0] = '\0';
-                    champ_actif = -1;
+                    champ_actif = 0;
                 }
             }
 
-            // Voir liste button
-            DrawRectangleRounded(
-                (Rectangle){card_x + 220,btn_y,  btn_w, btn_h},
-                0.3f, 8, COL_BORDER);
-            if (GuiButton((Rectangle){card_x + 220,btn_y,  btn_w, btn_h},
+            if (GuiButton((Rectangle){btn_x + btn_w + btn_gap, btn_y, btn_w, 38},
                           "Voir liste")) {
                 ecran_actuel = ECRAN_LISTE;
             }
+
 
             // Counter
             char msg[50];
@@ -437,61 +448,52 @@ if (IsKeyPressed(KEY_ENTER)) {
             sprintf(txt, "%.2f TND", e->salaire_net);
             DrawTextEx(font,"SALAIRE NET :",  (Vector2){ lx, net_y + 17}, 18,1, COL_TEXT);
             DrawTextEx(font, txt, (Vector2){vx, net_y + 17}, 20, 1, COL_SUCCESS);
-int btn_h   = 38;
-int btn_w   = (card_w - 80) / 4;
-int btn_gap = (card_w - btn_w * 4) / 5;
+// ─── Buttons ──────────────────────────────
+            int btn_h   = 38;
+            int btn_w   = 145;
+            int total_w = btn_w * 4 + 30 * 3;
+            int start_x = (W - total_w) / 2;
+
+            if (GuiButton((Rectangle){start_x, btn_y, btn_w, btn_h},
+                          "Retour liste")) {
+                ecran_actuel = ECRAN_LISTE;
+                employe_selectionne = -1;
+            }
+
+           Rectangle rect_mod = {start_x + btn_w + 30, btn_y, btn_w, btn_h};
+            DrawText(TextFormat("ModifierRect: x=%.0f y=%.0f w=%.0f h=%.0f | Mouse: %.0f,%.0f",
+                rect_mod.x, rect_mod.y, rect_mod.width, rect_mod.height,
+                GetMousePosition().x, GetMousePosition().y),
+                10, H - 30, 14, RED);
+
+            if (GuiButton(rect_mod, "Modifier")) {
 
 
-// Retour liste
-DrawRectangleRounded(
-    (Rectangle){card_x + btn_gap, btn_y, btn_w, btn_h},
-    0.3f, 8, COL_BORDER);
-if (GuiButton((Rectangle){card_x + btn_gap, btn_y, btn_w, btn_h},
-              "Retour liste")) {
-    ecran_actuel = ECRAN_LISTE;
-    employe_selectionne = -1;
-}
+                strcpy(mod_nom,    e->nom);
+                strcpy(mod_prenom, e->prenom);
+                strcpy(mod_poste,  e->poste);
+                sprintf(mod_base,  "%.2f", e->salaire_base);
+                sprintf(mod_hsup,  "%.2f", e->heures_sup);
+                sprintf(mod_prime, "%.2f", e->prime);
+                champ_mod = -1;
+                ecran_actuel = ECRAN_MODIFICATION;
+            }
 
-// Modifier
-DrawRectangleRounded(
-    (Rectangle){card_x + btn_gap*2 + btn_w, btn_y, btn_w, btn_h},
-    0.3f, 8, COL_ACCENT);
-if (GuiButton((Rectangle){card_x + btn_gap*2 + btn_w, btn_y, btn_w, btn_h},
-              "Modifier")) {
-    strcpy(mod_nom,    e->nom);
-    strcpy(mod_prenom, e->prenom);
-    strcpy(mod_poste,  e->poste);
-    sprintf(mod_base,  "%.2f", e->salaire_base);
-    sprintf(mod_hsup,  "%.2f", e->heures_sup);
-    sprintf(mod_prime, "%.2f", e->prime);
-    champ_mod = -1;
-    ecran_actuel = ECRAN_MODIFICATION;
-}
+            if (GuiButton((Rectangle){start_x + (btn_w + 30)*2, btn_y, btn_w, btn_h},
+                          "Enregistrer")) {
+                save_index = employe_selectionne;
+                popup_save = 1;
+            }
 
-// Enregistrer
-DrawRectangleRounded(
-    (Rectangle){card_x + btn_gap*3 + btn_w*2, btn_y, btn_w, btn_h},
-    0.3f, 8, COL_SUCCESS);
-if (GuiButton((Rectangle){card_x + btn_gap*3 + btn_w*2, btn_y, btn_w, btn_h},
-              "Enregistrer")) {
-    save_index = employe_selectionne;
-    popup_save = 1;
-}
-
-// Supprimer
-DrawRectangleRounded(
-    (Rectangle){card_x + btn_gap*4 + btn_w*3, btn_y, btn_w, btn_h},
-    0.3f, 8, COL_DANGER);
-if (GuiButton((Rectangle){card_x + btn_gap*4 + btn_w*3, btn_y, btn_w, btn_h},
-              "Supprimer")) {
-    supprimerEmploye(employes, &nb_employes,
-                     employe_selectionne);
-    employe_selectionne = -1;
-    ecran_actuel = ECRAN_LISTE;
-}
+            if (GuiButton((Rectangle){start_x + (btn_w + 30)*3, btn_y, btn_w, btn_h},
+                          "Supprimer")) {
+                supprimerEmploye(employes, &nb_employes,
+                                 employe_selectionne);
+                employe_selectionne = -1;
+                ecran_actuel = ECRAN_LISTE;
+            }
 
         }
-
 // ══════════════════════════════════════
         // ÉCRAN MODIFICATION
         // ══════════════════════════════════════
