@@ -67,6 +67,8 @@ int main(void) {
     char mod_nom[50]   = "", mod_prenom[50] = "", mod_poste[50] = "";
     char mod_base[20]  = "", mod_hsup[20]   = "", mod_prime[20] = "";
 
+    nb_employes = chargerCSV(employes);
+    printf("Loaded %d employees from CSV\n", nb_employes);
 
     while (!WindowShouldClose()) {
 
