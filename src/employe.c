@@ -6,7 +6,7 @@
 
 void creerDossierSaves(void) {
     #ifdef _WIN32
-        mkdir("saves");
+        mkdir("C:\\EasySalaire\\saves");
     #else
         mkdir("saves", 0777);
     #endif
@@ -76,8 +76,9 @@ void supprimerEmploye(Employe tab[], int *nb, int index) {
 }
 void sauvegarderFiche(Employe *e) {
     creerDossierSaves();
-    char filename[150];
-    sprintf(filename, "saves/%s_%s_fiche.txt", e->nom, e->prenom);
+    char filename[200];
+    sprintf(filename, "C:\\EasySalaire\\saves\\%s_%s_fiche.txt",
+            e->nom, e->prenom);
 
     FILE *f = fopen(filename, "w");
     if (f == NULL) return;
@@ -115,7 +116,7 @@ void sauvegarderFiche(Employe *e) {
 
 void sauvegarderCSV(Employe tab[], int nb) {
     creerDossierSaves();
-    FILE *f = fopen("saves/employes.csv", "w");
+    FILE *f = fopen("C:\\EasySalaire\\saves\\employes.csv", "w");
     if (f == NULL) return;
 
     // Header
@@ -139,7 +140,7 @@ void sauvegarderCSV(Employe tab[], int nb) {
 }
 
 int chargerCSV(Employe tab[]) {
-    FILE *f = fopen("saves/employes.csv", "r");
+    FILE *f = fopen("C:\\EasySalaire\\saves\\employes.csv", "r");
     if (f == NULL) return 0;
 
     int nb = 0;
