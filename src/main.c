@@ -30,7 +30,7 @@ typedef enum {
 int main(void) {
 
 
-    SetConfigFlags(FLAG_WINDOW_HIGHDPI);
+    //SetConfigFlags(FLAG_WINDOW_HIGHDPI);
     InitWindow(900, 650, "EasySalaire");
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetWindowMinSize(700, 500);
@@ -67,13 +67,14 @@ int main(void) {
     char mod_nom[50]   = "", mod_prenom[50] = "", mod_poste[50] = "";
     char mod_base[20]  = "", mod_hsup[20]   = "", mod_prime[20] = "";
 
+
     while (!WindowShouldClose()) {
 
         int W = GetScreenWidth();
         int H = GetScreenHeight();
 
-        Vector2 dpiScale = GetWindowScaleDPI();
-        SetMouseScale(1.0f / dpiScale.x, 1.0f / dpiScale.y);
+        //Vector2 dpiScale = GetWindowScaleDPI();
+        //SetMouseScale(1.0f / dpiScale.x, 1.0f / dpiScale.y);
 
         BeginDrawing();
         ClearBackground(COL_BG);
@@ -86,9 +87,6 @@ int main(void) {
 
 
 
-        DrawText(TextFormat("Mouse: %.0f, %.0f | DPI: %.2f, %.2f",
-    GetMousePosition().x, GetMousePosition().y, dpiScale.x, dpiScale.y),
-    10, H - 60, 14, RED);
 
         // ══════════════════════════════════════
         // ÉCRAN FORMULAIRE
@@ -169,6 +167,7 @@ if (IsKeyPressed(KEY_ENTER)) {
         e.heures_sup   = atof(hsup);
         e.prime        = atof(prime);
         ajouterEmploye(employes, &nb_employes, e);
+        sauvegarderCSV(employes, nb_employes);
         nom[0] = prenom[0] = poste[0] = '\0';
         base[0] = hsup[0] = prime[0] = '\0';
         champ_actif = 0; // back to first field
@@ -227,6 +226,7 @@ if (IsKeyPressed(KEY_ENTER)) {
                     e.heures_sup   = atof(hsup);
                     e.prime        = atof(prime);
                     ajouterEmploye(employes, &nb_employes, e);
+                    sauvegarderCSV(employes, nb_employes);
                     nom[0] = prenom[0] = poste[0] = '\0';
                     base[0] = hsup[0] = prime[0] = '\0';
                     champ_actif = 0;
@@ -460,15 +460,21 @@ if (IsKeyPressed(KEY_ENTER)) {
                 employe_selectionne = -1;
             }
 
-           Rectangle rect_mod = {start_x + btn_w + 30, btn_y, btn_w, btn_h};
-            DrawText(TextFormat("ModifierRect: x=%.0f y=%.0f w=%.0f h=%.0f | Mouse: %.0f,%.0f",
-                rect_mod.x, rect_mod.y, rect_mod.width, rect_mod.height,
-                GetMousePosition().x, GetMousePosition().y),
-                10, H - 30, 14, RED);
 
-            if (GuiButton(rect_mod, "Modifier")) {
+            Rectangle rect_mod = {start_x + btn_w + 30, btn_y, btn_w, btn_h};
 
+            bool inside_mod = CheckCollisionPointRec(GetMousePosition(), rect_mod);
+            bool clicked_mod = GuiButton(rect_mod, "Modifier");
 
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                DrawText(TextFormat("Click at %.0f,%.0f | Inside rect? %s | GuiButton fired? %s",
+                    GetMousePosition().x, GetMousePosition().y,
+                    inside_mod ? "YES" : "NO",
+                    clicked_mod ? "YES" : "NO"),
+                    10, H - 30, 14, RED);
+            }
+
+            if (clicked_mod) {
                 strcpy(mod_nom,    e->nom);
                 strcpy(mod_prenom, e->prenom);
                 strcpy(mod_poste,  e->poste);
@@ -489,6 +495,7 @@ if (IsKeyPressed(KEY_ENTER)) {
                           "Supprimer")) {
                 supprimerEmploye(employes, &nb_employes,
                                  employe_selectionne);
+                sauvegarderCSV(employes, nb_employes);
                 employe_selectionne = -1;
                 ecran_actuel = ECRAN_LISTE;
             }
@@ -592,6 +599,7 @@ if (IsKeyPressed(KEY_ENTER)) {
                     employes[employe_selectionne].heures_sup   = atof(mod_hsup);
                     employes[employe_selectionne].prime        = atof(mod_prime);
                     calculNet(&employes[employe_selectionne]);
+                    sauvegarderCSV(employes, nb_employes);
                     ecran_actuel = ECRAN_FICHE;
                 }
             }

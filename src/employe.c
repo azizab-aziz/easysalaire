@@ -1,5 +1,16 @@
 #include "employe.h"
 #include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+
+void creerDossierSaves(void) {
+    #ifdef _WIN32
+        mkdir("saves");
+    #else
+        mkdir("saves", 0777);
+    #endif
+}
 
 // ─── Calcul salaire brut ──────────────────────
 float calculBrut(Employe *e) {
@@ -64,8 +75,9 @@ void supprimerEmploye(Employe tab[], int *nb, int index) {
     (*nb)--;
 }
 void sauvegarderFiche(Employe *e) {
-    char filename[100];
-    sprintf(filename, "%s_%s_fiche.txt", e->nom, e->prenom);
+    creerDossierSaves();
+    char filename[150];
+    sprintf(filename, "saves/%s_%s_fiche.txt", e->nom, e->prenom);
 
     FILE *f = fopen(filename, "w");
     if (f == NULL) return;
@@ -102,7 +114,8 @@ void sauvegarderFiche(Employe *e) {
 }
 
 void sauvegarderCSV(Employe tab[], int nb) {
-    FILE *f = fopen("employes.csv", "w");
+    creerDossierSaves();
+    FILE *f = fopen("saves/employes.csv", "w");
     if (f == NULL) return;
 
     // Header
@@ -123,4 +136,27 @@ void sauvegarderCSV(Employe tab[], int nb) {
     }
 
     fclose(f);
+}
+
+int chargerCSV(Employe tab[]) {
+    FILE *f = fopen("saves/employes.csv", "r");
+    if (f == NULL) return 0;
+
+    int nb = 0;
+    char line[500];
+
+    // Skip header line
+    fgets(line, sizeof(line), f);
+
+    while (fgets(line, sizeof(line), f) && nb < MAX_EMPLOYES) {
+        Employe e;
+        sscanf(line, "%49[^,],%49[^,],%49[^,],%f,%f,%f,%f,%f,%f",
+            e.nom, e.prenom, e.poste,
+            &e.salaire_base, &e.heures_sup, &e.prime,
+            &e.cnss, &e.ir, &e.salaire_net);
+        tab[nb++] = e;
+    }
+
+    fclose(f);
+    return nb;
 }

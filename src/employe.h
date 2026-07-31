@@ -26,6 +26,8 @@ float calculBrut(Employe *e);
 float calculCNSS(float brut);
 float calculIR(float brut);
 float calculNet(Employe *e);
+void creerDossierSaves(void);
+int chargerCSV(Employe tab[]);
 
 // Gestion
 void ajouterEmploye(Employe tab[], int *nb, Employe e);
