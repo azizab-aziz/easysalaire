@@ -350,9 +350,21 @@ for (int i = 0; i < 6; i++) {
                 DrawRectangle(20, ry, W - 40, row_h, bg);
                 DrawRectangle(20, ry + row_h - 1, W - 40, 1, COL_BORDER);
 
-                DrawTextEx(font, employes[i].nom,    (Vector2){c1, ry+15}, 15, 1, COL_TEXT);
-                DrawTextEx(font, employes[i].prenom, (Vector2){c2, ry+15}, 15, 1, COL_TEXT);
-                DrawTextEx(font, employes[i].poste,  (Vector2){c3, ry+15}, 15, 1, COL_TEXT);
+                // ─── Truncate text to fit column ──────────
+char nom_cut[20], prenom_cut[20], poste_cut[22];
+
+strncpy(nom_cut,    employes[i].nom,    19); nom_cut[19]    = '\0';
+strncpy(prenom_cut, employes[i].prenom, 19); prenom_cut[19] = '\0';
+strncpy(poste_cut,  employes[i].poste,  21); poste_cut[21]  = '\0';
+
+// Add "..." if truncated
+if (strlen(employes[i].nom)    > 19) strcpy(nom_cut    + 16, "...");
+if (strlen(employes[i].prenom) > 19) strcpy(prenom_cut + 16, "...");
+if (strlen(employes[i].poste)  > 21) strcpy(poste_cut  + 18, "...");
+
+DrawTextEx(font, nom_cut,    (Vector2){c1, ry+15}, 15, 1, COL_TEXT);
+DrawTextEx(font, prenom_cut, (Vector2){c2, ry+15}, 15, 1, COL_TEXT);
+DrawTextEx(font, poste_cut,  (Vector2){c3, ry+15}, 15, 1, COL_TEXT);
 
                 char net[30];
                 sprintf(net, "%.2f TND", employes[i].salaire_net);
