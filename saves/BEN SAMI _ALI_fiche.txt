@@ -1,0 +1,25 @@
+========================================
+         FICHE DE PAIE - EasySalaire   
+========================================
+
+INFORMATIONS PERSONNELLES
+-------------------------
+Nom          : BEN SAMI 
+Prenom       : ALI
+Poste        : CHEF PROJET 
+
+CALCUL DU SALAIRE
+-------------------------
+Salaire base : 6500.00 TND
+Heures sup   : + 21.00 TND
+Prime        : + 900.00 TND
+Salaire brut : 7421.00 TND
+
+RETENUES
+-------------------------
+CNSS (9.18%) : - 681.25 TND
+IR            : - 2243.18 TND
+
+========================================
+SALAIRE NET  : 4496.57 TND
+========================================

@@ -57,7 +57,8 @@ int main(void) {
     char recherche[50] = "";
     int  champ_recherche = 0;
     int  champ_actif     = -1;
-    int  champ_mod       = -1;
+    int  champ_mod      = -1;
+    int  champ_mod_prev = -1;
     int popup_save = 0; // 0=off, 1=show popup
     int save_index = -1;
 
@@ -179,12 +180,22 @@ if (IsKeyPressed(KEY_ENTER)) {
     }
 }
             // Labels
-            const char *labels[] = {
-                "Nom :", "Prenom :", "Poste :",
-                "Salaire base :", "Heures sup :", "Prime :"
-            };
-            for (int i = 0; i < 6; i++)
-                DrawTextEx(font, labels[i], (Vector2){lx, fy + gap*i + 10}, 16, 1, COL_TEXT);
+          const char *labels[] = {
+    "Nom :", "Prenom :", "Poste :",
+    "Salaire base :", "Heures sup :", "Prime :"
+};
+
+// Store display values before clearing
+char *mod_fields[] = {
+    mod_nom, mod_prenom, mod_poste,
+    mod_base, mod_hsup, mod_prime
+};
+
+for (int i = 0; i < 6; i++) {
+    DrawTextEx(font, labels[i],
+               (Vector2){lx, fy + gap*i + 10},
+               16, 1, COL_TEXT);
+}
 
             // Active field highlight
             Rectangle rects[] = {
@@ -224,6 +235,8 @@ if (IsKeyPressed(KEY_ENTER)) {
                     strcpy(e.nom,    nom);
                     strcpy(e.prenom, prenom);
                     strcpy(e.poste,  poste);
+
+
                     e.salaire_base = atof(base);
                     e.heures_sup   = atof(hsup);
                     e.prime        = atof(prime);
@@ -477,14 +490,27 @@ if (IsKeyPressed(KEY_ENTER)) {
             }
 
             if (clicked_mod) {
-                strcpy(mod_nom,    e->nom);
-                strcpy(mod_prenom, e->prenom);
-                strcpy(mod_poste,  e->poste);
-                sprintf(mod_base,  "%.2f", e->salaire_base);
-                sprintf(mod_hsup,  "%.2f", e->heures_sup);
-                sprintf(mod_prime, "%.2f", e->prime);
-                champ_mod = 0 ;
-                ecran_actuel = ECRAN_MODIFICATION;
+               // Store original values for display
+               strcpy(mod_nom,    e->nom);
+               strcpy(mod_prenom, e->prenom);
+               strcpy(mod_poste,  e->poste);
+               sprintf(mod_base,  "%.2f", e->salaire_base);
+               sprintf(mod_hsup,  "%.2f", e->heures_sup);
+               sprintf(mod_prime, "%.2f", e->prime);
+
+               // Store originals for hint display
+               char orig_nom[50], orig_prenom[50], orig_poste[50];
+               char orig_base[20], orig_hsup[20], orig_prime[20];
+               strcpy(orig_nom,    mod_nom);
+               strcpy(orig_prenom, mod_prenom);
+               strcpy(orig_poste,  mod_poste);
+               strcpy(orig_base,   mod_base);
+               strcpy(orig_hsup,   mod_hsup);
+               strcpy(orig_prime,  mod_prime);
+
+              champ_mod = 0;
+              champ_mod_prev = -1;  // ← reset
+              ecran_actuel = ECRAN_MODIFICATION;
             }
 
             if (GuiButton((Rectangle){start_x + (btn_w + 30)*2, btn_y, btn_w, btn_h},
@@ -611,6 +637,13 @@ if (IsKeyPressed(KEY_ENTER)) {
             DrawRectangleRounded(
                 (Rectangle){card_x + 60, btn_y, btn_w, btn_h},
                 0.3f, 8, COL_ACCENT);
+
+            // ─── Hint text ────────────────────────────
+            DrawTextEx(font, "Modifiez les champs puis appuyez sur Entree",
+               (Vector2){card_x + 20, card_y + card_h - 85},
+               12, 1, COL_MUTED);
+
+
             if (GuiButton((Rectangle){card_x + 60, btn_y, btn_w, btn_h},
                           "Sauvegarder")) {
                 if (strlen(mod_nom) > 0 && strlen(mod_base) > 0) {
@@ -633,6 +666,19 @@ if (IsKeyPressed(KEY_ENTER)) {
                           "Annuler")) {
                 ecran_actuel = ECRAN_FICHE;
             }
+
+            // ─── Clear field when it becomes active ───
+           if (champ_mod != champ_mod_prev) {
+              switch(champ_mod) {
+                case 0: mod_nom[0]    = '\0'; break;
+                case 1: mod_prenom[0] = '\0'; break;
+                case 2: mod_poste[0]  = '\0'; break;
+                case 3: mod_base[0]   = '\0'; break;
+                case 4: mod_hsup[0]   = '\0'; break;
+                case 5: mod_prime[0]  = '\0'; break;
+             }
+             champ_mod_prev = champ_mod;
+          }
         }
 
 
