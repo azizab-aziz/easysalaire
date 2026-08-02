@@ -404,12 +404,12 @@ DrawTextEx(font, poste_cut,  (Vector2){c3, ry+15}, 15, 1, COL_TEXT);
             Employe *e   = &employes[employe_selectionne];
             float brut   = calculBrut(e);
 
-            DrawTextEx(font,"Fiche de paie", (Vector2){ 24, 75}, 18,1, COL_MUTED);
+           DrawTextEx(font,"Fiche de paie", (Vector2){ 24, 68}, 16,1, COL_MUTED);
 
-            int card_w = (W > 900) ? 750 : W - 60;
+            int card_w = (W > 900) ? W - 200 : W - 60;
             int card_x = (W - card_w) / 2;
-            int cy     = 80;
-            int vx     = card_x + card_w * 0.62f;
+            int cy     = 100;
+            int vx = card_x + card_w * 0.65f;
 
             // Info card
             DrawRectangleRounded(
