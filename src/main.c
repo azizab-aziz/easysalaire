@@ -483,7 +483,7 @@ if (IsKeyPressed(KEY_ENTER)) {
                 sprintf(mod_base,  "%.2f", e->salaire_base);
                 sprintf(mod_hsup,  "%.2f", e->heures_sup);
                 sprintf(mod_prime, "%.2f", e->prime);
-                champ_mod = -1;
+                champ_mod = 0 ;
                 ecran_actuel = ECRAN_MODIFICATION;
             }
 
@@ -549,15 +549,35 @@ if (IsKeyPressed(KEY_ENTER)) {
             }
 
             if (IsKeyPressed(KEY_TAB)) {
-                if (IsKeyDown(KEY_LEFT_SHIFT))
-                    champ_mod = (champ_mod - 1 + 6) % 6;
-                else
-                    champ_mod = (champ_mod + 1) % 6;
-            }
-            if (IsKeyPressed(KEY_DOWN))
-                champ_mod = (champ_mod + 1) % 6;
-            if (IsKeyPressed(KEY_UP))
-                champ_mod = (champ_mod - 1 + 6) % 6;
+    if (IsKeyDown(KEY_LEFT_SHIFT))
+        champ_mod = (champ_mod - 1 + 6) % 6;
+    else
+        champ_mod = (champ_mod + 1) % 6;
+}
+if (IsKeyPressed(KEY_DOWN))
+    champ_mod = (champ_mod + 1) % 6;
+if (IsKeyPressed(KEY_UP))
+    champ_mod = (champ_mod - 1 + 6) % 6;
+
+if (IsKeyPressed(KEY_ENTER)) {
+    if (champ_mod == 5) {
+        // Last field → auto save
+        if (strlen(mod_nom) > 0 && strlen(mod_base) > 0) {
+            strcpy(employes[employe_selectionne].nom,    mod_nom);
+            strcpy(employes[employe_selectionne].prenom, mod_prenom);
+            strcpy(employes[employe_selectionne].poste,  mod_poste);
+            employes[employe_selectionne].salaire_base = atof(mod_base);
+            employes[employe_selectionne].heures_sup   = atof(mod_hsup);
+            employes[employe_selectionne].prime        = atof(mod_prime);
+            calculNet(&employes[employe_selectionne]);
+            sauvegarderCSV(employes, nb_employes);
+            ecran_actuel = ECRAN_FICHE;
+        }
+    } else {
+        // Go to next field
+        champ_mod = (champ_mod + 1) % 6;
+    }
+}
 
             const char *labels[] = {
                 "Nom :", "Prenom :", "Poste :",
