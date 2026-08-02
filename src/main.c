@@ -297,6 +297,9 @@ for (int i = 0; i < 6; i++) {
                 0.3f, 8, COL_BORDER);
             if (GuiButton((Rectangle){402, sb_y, 80, 34}, "Effacer"))
                 recherche[0] = '\0';
+            if (GuiButton((Rectangle){500, sb_y, 150, 34}, "Exporter Excel")) {
+                system("python C:\\EasySalaire\\saves\\export_excel.py");
+            }
 
             // ─── Table ────────────────────────
             int table_y = 152;
