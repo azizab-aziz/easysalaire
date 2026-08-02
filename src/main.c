@@ -668,17 +668,19 @@ if (IsKeyPressed(KEY_ENTER)) {
             }
 
             // ─── Clear field when it becomes active ───
-           if (champ_mod != champ_mod_prev) {
-              switch(champ_mod) {
-                case 0: mod_nom[0]    = '\0'; break;
-                case 1: mod_prenom[0] = '\0'; break;
-                case 2: mod_poste[0]  = '\0'; break;
-                case 3: mod_base[0]   = '\0'; break;
-                case 4: mod_hsup[0]   = '\0'; break;
-                case 5: mod_prime[0]  = '\0'; break;
-             }
-             champ_mod_prev = champ_mod;
-          }
+           // ─── Clear field only when user starts typing ─
+if (champ_mod != champ_mod_prev) {
+    champ_mod_prev = champ_mod;
+}
+
+int key = GetCharPressed();
+if (key > 0 && champ_mod >= 0) {
+    switch(champ_mod) {
+        case 0: if (strlen(mod_nom)    == strlen(employes[employe_selectionne].nom))    mod_nom[0]    = '\0'; break;
+        case 1: if (strlen(mod_prenom) == strlen(employes[employe_selectionne].prenom)) mod_prenom[0] = '\0'; break;
+        case 2: if (strlen(mod_poste)  == strlen(employes[employe_selectionne].poste))  mod_poste[0]  = '\0'; break;
+    }
+}
         }
 
 
