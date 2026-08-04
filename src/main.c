@@ -704,15 +704,13 @@ if (key > 0 && champ_mod >= 0) {
 // ─── Popup choix format ───────────────────
 if (popup_save == 1) {
 
-    // Block ALL input to screens below
     DrawRectangle(0, 0, W, H, (Color){0, 0, 0, 150});
 
     int pw = 340;
-    int ph = 200;
+    int ph = 220;
     int px = (W - pw) / 2;
     int py = (H - ph) / 2;
 
-    // Card
     DrawRectangleRounded(
         (Rectangle){px, py, pw, ph},
         0.08f, 8, COL_CARD);
@@ -723,47 +721,52 @@ if (popup_save == 1) {
     DrawTextEx(font, "Enregistrer la fiche",
                (Vector2){px + 20, py + 18},
                17, 1, COL_TEXT);
-    DrawTextEx(font, "Choisissez le format de sauvegarde :",
-               (Vector2){px + 20, py + 48},
+    DrawTextEx(font, "Choisissez le format :",
+               (Vector2){px + 20, py + 46},
                13, 1, COL_MUTED);
 
-    // Block mouse clicks outside popup
-    Vector2 mouse = GetMousePosition();
-    bool mouse_in_popup = CheckCollisionPointRec(mouse,
-        (Rectangle){px, py, pw, ph});
-
-    // Fiche .txt button
-    DrawRectangleRounded(
-        (Rectangle){px + 20, py + 90, 130, 42},
-        0.3f, 8, COL_ACCENT);
-    if (GuiButton((Rectangle){px + 20, py + 90, 130, 42},
+    // Fiche .txt
+    if (GuiButton((Rectangle){px + 15, py + 80, 90, 38},
                   "Fiche .txt")) {
         if (save_index >= 0)
             sauvegarderFiche(&employes[save_index]);
         popup_save = 0;
     }
 
-    // Liste .csv button
-    DrawRectangleRounded(
-        (Rectangle){px + 170, py + 90, 130, 42},
-        0.3f, 8, COL_SUCCESS);
-    if (GuiButton((Rectangle){px + 170, py + 90, 130, 42},
+    // Liste .csv
+    if (GuiButton((Rectangle){px + 125, py + 80, 90, 38},
                   "Liste .csv")) {
         sauvegarderCSV(employes, nb_employes);
         popup_save = 0;
     }
 
-    // Annuler button
-    DrawRectangleRounded(
-        (Rectangle){px + 100, py + 148, 130, 36},
-        0.3f, 8, COL_BORDER);
-    if (GuiButton((Rectangle){px + 100, py + 148, 130, 36},
+    // Fiche PDF
+    if (GuiButton((Rectangle){px + 235, py + 80, 90, 38},
+                  "Fiche PDF")) {
+        if (save_index >= 0) {
+            Employe *ep = &employes[save_index];
+            char cmd[1024];
+            sprintf(cmd,
+                "python C:\\EasySalaire\\saves\\export_pdf.py "
+                "\"%s\" \"%s\" \"%s\" %.2f %.2f %.2f %.2f %.2f %.2f",
+                ep->nom, ep->prenom, ep->poste,
+                ep->salaire_base, ep->heures_sup * 1.5f, ep->prime,
+                ep->cnss, ep->ir, ep->salaire_net);
+            system(cmd);
+        }
+        popup_save = 0;
+    }
+
+    // Annuler
+    if (GuiButton((Rectangle){px + 100, py + 140, 130, 36},
                   "Annuler")) {
         popup_save = 0;
     }
 
-    // Close if click outside
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !mouse_in_popup) {
+    Vector2 mouse = GetMousePosition();
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) &&
+        !CheckCollisionPointRec(mouse,
+         (Rectangle){px, py, pw, ph})) {
         popup_save = 0;
     }
 }
