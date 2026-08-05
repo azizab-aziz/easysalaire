@@ -61,6 +61,7 @@ int main(void) {
     int  champ_mod_prev = -1;
     int popup_save = 0; // 0=off, 1=show popup
     int save_index = -1;
+    int popup_confirm = 0;
 
     char nom[50]   = "", prenom[50] = "", poste[50] = "";
     char base[20]  = "", hsup[20]   = "", prime[20] = "";
@@ -401,6 +402,9 @@ DrawTextEx(font, poste_cut,  (Vector2){c3, ry+15}, 15, 1, COL_TEXT);
         // ══════════════════════════════════════
         if (ecran_actuel == ECRAN_FICHE && employe_selectionne >= 0 && popup_save == 0) {
 
+               // Block all interaction if confirm popup is open
+    if (popup_confirm == 1) goto draw_fiche_end;
+
             Employe *e   = &employes[employe_selectionne];
             float brut   = calculBrut(e);
 
@@ -535,14 +539,10 @@ DrawTextEx(font, poste_cut,  (Vector2){c3, ry+15}, 15, 1, COL_TEXT);
             }
 
             if (GuiButton((Rectangle){start_x + (btn_w + 30)*3, btn_y, btn_w, btn_h},
-                          "Supprimer")) {
-                supprimerEmploye(employes, &nb_employes,
-                                 employe_selectionne);
-                sauvegarderCSV(employes, nb_employes);
-                employe_selectionne = -1;
-                ecran_actuel = ECRAN_LISTE;
-            }
-
+              "Supprimer")) {
+    popup_confirm = 1;
+}
+           draw_fiche_end:;
         }
 // ══════════════════════════════════════
         // ÉCRAN MODIFICATION
@@ -770,6 +770,85 @@ if (popup_save == 1) {
         popup_save = 0;
     }
 }
+
+    // ══════════════════════════════════════
+// POPUP CONFIRMATION SUPPRESSION
+// ══════════════════════════════════════
+if (popup_confirm == 1) {
+
+    // Dark overlay
+    DrawRectangle(0, 0, W, H, (Color){0, 0, 0, 150});
+
+    // Popup card
+    int pw = 360;
+    int ph = 200;
+    int px = (W - pw) / 2;
+    int py = (H - ph) / 2;
+
+    DrawRectangleRounded(
+        (Rectangle){px, py, pw, ph},
+        0.08f, 8, COL_CARD);
+    DrawRectangleLinesEx(
+        (Rectangle){px, py, pw, ph},
+        2.0f, COL_DANGER);
+
+    // Warning icon area
+    DrawRectangleRounded(
+        (Rectangle){px + pw/2 - 25, py + 18, 50, 50},
+        0.3f, 8, (Color){254, 226, 226, 255});
+    DrawTextEx(font, "!",
+               (Vector2){px + pw/2 - 8, py + 28},
+               30, 1, COL_DANGER);
+
+    // Title
+    DrawTextEx(font, "Confirmer la suppression",
+               (Vector2){px + 20, py + 82},
+               16, 1, COL_TEXT);
+
+    // Employee name
+    if (employe_selectionne >= 0) {
+        char confirm_msg[100];
+        sprintf(confirm_msg, "Supprimer %s %s ?",
+                employes[employe_selectionne].nom,
+                employes[employe_selectionne].prenom);
+        DrawTextEx(font, confirm_msg,
+                   (Vector2){px + 20, py + 108},
+                   13, 1, COL_MUTED);
+    }
+
+    DrawTextEx(font, "Cette action est irreversible.",
+               (Vector2){px + 20, py + 128},
+               12, 1, COL_DANGER);
+
+    // Annuler button
+    if (GuiButton((Rectangle){px + 20, py + 152, 145, 36},
+                  "Annuler")) {
+        popup_confirm = 0;
+    }
+
+    // Confirmer button
+    DrawRectangleRounded(
+        (Rectangle){px + 185, py + 152, 155, 36},
+        0.3f, 8, COL_DANGER);
+    if (GuiButton((Rectangle){px + 185, py + 152, 155, 36},
+                  "Oui, supprimer")) {
+        supprimerEmploye(employes, &nb_employes,
+                         employe_selectionne);
+        sauvegarderCSV(employes, nb_employes);
+        employe_selectionne = -1;
+        ecran_actuel        = ECRAN_LISTE;
+        popup_confirm       = 0;
+    }
+
+    // Close if click outside
+    Vector2 mouse = GetMousePosition();
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) &&
+        !CheckCollisionPointRec(mouse,
+         (Rectangle){px, py, pw, ph})) {
+        popup_confirm = 0;
+    }
+}
+
 
 
 
