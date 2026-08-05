@@ -32,16 +32,20 @@ pdf = FPDF()
 pdf.add_page()
 pdf.set_auto_page_break(auto=True, margin=15)
 
+# Use Unicode font
+pdf.add_font("DejaVu", "", "C:\\Windows\\Fonts\\arial.ttf", uni=True)
+pdf.add_font("DejaVu", "B", "C:\\Windows\\Fonts\\arialbd.ttf", uni=True)
+
 # ─── Header ───────────────────────────────────
 pdf.set_fill_color(*NAVY)
 pdf.rect(0, 0, 210, 35, 'F')
 
-pdf.set_font("Helvetica", "B", 22)
+pdf.set_font("DejaVu", "B", 22)
 pdf.set_text_color(*WHITE)
 pdf.set_xy(10, 8)
 pdf.cell(0, 12, "EasySalaire", ln=False)
 
-pdf.set_font("Helvetica", "", 11)
+pdf.set_font("DejaVu", "", 11)
 pdf.set_xy(10, 22)
 pdf.cell(0, 8, "Bulletin de Paie", ln=False)
 
@@ -49,28 +53,28 @@ pdf.cell(0, 8, "Bulletin de Paie", ln=False)
 pdf.set_fill_color(*LIGHT)
 pdf.rect(10, 42, 190, 32, 'F')
 
-pdf.set_font("Helvetica", "B", 11)
+pdf.set_font("DejaVu", "B", 11)
 pdf.set_text_color(*ACCENT)
 pdf.set_xy(14, 44)
 pdf.cell(0, 7, "Informations personnelles")
 
-pdf.set_font("Helvetica", "", 10)
+pdf.set_font("DejaVu", "", 10)
 pdf.set_text_color(30, 41, 59)
 
 pdf.set_xy(14, 52)
 pdf.cell(30, 6, "Nom :")
-pdf.set_font("Helvetica", "B", 10)
+pdf.set_font("DejaVu", "B", 10)
 pdf.cell(60, 6, nom)
 
-pdf.set_font("Helvetica", "", 10)
+pdf.set_font("DejaVu", "", 10)
 pdf.cell(25, 6, "Prenom :")
-pdf.set_font("Helvetica", "B", 10)
+pdf.set_font("DejaVu", "B", 10)
 pdf.cell(60, 6, prenom)
 
-pdf.set_font("Helvetica", "", 10)
+pdf.set_font("DejaVu", "", 10)
 pdf.set_xy(14, 60)
 pdf.cell(30, 6, "Poste :")
-pdf.set_font("Helvetica", "B", 10)
+pdf.set_font("DejaVu", "B", 10)
 pdf.cell(0, 6, poste)
 
 # ─── Salary card ──────────────────────────────
@@ -79,17 +83,17 @@ pdf.rect(10, 82, 190, 70, 'F')
 pdf.set_draw_color(226, 232, 240)
 pdf.rect(10, 82, 190, 70)
 
-pdf.set_font("Helvetica", "B", 11)
+pdf.set_font("DejaVu", "B", 11)
 pdf.set_text_color(*ACCENT)
 pdf.set_xy(14, 85)
 pdf.cell(0, 7, "Calcul du salaire")
 
 def row(pdf, label, value, color, bold=False):
     pdf.set_text_color(*GRAY)
-    pdf.set_font("Helvetica", "", 10)
+    pdf.set_font("DejaVu", "", 10)
     pdf.cell(80, 7, label)
     pdf.set_text_color(*color)
-    pdf.set_font("Helvetica", "B" if bold else "", 10)
+    pdf.set_font("DejaVu", "B" if bold else "", 10)
     pdf.cell(0, 7, value, ln=True)
     pdf.set_x(14)
 
@@ -121,7 +125,7 @@ pdf.set_draw_color(134, 239, 172)
 pdf.rect(10, y, 190, 18)
 
 pdf.set_xy(14, y + 4)
-pdf.set_font("Helvetica", "B", 13)
+pdf.set_font("DejaVu", "B", 13)
 pdf.set_text_color(30, 41, 59)
 pdf.cell(80, 10, "SALAIRE NET :")
 pdf.set_text_color(*GREEN)
@@ -130,11 +134,11 @@ pdf.cell(0, 10, f"{net:.2f} TND")
 # ─── Footer ───────────────────────────────────
 pdf.set_fill_color(*NAVY)
 pdf.rect(0, 272, 210, 25, 'F')
-pdf.set_font("Helvetica", "", 9)
+pdf.set_font("DejaVu", "", 9)
 pdf.set_text_color(*WHITE)
 pdf.set_xy(10, 278)
-pdf.cell(0, 7, "EasySalaire — Systeme de gestion de paie | 2025/2026",
-         align="C")
+pdf.set_xy(10, 278)
+pdf.cell(0, 7, "EasySalaire - Systeme de gestion de paie | 2025/2026", align="C")
 
 # ─── Save ─────────────────────────────────────
 filename = f"C:\\EasySalaire\\saves\\{nom}_{prenom}_fiche.pdf"
