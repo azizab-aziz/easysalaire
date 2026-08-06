@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <time.h>
 
 
 void creerDossierSaves(void) {
@@ -58,10 +59,27 @@ float calculNet(Employe *e) {
     return e->salaire_net;
 }
 
+
+void getDateActuelle(char *buf) {
+    time_t t = time(NULL);
+    struct tm *tm_info = localtime(&t);
+
+    const char *mois[] = {
+        "Janvier", "Fevrier", "Mars", "Avril",
+        "Mai", "Juin", "Juillet", "Aout",
+        "Septembre", "Octobre", "Novembre", "Decembre"
+    };
+
+    sprintf(buf, "%s %d",
+            mois[tm_info->tm_mon],
+            tm_info->tm_year + 1900);
+}
+
 // ─── Ajouter un employé ───────────────────────
 void ajouterEmploye(Employe tab[], int *nb, Employe e) {
     if (*nb < MAX_EMPLOYES) {
         calculNet(&e);
+        getDateActuelle(e.mois_annee);
         tab[(*nb)++] = e;
     }
 }
@@ -91,6 +109,8 @@ void sauvegarderFiche(Employe *e) {
 
     fprintf(f, "INFORMATIONS PERSONNELLES\n");
     fprintf(f, "-------------------------\n");
+    fprintf(f, "Periode      : %s\n", e->mois_annee);
+    fprintf(f, "\n");
     fprintf(f, "Nom          : %s\n", e->nom);
     fprintf(f, "Prenom       : %s\n", e->prenom);
     fprintf(f, "Poste        : %s\n", e->poste);
@@ -120,20 +140,21 @@ void sauvegarderCSV(Employe tab[], int nb) {
     if (f == NULL) return;
 
     // Header
-    fprintf(f, "Nom,Prenom,Poste,Salaire Base,Heures Sup,Prime,CNSS,IR,Salaire Net\n");
+   fprintf(f, "Nom,Prenom,Poste,Salaire Base,Heures Sup,Prime,CNSS,IR,Salaire Net,Periode\n");
 
     // Data
     for (int i = 0; i < nb; i++) {
-        fprintf(f, "%s,%s,%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
-            tab[i].nom,
-            tab[i].prenom,
-            tab[i].poste,
-            tab[i].salaire_base,
-            tab[i].heures_sup,
-            tab[i].prime,
-            tab[i].cnss,
-            tab[i].ir,
-            tab[i].salaire_net);
+        fprintf(f, "%s,%s,%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%s\n",
+    tab[i].nom,
+    tab[i].prenom,
+    tab[i].poste,
+    tab[i].salaire_base,
+    tab[i].heures_sup,
+    tab[i].prime,
+    tab[i].cnss,
+    tab[i].ir,
+    tab[i].salaire_net,
+    tab[i].mois_annee);
     }
 
     fclose(f);
@@ -151,10 +172,11 @@ int chargerCSV(Employe tab[]) {
 
     while (fgets(line, sizeof(line), f) && nb < MAX_EMPLOYES) {
         Employe e;
-        sscanf(line, "%49[^,],%49[^,],%49[^,],%f,%f,%f,%f,%f,%f",
-            e.nom, e.prenom, e.poste,
-            &e.salaire_base, &e.heures_sup, &e.prime,
-            &e.cnss, &e.ir, &e.salaire_net);
+        sscanf(line, "%49[^,],%49[^,],%49[^,],%f,%f,%f,%f,%f,%f,%19[^\n]",
+    e.nom, e.prenom, e.poste,
+    &e.salaire_base, &e.heures_sup, &e.prime,
+    &e.cnss, &e.ir, &e.salaire_net,
+    e.mois_annee);
         tab[nb++] = e;
     }
 

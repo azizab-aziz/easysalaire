@@ -432,7 +432,17 @@ DrawTextEx(font, poste_cut,  (Vector2){c3, ry+15}, 15, 1, COL_TEXT);
            DrawRectangleLinesEx(
     (Rectangle){card_x, cy, card_w, 100},
     1.5f, COL_BORDER);
-            DrawTextEx(font, "Informations",  (Vector2){card_x + 20, cy + 12}, 13, 1, COL_ACCENT);
+           DrawTextEx(font, "Informations",
+           (Vector2){card_x + 20, cy + 12},
+           13, 1, COL_ACCENT);
+
+// Date on the right side
+char date_label[40];
+sprintf(date_label, "Periode : %s", e->mois_annee);
+Vector2 date_sz = MeasureTextEx(font, date_label, 13, 1);
+DrawTextEx(font, date_label,
+           (Vector2){card_x + card_w - date_sz.x - 20, cy + 12},
+           13, 1, COL_MUTED);
             DrawTextEx(font, "Nom :",         (Vector2){card_x + 20, cy + 34}, 15, 1, COL_MUTED);
             DrawTextEx(font, e->nom,          (Vector2){card_x + 120, cy + 34}, 15, 1, COL_TEXT);
             DrawTextEx(font, "Prenom :",      (Vector2){card_x + 20, cy + 56}, 15, 1, COL_MUTED);

@@ -17,6 +17,7 @@ typedef struct {
     float cnss;
     float ir;
     float salaire_net;
+    char mois_annee[20];
 } Employe;
 
 // ─── Prototypes ───────────────────────────────
@@ -37,5 +38,7 @@ void sauvegarderFiche(Employe *e);
 
 void sauvegarderFiche(Employe *e);
 void sauvegarderCSV(Employe tab[], int nb);
+
+void getDateActuelle(char *buf);
 
 #endif
