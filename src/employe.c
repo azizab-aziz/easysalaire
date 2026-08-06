@@ -172,12 +172,19 @@ int chargerCSV(Employe tab[]) {
 
     while (fgets(line, sizeof(line), f) && nb < MAX_EMPLOYES) {
         Employe e;
-        sscanf(line, "%49[^,],%49[^,],%49[^,],%f,%f,%f,%f,%f,%f,%19[^\n]",
+      sscanf(line, "%49[^,],%49[^,],%49[^,],%f,%f,%f,%f,%f,%f,%19[^,\n]",
     e.nom, e.prenom, e.poste,
     &e.salaire_base, &e.heures_sup, &e.prime,
     &e.cnss, &e.ir, &e.salaire_net,
     e.mois_annee);
+
+if (strlen(e.mois_annee) == 0)
+    getDateActuelle(e.mois_annee);
         tab[nb++] = e;
+
+if (strlen(e.mois_annee) == 0) {
+    getDateActuelle(e.mois_annee);
+}
     }
 
     fclose(f);

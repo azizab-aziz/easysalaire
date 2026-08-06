@@ -438,6 +438,8 @@ DrawTextEx(font, poste_cut,  (Vector2){c3, ry+15}, 15, 1, COL_TEXT);
 
 // Date on the right side
 char date_label[40];
+if (strlen(e->mois_annee) == 0)
+    getDateActuelle(e->mois_annee);
 sprintf(date_label, "Periode : %s", e->mois_annee);
 Vector2 date_sz = MeasureTextEx(font, date_label, 13, 1);
 DrawTextEx(font, date_label,
