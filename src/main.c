@@ -62,6 +62,8 @@ int main(void) {
     int popup_save = 0; // 0=off, 1=show popup
     int save_index = -1;
     int popup_confirm = 0;
+    char success_msg[100] = "";
+    float success_timer = 0.0f;
 
     char nom[50]   = "", prenom[50] = "", poste[50] = "";
     char base[20]  = "", hsup[20]   = "", prime[20] = "";
@@ -172,6 +174,8 @@ if (IsKeyPressed(KEY_ENTER)) {
         e.prime        = atof(prime);
         ajouterEmploye(employes, &nb_employes, e);
         sauvegarderCSV(employes, nb_employes);
+        strcpy(success_msg, "Employe ajoute avec succes !");
+        success_timer = 3.0f;
         nom[0] = prenom[0] = poste[0] = '\0';
         base[0] = hsup[0] = prime[0] = '\0';
         champ_actif = 0; // back to first field
@@ -612,6 +616,8 @@ if (IsKeyPressed(KEY_ENTER)) {
             employes[employe_selectionne].prime        = atof(mod_prime);
             calculNet(&employes[employe_selectionne]);
             sauvegarderCSV(employes, nb_employes);
+            strcpy(success_msg, "Modifications sauvegardees !");
+            success_timer = 3.0f;
             ecran_actuel = ECRAN_FICHE;
         }
     } else {
@@ -730,7 +736,9 @@ if (popup_save == 1) {
                   "Fiche .txt")) {
         if (save_index >= 0)
             sauvegarderFiche(&employes[save_index]);
-        popup_save = 0;
+            popup_save = 0;
+            strcpy(success_msg, "Fiche .txt sauvgardee !");
+            success_timer = 3.0f;
     }
 
     // Liste .csv
@@ -738,6 +746,8 @@ if (popup_save == 1) {
                   "Liste .csv")) {
         sauvegarderCSV(employes, nb_employes);
         popup_save = 0;
+        strcpy(success_msg, "Fiche .txt sauvgardee !");
+        success_timer = 3.0f;
     }
 
     // Fiche PDF
@@ -755,6 +765,8 @@ if (popup_save == 1) {
             system(cmd);
         }
         popup_save = 0;
+        strcpy(success_msg, "Fiche PDF generee !");
+        success_timer = 3.0f;
     }
 
     // Annuler
@@ -835,6 +847,8 @@ if (popup_confirm == 1) {
         supprimerEmploye(employes, &nb_employes,
                          employe_selectionne);
         sauvegarderCSV(employes, nb_employes);
+        strcpy(success_msg, "Employe supprime !");
+        success_timer = 3.0f;
         employe_selectionne = -1;
         ecran_actuel        = ECRAN_LISTE;
         popup_confirm       = 0;
@@ -849,6 +863,36 @@ if (popup_confirm == 1) {
     }
 }
 
+
+// ══════════════════════════════════════
+// SUCCESS MESSAGE
+// ══════════════════════════════════════
+if (success_timer > 0.0f) {
+    success_timer -= GetFrameTime();
+
+    // Fade out effect
+    float alpha = success_timer > 0.5f ? 1.0f : success_timer * 2.0f;
+    unsigned char a = (unsigned char)(alpha * 255);
+
+    // Measure text width for centering
+    Vector2 size = MeasureTextEx(font, success_msg, 15, 1);
+    int sw = (int)size.x + 40;
+    int sh = 44;
+    int sx = (W - sw) / 2;
+    int sy = H - 70;
+
+    // Background
+    DrawRectangleRounded(
+        (Rectangle){sx, sy, sw, sh},
+        0.3f, 8,
+        (Color){22, 163, 74, a});
+
+    // Text
+    DrawTextEx(font, success_msg,
+               (Vector2){sx + 20, sy + 13},
+               15, 1,
+               (Color){255, 255, 255, a});
+}
 
 
 
