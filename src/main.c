@@ -24,7 +24,8 @@ typedef enum {
     ECRAN_FORMULAIRE,
     ECRAN_LISTE,
     ECRAN_FICHE,
-    ECRAN_MODIFICATION
+    ECRAN_MODIFICATION,
+    ECRAN_STATS
 } Ecran;
 
 int main(void) {
@@ -282,6 +283,11 @@ for (int i = 0; i < 6; i++) {
                 ecran_actuel = ECRAN_FORMULAIRE;
                 employe_selectionne = -1;
             }
+
+            if (GuiButton((Rectangle){W - 310, 10, 135, 38},
+                         "Statistiques")) {
+               ecran_actuel = ECRAN_STATS;
+           }
 
             // ─── Search bar ───────────────────
             int sb_y = 105;
@@ -703,6 +709,217 @@ if (key > 0 && champ_mod >= 0) {
     }
 }
         }
+
+
+
+
+
+// ══════════════════════════════════════
+// ÉCRAN STATISTIQUES
+// ══════════════════════════════════════
+if (ecran_actuel == ECRAN_STATS) {
+
+    DrawTextEx(font, "Statistiques", (Vector2){24, 68},
+               16, 1, COL_MUTED);
+
+    // ─── Back button ──────────────────
+    if (GuiButton((Rectangle){W - 160, 10, 135, 38},
+                  "Retour liste")) {
+        ecran_actuel = ECRAN_LISTE;
+    }
+
+    // ─── Calculate stats ──────────────
+    float total  = 0.0f;
+    float min_s  = nb_employes > 0 ? employes[0].salaire_net : 0;
+    float max_s  = 0.0f;
+    int   idx_min = 0;
+    int   idx_max = 0;
+
+    for (int i = 0; i < nb_employes; i++) {
+        total += employes[i].salaire_net;
+        if (employes[i].salaire_net < min_s) {
+            min_s   = employes[i].salaire_net;
+            idx_min = i;
+        }
+        if (employes[i].salaire_net > max_s) {
+            max_s   = employes[i].salaire_net;
+            idx_max = i;
+        }
+    }
+
+    float moyenne = nb_employes > 0 ? total / nb_employes : 0;
+
+    // ─── No employees ─────────────────
+    if (nb_employes == 0) {
+        DrawTextEx(font, "Aucun employe enregistre.",
+                   (Vector2){W/2 - 130, H/2},
+                   16, 1, COL_MUTED);
+    } else {
+
+        int cx     = W / 2;
+        int card_w = (W > 900) ? W - 200 : W - 60;
+        int card_x = (W - card_w) / 2;
+        int cy     = 100;
+
+        // ─── Title card ───────────────
+        DrawRectangleRounded(
+            (Rectangle){card_x, cy, card_w, 50},
+            0.04f, 8, COL_HEADER);
+        DrawTextEx(font, "Masse salariale globale",
+                   (Vector2){card_x + 20, cy + 14},
+                   16, 1, WHITE);
+
+        char buf[60];
+        sprintf(buf, "%d employe(s)", nb_employes);
+        Vector2 sz = MeasureTextEx(font, buf, 14, 1);
+        DrawTextEx(font, buf,
+                   (Vector2){card_x + card_w - sz.x - 20, cy + 16},
+                   14, 1, (Color){148, 163, 184, 255});
+
+        // ─── 4 stat cards ─────────────
+        int cw4  = (card_w - 60) / 4;
+        int ch4  = 110;
+        int cy4  = cy + 70;
+
+        // Total
+        DrawRectangleRounded(
+            (Rectangle){card_x, cy4, cw4, ch4},
+            0.08f, 8, COL_CARD);
+        DrawRectangleLinesEx(
+            (Rectangle){card_x, cy4, cw4, ch4},
+            1.5f, COL_BORDER);
+        DrawTextEx(font, "Total",
+                   (Vector2){card_x + 12, cy4 + 12},
+                   13, 1, COL_MUTED);
+        sprintf(buf, "%.2f", total);
+        DrawTextEx(font, buf,
+                   (Vector2){card_x + 12, cy4 + 38},
+                   17, 1, COL_ACCENT);
+        DrawTextEx(font, "TND",
+                   (Vector2){card_x + 12, cy4 + 62},
+                   12, 1, COL_MUTED);
+
+        // Moyenne
+        DrawRectangleRounded(
+            (Rectangle){card_x + cw4 + 20, cy4, cw4, ch4},
+            0.08f, 8, COL_CARD);
+        DrawRectangleLinesEx(
+            (Rectangle){card_x + cw4 + 20, cy4, cw4, ch4},
+            1.5f, COL_BORDER);
+        DrawTextEx(font, "Moyenne",
+                   (Vector2){card_x + cw4 + 32, cy4 + 12},
+                   13, 1, COL_MUTED);
+        sprintf(buf, "%.2f", moyenne);
+        DrawTextEx(font, buf,
+                   (Vector2){card_x + cw4 + 32, cy4 + 38},
+                   17, 1, COL_ACCENT);
+        DrawTextEx(font, "TND / employe",
+                   (Vector2){card_x + cw4 + 32, cy4 + 62},
+                   12, 1, COL_MUTED);
+
+        // Min
+        DrawRectangleRounded(
+            (Rectangle){card_x + (cw4 + 20)*2, cy4, cw4, ch4},
+            0.08f, 8, (Color){255, 245, 245, 255});
+        DrawRectangleLinesEx(
+            (Rectangle){card_x + (cw4 + 20)*2, cy4, cw4, ch4},
+            1.5f, (Color){254, 202, 202, 255});
+        DrawTextEx(font, "Minimum",
+                   (Vector2){card_x + (cw4+20)*2 + 12, cy4 + 12},
+                   13, 1, COL_MUTED);
+        sprintf(buf, "%.2f", min_s);
+        DrawTextEx(font, buf,
+                   (Vector2){card_x + (cw4+20)*2 + 12, cy4 + 38},
+                   17, 1, COL_DANGER);
+        DrawTextEx(font, employes[idx_min].nom,
+                   (Vector2){card_x + (cw4+20)*2 + 12, cy4 + 62},
+                   12, 1, COL_MUTED);
+
+        // Max
+        DrawRectangleRounded(
+            (Rectangle){card_x + (cw4 + 20)*3, cy4, cw4, ch4},
+            0.08f, 8, (Color){240, 253, 244, 255});
+        DrawRectangleLinesEx(
+            (Rectangle){card_x + (cw4 + 20)*3, cy4, cw4, ch4},
+            1.5f, (Color){134, 239, 172, 255});
+        DrawTextEx(font, "Maximum",
+                   (Vector2){card_x + (cw4+20)*3 + 12, cy4 + 12},
+                   13, 1, COL_MUTED);
+        sprintf(buf, "%.2f", max_s);
+        DrawTextEx(font, buf,
+                   (Vector2){card_x + (cw4+20)*3 + 12, cy4 + 38},
+                   17, 1, COL_SUCCESS);
+        DrawTextEx(font, employes[idx_max].nom,
+                   (Vector2){card_x + (cw4+20)*3 + 12, cy4 + 62},
+                   12, 1, COL_MUTED);
+
+        // ─── Detail table ─────────────
+        int ty = cy4 + ch4 + 30;
+
+        DrawRectangle(card_x, ty, card_w, 32, COL_HDR_ROW);
+        DrawTextEx(font, "Employe",
+                   (Vector2){card_x + 20, ty + 9},
+                   13, 1, WHITE);
+        DrawTextEx(font, "Poste",
+                   (Vector2){card_x + card_w*0.35f, ty + 9},
+                   13, 1, WHITE);
+        DrawTextEx(font, "Salaire net",
+                   (Vector2){card_x + card_w*0.65f, ty + 9},
+                   13, 1, WHITE);
+        DrawTextEx(font, "% du total",
+                   (Vector2){card_x + card_w*0.82f, ty + 9},
+                   13, 1, WHITE);
+
+        for (int i = 0; i < nb_employes; i++) {
+            int ry  = ty + 32 + i * 40;
+            Color bg = (i % 2 == 0) ? COL_CARD : COL_ROW_ALT;
+            DrawRectangle(card_x, ry, card_w, 40, bg);
+            DrawRectangle(card_x, ry + 39, card_w, 1, COL_BORDER);
+
+            // Name
+            char full[100];
+            sprintf(full, "%s %s", employes[i].nom,
+                    employes[i].prenom);
+            DrawTextEx(font, full,
+                       (Vector2){card_x + 20, ry + 12},
+                       13, 1, COL_TEXT);
+
+            // Poste
+            char poste_cut[22];
+            strncpy(poste_cut, employes[i].poste, 21);
+            poste_cut[21] = '\0';
+            if (strlen(employes[i].poste) > 21)
+                strcpy(poste_cut + 18, "...");
+            DrawTextEx(font, poste_cut,
+                       (Vector2){card_x + card_w*0.35f, ry + 12},
+                       13, 1, COL_MUTED);
+
+            // Salaire net
+            sprintf(buf, "%.2f TND", employes[i].salaire_net);
+            DrawTextEx(font, buf,
+                       (Vector2){card_x + card_w*0.65f, ry + 12},
+                       13, 1, COL_SUCCESS);
+
+            // Percentage bar
+            float pct = total > 0
+                      ? (employes[i].salaire_net / total) * 100.0f
+                      : 0;
+            int bar_x = card_x + card_w * 0.82f;
+            int bar_w = card_w * 0.14f;
+
+            DrawRectangle(bar_x, ry + 14, bar_w, 12,
+                          COL_BORDER);
+            DrawRectangle(bar_x, ry + 14,
+                          (int)(bar_w * pct / 100.0f), 12,
+                          COL_ACCENT);
+
+            sprintf(buf, "%.1f%%", pct);
+            DrawTextEx(font, buf,
+                       (Vector2){bar_x + bar_w + 8, ry + 12},
+                       11, 1, COL_MUTED);
+        }
+    }
+}
 
 
 
