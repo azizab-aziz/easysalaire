@@ -83,6 +83,8 @@ int main(void) {
     int  champ_recherche = 0;
     int sort_col = -1;
     int sort_asc = 1;
+    int page_actuelle = 0;
+    int par_page = 10;
     float splash_timer = 2.5f;
     int splash_done = 0;
     int  champ_actif     = -1;
@@ -436,11 +438,20 @@ for (int i = 0; i < 6; i++) {
             }
             GuiTextBox(r_rech, recherche, 50, champ_recherche);
 
+            // Reset page on new search
+            static char prev_recherche[50] = "";
+            if (strcmp(recherche, prev_recherche) != 0) {
+               page_actuelle = 0;
+               strcpy(prev_recherche, recherche);
+           }
+
             DrawRectangleRounded(
                 (Rectangle){402, sb_y, 80, 34},
                 0.3f, 8, COL_BORDER);
-            if (GuiButton((Rectangle){402, sb_y, 80, 34}, "Effacer"))
+            if (GuiButton((Rectangle){402, sb_y, 80, 34}, "Effacer")){
                 recherche[0] = '\0';
+                page_actuelle = 0;
+            }
             if (GuiButton((Rectangle){500, sb_y, 150, 34}, "Exporter Excel")) {
                 system("python C:\\EasySalaire\\saves\\export_excel.py");
             }
@@ -513,65 +524,81 @@ DrawTextEx(font, h_poste, (Vector2){c3, table_y + 10}, 14, 1, WHITE);
 DrawTextEx(font, h_sal,   (Vector2){c4, table_y + 10}, 14, 1, WHITE);
 DrawTextEx(font, "Action",(Vector2){c5, table_y + 10}, 14, 1, WHITE);
             // Rows
-            int count = 0;
-            for (int i = 0; i < nb_employes; i++) {
+            // ─── Build filtered list ──────────────────────
+int filtered[MAX_EMPLOYES];
+int nb_filtered = 0;
 
-                   if (strlen(recherche) > 0) {
-                       char r_lower[50], nom_lower[50], prenom_lower[50];
-
-                       // Copy and convert to lowercase
-                       for (int j = 0; recherche[j]; j++)
-                          r_lower[j] = tolower(recherche[j]);
-                       r_lower[strlen(recherche)] = '\0';
-
-                       for (int j = 0; employes[i].nom[j]; j++)
-                          nom_lower[j] = tolower(employes[i].nom[j]);
-                       nom_lower[strlen(employes[i].nom)] = '\0';
-
-                       for (int j = 0; employes[i].prenom[j]; j++)
-                          prenom_lower[j] = tolower(employes[i].prenom[j]);
-                        prenom_lower[strlen(employes[i].prenom)] = '\0';
-
-                       if (strstr(nom_lower,    r_lower) == NULL &&
-                          strstr(prenom_lower, r_lower) == NULL)
-                          continue;
+for (int i = 0; i < nb_employes; i++) {
+    if (strlen(recherche) > 0) {
+        char r_lower[50], nom_lower[50], prenom_lower[50];
+        for (int j = 0; recherche[j]; j++)
+            r_lower[j] = tolower(recherche[j]);
+        r_lower[strlen(recherche)] = '\0';
+        for (int j = 0; employes[i].nom[j]; j++)
+            nom_lower[j] = tolower(employes[i].nom[j]);
+        nom_lower[strlen(employes[i].nom)] = '\0';
+        for (int j = 0; employes[i].prenom[j]; j++)
+            prenom_lower[j] = tolower(employes[i].prenom[j]);
+        prenom_lower[strlen(employes[i].prenom)] = '\0';
+        if (strstr(nom_lower,    r_lower) == NULL &&
+            strstr(prenom_lower, r_lower) == NULL)
+            continue;
+    }
+    filtered[nb_filtered++] = i;
 }
 
-                int ry = table_y + 36 + count * row_h;
-                Color bg = (count % 2 == 0) ? COL_CARD : COL_ROW_ALT;
-                DrawRectangle(20, ry, W - 40, row_h, bg);
-                DrawRectangle(20, ry + row_h - 1, W - 40, 1, COL_BORDER);
+// ─── Pagination calc ──────────────────────────
+int nb_pages  = (nb_filtered + par_page - 1) / par_page;
+if (nb_pages == 0) nb_pages = 1;
+if (page_actuelle >= nb_pages) page_actuelle = nb_pages - 1;
 
-                // ─── Truncate text to fit column ──────────
-char nom_cut[20], prenom_cut[20], poste_cut[22];
+int start = page_actuelle * par_page;
+int end   = start + par_page;
+if (end > nb_filtered) end = nb_filtered;
 
-strncpy(nom_cut,    employes[i].nom,    19); nom_cut[19]    = '\0';
-strncpy(prenom_cut, employes[i].prenom, 19); prenom_cut[19] = '\0';
-strncpy(poste_cut,  employes[i].poste,  21); poste_cut[21]  = '\0';
+// ─── Draw rows ────────────────────────────────
+int count = 0;
+for (int fi = start; fi < end; fi++) {
+    int i  = filtered[fi];
+    int ry = table_y + 36 + count * row_h;
 
-// Add "..." if truncated
-if (strlen(employes[i].nom)    > 19) strcpy(nom_cut    + 16, "...");
-if (strlen(employes[i].prenom) > 19) strcpy(prenom_cut + 16, "...");
-if (strlen(employes[i].poste)  > 21) strcpy(poste_cut  + 18, "...");
+    Color bg = (count % 2 == 0) ? COL_CARD : COL_ROW_ALT;
+    DrawRectangle(20, ry, W - 40, row_h, bg);
+    DrawRectangle(20, ry + row_h - 1, W - 40, 1, COL_BORDER);
 
-DrawTextEx(font, nom_cut,    (Vector2){c1, ry+15}, 15, 1, COL_TEXT);
-DrawTextEx(font, prenom_cut, (Vector2){c2, ry+15}, 15, 1, COL_TEXT);
-DrawTextEx(font, poste_cut,  (Vector2){c3, ry+15}, 15, 1, COL_TEXT);
+    char nom_cut[20], prenom_cut[20], poste_cut[22];
+    strncpy(nom_cut,    employes[i].nom,    19); nom_cut[19]    = '\0';
+    strncpy(prenom_cut, employes[i].prenom, 19); prenom_cut[19] = '\0';
+    strncpy(poste_cut,  employes[i].poste,  21); poste_cut[21]  = '\0';
+    if (strlen(employes[i].nom)    > 19) strcpy(nom_cut    + 16, "...");
+    if (strlen(employes[i].prenom) > 19) strcpy(prenom_cut + 16, "...");
+    if (strlen(employes[i].poste)  > 21) strcpy(poste_cut  + 18, "...");
 
-                char net[30];
-                sprintf(net, "%.2f TND", employes[i].salaire_net);
-                DrawTextEx(font, net, (Vector2){c4, ry+15}, 15, 1, COL_SUCCESS);
+    DrawTextEx(font, nom_cut,    (Vector2){c1, ry+15}, 15, 1, COL_TEXT);
+    DrawTextEx(font, prenom_cut, (Vector2){c2, ry+15}, 15, 1, COL_TEXT);
+    DrawTextEx(font, poste_cut,  (Vector2){c3, ry+15}, 15, 1, COL_TEXT);
 
-                DrawRectangleRounded(
-                    (Rectangle){c5, ry+8, 110, 28},
-                    0.3f, 8, COL_ACCENT);
-                if (GuiButton((Rectangle){c5, ry+8, 110, 28},
-                              "Voir fiche")) {
-                    employe_selectionne = i;
-                    ecran_actuel = ECRAN_FICHE;
-                }
-                count++;
-            }
+    char net[30];
+    sprintf(net, "%.2f TND", employes[i].salaire_net);
+    DrawTextEx(font, net, (Vector2){c4, ry+15}, 15, 1, COL_SUCCESS);
+
+    DrawRectangleRounded(
+        (Rectangle){c5, ry+8, 110, 28},
+        0.3f, 8, COL_ACCENT);
+    if (GuiButton((Rectangle){c5, ry+8, 110, 28},
+                  "Voir fiche")) {
+        employe_selectionne = i;
+        ecran_actuel = ECRAN_FICHE;
+    }
+    count++;
+}
+
+if (nb_employes == 0)
+    DrawTextEx(font, "Aucun employe enregistre.",
+               (Vector2){W/2 - 130, H/2}, 16, 1, COL_MUTED);
+else if (nb_filtered == 0)
+    DrawTextEx(font, "Aucun resultat trouve.",
+               (Vector2){W/2 - 110, H/2}, 16, 1, COL_MUTED);
 
             if (nb_employes == 0)
                 DrawTextEx(font,"Aucun employe enregistre.",
@@ -579,13 +606,69 @@ DrawTextEx(font, poste_cut,  (Vector2){c3, ry+15}, 15, 1, COL_TEXT);
             else if (count == 0)
                 DrawTextEx(font,"Aucun resultat trouve.", (Vector2){W/2 - 110, H/2}, 16,1, COL_MUTED);
 
-            // Footer
-            DrawRectangle(0, H - 36, W, 36, COL_CARD);
-            DrawRectangle(0, H - 36, W, 1, COL_BORDER);
-            char total[60];
-            sprintf(total, "Total : %d employe(s)   Affiches : %d",
-                    nb_employes, count);
-            DrawTextEx(font, total, (Vector2){24, H - 24}, 13, 1, COL_MUTED);
+
+            // ─── Footer + Pagination ──────────────────────
+DrawRectangle(0, H - 46, W, 46, COL_CARD);
+DrawRectangle(0, H - 46, W, 1, COL_BORDER);
+
+// Total info
+char total[80];
+sprintf(total, "Total : %d employe(s)   Affiches : %d   Page %d/%d",
+        nb_employes, nb_filtered,
+        page_actuelle + 1, nb_pages);
+DrawTextEx(font, total, (Vector2){24, H - 30}, 13, 1, COL_MUTED);
+
+// Pagination buttons
+int pbtn_w = 36;
+int pbtn_h = 28;
+int pbtn_y = H - 40;
+int pbtn_x = W / 2 - 80;
+
+// Previous button
+if (page_actuelle > 0) {
+    DrawRectangleRounded(
+        (Rectangle){pbtn_x, pbtn_y, pbtn_w, pbtn_h},
+        0.3f, 8, COL_ACCENT);
+} else {
+    DrawRectangleRounded(
+        (Rectangle){pbtn_x, pbtn_y, pbtn_w, pbtn_h},
+        0.3f, 8, COL_BORDER);
+}
+if (GuiButton((Rectangle){pbtn_x, pbtn_y, pbtn_w, pbtn_h}, "<")) {
+    if (page_actuelle > 0) page_actuelle--;
+}
+
+// Page numbers
+for (int p = 0; p < nb_pages && p < 7; p++) {
+    int px_p = pbtn_x + 46 + p * 38;
+    Color pc = (p == page_actuelle) ? COL_ACCENT : COL_BORDER;
+    DrawRectangleRounded(
+        (Rectangle){px_p, pbtn_y, 30, pbtn_h},
+        0.3f, 8, pc);
+    char pnum[4];
+    sprintf(pnum, "%d", p + 1);
+    Vector2 ps = MeasureTextEx(font, pnum, 13, 1);
+    DrawTextEx(font, pnum,
+        (Vector2){px_p + 15 - ps.x/2, pbtn_y + 7},
+        13, 1, WHITE);
+    if (GuiButton((Rectangle){px_p, pbtn_y, 30, pbtn_h}, ""))
+        page_actuelle = p;
+}
+
+// Next button
+int next_x = pbtn_x + 46 + nb_pages * 38;
+if (page_actuelle < nb_pages - 1) {
+    DrawRectangleRounded(
+        (Rectangle){next_x, pbtn_y, pbtn_w, pbtn_h},
+        0.3f, 8, COL_ACCENT);
+} else {
+    DrawRectangleRounded(
+        (Rectangle){next_x, pbtn_y, pbtn_w, pbtn_h},
+        0.3f, 8, COL_BORDER);
+}
+if (GuiButton((Rectangle){next_x, pbtn_y, pbtn_w, pbtn_h}, ">")) {
+    if (page_actuelle < nb_pages - 1) page_actuelle++;
+}
         }
 
         // ══════════════════════════════════════
