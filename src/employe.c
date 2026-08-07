@@ -5,6 +5,8 @@
 #include <time.h>
 
 
+static int bulletin_counter = 0;
+
 void creerDossierSaves(void) {
     #ifdef _WIN32
         mkdir("C:\\EasySalaire\\saves");
@@ -80,6 +82,8 @@ void ajouterEmploye(Employe tab[], int *nb, Employe e) {
     if (*nb < MAX_EMPLOYES) {
         calculNet(&e);
         getDateActuelle(e.mois_annee);
+        bulletin_counter++;
+        e.numero_bulletin = bulletin_counter;
         tab[(*nb)++] = e;
     }
 }
@@ -109,6 +113,7 @@ void sauvegarderFiche(Employe *e) {
 
     fprintf(f, "INFORMATIONS PERSONNELLES\n");
     fprintf(f, "-------------------------\n");
+    fprintf(f, "Bulletin N   : %03d\n", e->numero_bulletin);
     fprintf(f, "Periode      : %s\n", e->mois_annee);
     fprintf(f, "\n");
     fprintf(f, "Nom          : %s\n", e->nom);
@@ -140,11 +145,11 @@ void sauvegarderCSV(Employe tab[], int nb) {
     if (f == NULL) return;
 
     // Header
-   fprintf(f, "Nom,Prenom,Poste,Salaire Base,Heures Sup,Prime,CNSS,IR,Salaire Net,Periode\n");
+   fprintf(f, "Nom,Prenom,Poste,Salaire Base,Heures Sup,Prime,CNSS,IR,Salaire Net,Periode,Bulletin\n");
 
     // Data
     for (int i = 0; i < nb; i++) {
-        fprintf(f, "%s,%s,%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%s\n",
+        fprintf(f, "%s,%s,%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%s,%d\n",
     tab[i].nom,
     tab[i].prenom,
     tab[i].poste,
@@ -154,7 +159,8 @@ void sauvegarderCSV(Employe tab[], int nb) {
     tab[i].cnss,
     tab[i].ir,
     tab[i].salaire_net,
-    tab[i].mois_annee);
+    tab[i].mois_annee,
+    tab[i].numero_bulletin);
     }
 
     fclose(f);
@@ -172,14 +178,19 @@ int chargerCSV(Employe tab[]) {
 
     while (fgets(line, sizeof(line), f) && nb < MAX_EMPLOYES) {
         Employe e;
-      sscanf(line, "%49[^,],%49[^,],%49[^,],%f,%f,%f,%f,%f,%f,%19[^,\n]",
+e.numero_bulletin = 0;
+sscanf(line, "%49[^,],%49[^,],%49[^,],%f,%f,%f,%f,%f,%f,%19[^,\n],%d",
     e.nom, e.prenom, e.poste,
     &e.salaire_base, &e.heures_sup, &e.prime,
     &e.cnss, &e.ir, &e.salaire_net,
-    e.mois_annee);
+    e.mois_annee, &e.numero_bulletin);
 
 if (strlen(e.mois_annee) == 0)
     getDateActuelle(e.mois_annee);
+
+// Update counter to highest bulletin number
+if (e.numero_bulletin > bulletin_counter)
+    bulletin_counter = e.numero_bulletin;
         tab[nb++] = e;
 
 if (strlen(e.mois_annee) == 0) {

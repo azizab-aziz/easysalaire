@@ -700,6 +700,13 @@ if (GuiButton((Rectangle){next_x, pbtn_y, pbtn_w, pbtn_h}, ">")) {
            (Vector2){card_x + 20, cy + 12},
            13, 1, COL_ACCENT);
 
+// Bulletin number
+char bull[20];
+sprintf(bull, "N %03d", e->numero_bulletin);
+DrawTextEx(font, bull,
+           (Vector2){card_x + 110, cy + 12},
+           13, 1, COL_ACCENT);
+
 // Date on the right side
 char date_label[40];
 if (strlen(e->mois_annee) == 0)

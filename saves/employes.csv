@@ -1,12 +1,2 @@
-Nom,Prenom,Poste,Salaire Base,Heures Sup,Prime,CNSS,IR,Salaire Net,Periode
-BEN FARHAT ,Ismail,responsable materielles ,2600.00,5.00,450.00,280.68,715.96,2060.86,Aout 2026
-BEN HASSEN,Mariem,responsable logistique ,4000.00,6.00,500.00,413.93,1223.98,2871.09,Aout 2026
-ABIDI,MED aziz,developeur,2900.00,9.00,680.00,329.88,903.56,2360.06,Aout 2026
-BRAHMI,Hamza,chef projet ,6000.00,11.00,1000.00,644.11,2101.61,4270.78,Aout 2026
-KADRI,Nacer,chef projet ,6000.00,6.00,780.00,623.23,2021.98,4143.79,Aout 2026
-MASSMOUDI,Chaima,RH ,5400.00,8.00,600.00,551.90,1750.03,3710.07,Aout 2026
-AL AZIZ,BILEL,ingénieure de fonction,2900.00,6.00,380.00,301.93,796.98,2190.09,Aout 2026
-BEN ARFFA,BINEN,RH,5200.00,6.00,480.00,522.25,1636.98,3529.77,Aout 2026
-MOUSSA,AHMED,developpeur,290.00,7.00,650.00,87.26,91.79,771.45,Aout 2026
-AJOULI,ISSRA,ingénieure de production,3000.00,5.00,400.00,312.81,838.46,2256.23,Aout 2026
-HAWAWI,MOSTAFA,derecteur générale ,6500.00,13.00,800.00,671.93,2207.66,4439.91,Aout 2026
+Nom,Prenom,Poste,Salaire Base,Heures Sup,Prime,CNSS,IR,Salaire Net,Periode,Bulletin
+BEN FARHAT,ISMAIL,responsable materielles,2600.00,5.00,450.00,280.68,715.96,2060.86,Aout 2026,1

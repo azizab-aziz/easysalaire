@@ -18,6 +18,7 @@ typedef struct {
     float ir;
     float salaire_net;
     char mois_annee[20];
+    int numero_bulletin;
 } Employe;
 
 // ─── Prototypes ───────────────────────────────

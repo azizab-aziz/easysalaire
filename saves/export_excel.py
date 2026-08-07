@@ -39,7 +39,7 @@ border = Border(left=thin, right=thin, top=thin, bottom=thin)
 headers = [
     "Nom", "Prenom", "Poste",
     "Salaire Base", "Heures Sup", "Prime",
-    "CNSS", "IR", "Salaire Net", "Periode"
+    "CNSS", "IR", "Salaire Net", "Periode","Bulltein"
 ]
 
 for col, header in enumerate(headers, 1):
