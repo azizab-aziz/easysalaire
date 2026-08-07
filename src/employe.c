@@ -1,5 +1,6 @@
 #include "employe.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
@@ -149,7 +150,7 @@ void sauvegarderCSV(Employe tab[], int nb) {
 
     // Data
     for (int i = 0; i < nb; i++) {
-        fprintf(f, "%s,%s,%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%s,%d\n",
+        fprintf(f, "%s,%s,%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%s,N°%03d\n",
     tab[i].nom,
     tab[i].prenom,
     tab[i].poste,
@@ -179,11 +180,17 @@ int chargerCSV(Employe tab[]) {
     while (fgets(line, sizeof(line), f) && nb < MAX_EMPLOYES) {
         Employe e;
 e.numero_bulletin = 0;
-sscanf(line, "%49[^,],%49[^,],%49[^,],%f,%f,%f,%f,%f,%f,%19[^,\n],%d",
+char bull_str[10] = "";
+sscanf(line, "%49[^,],%49[^,],%49[^,],%f,%f,%f,%f,%f,%f,%19[^,\n],%9[^,\n]",
     e.nom, e.prenom, e.poste,
     &e.salaire_base, &e.heures_sup, &e.prime,
     &e.cnss, &e.ir, &e.salaire_net,
-    e.mois_annee, &e.numero_bulletin);
+    e.mois_annee, bull_str);
+
+// Parse N°001 → 1
+e.numero_bulletin = 0;
+if (strlen(bull_str) > 2)
+    e.numero_bulletin = atoi(bull_str + 2); // skip "N°"
 
 if (strlen(e.mois_annee) == 0)
     getDateActuelle(e.mois_annee);

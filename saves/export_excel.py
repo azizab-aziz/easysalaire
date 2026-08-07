@@ -59,7 +59,12 @@ for row_idx, row in enumerate(rows[1:], 2):
     for col_idx, value in enumerate(row, 1):
         cell = ws.cell(row=row_idx, column=col_idx)
         try:
-            cell.value = float(value)
+    # Format bulletin number as N°001
+    if col_idx == 11:  # Bulletin column
+        cell.value = f"N\u00b0{int(float(value)):03d}"
+        cell.font = Font(color="1E293B", size=10)
+    else:
+        cell.value = float(value)
             if col_idx == 9:
                 cell.font = Font(color=GREEN, bold=True, size=10)
             elif col_idx in [7, 8]:
