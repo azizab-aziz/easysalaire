@@ -39,7 +39,7 @@ border = Border(left=thin, right=thin, top=thin, bottom=thin)
 headers = [
     "Nom", "Prenom", "Poste",
     "Salaire Base", "Heures Sup", "Prime",
-    "CNSS", "IR", "Salaire Net", "Periode","Bulltein"
+    "CNSS", "IR", "Salaire Net", "Periode","Bulletin"
 ]
 
 for col, header in enumerate(headers, 1):
@@ -58,22 +58,36 @@ for row_idx, row in enumerate(rows[1:], 2):
 
     for col_idx, value in enumerate(row, 1):
         cell = ws.cell(row=row_idx, column=col_idx)
-        try:
-    # Format bulletin number as N°001
-    if col_idx == 11:  # Bulletin column
-        cell.value = f"N\u00b0{int(float(value)):03d}"
-        cell.font = Font(color="1E293B", size=10)
-    else:
-        cell.value = float(value)
-            if col_idx == 9:
-                cell.font = Font(color=GREEN, bold=True, size=10)
-            elif col_idx in [7, 8]:
-                cell.font = Font(color=RED, size=10)
-            else:
-                cell.font = Font(color="1E293B", size=10)
-        except:
-            cell.value = value
+
+        if col_idx == 11:
+            # Bulletin column → keep as text N°001
+            cell.value = value.strip()
+            cell.font  = Font(color="1E293B", bold=True, size=10)
+        elif col_idx == 9:
+            try:
+                cell.value = float(value)
+                cell.font  = Font(color=GREEN, bold=True, size=10)
+            except:
+                cell.value = value
+                cell.font  = Font(color="1E293B", size=10)
+        elif col_idx in [7, 8]:
+            try:
+                cell.value = float(value)
+                cell.font  = Font(color=RED, size=10)
+            except:
+                cell.value = value
+                cell.font  = Font(color="1E293B", size=10)
+        elif col_idx == 10:
+            # Periode column → text
+            cell.value = value.strip()
             cell.font  = Font(color="1E293B", size=10)
+        else:
+            try:
+                cell.value = float(value)
+                cell.font  = Font(color="1E293B", size=10)
+            except:
+                cell.value = value
+                cell.font  = Font(color="1E293B", size=10)
 
         cell.fill      = fill
         cell.alignment = Alignment(horizontal="left", vertical="center")

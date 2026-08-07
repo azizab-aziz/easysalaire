@@ -189,8 +189,11 @@ sscanf(line, "%49[^,],%49[^,],%49[^,],%f,%f,%f,%f,%f,%f,%19[^,\n],%9[^,\n]",
 
 // Parse N°001 → 1
 e.numero_bulletin = 0;
-if (strlen(bull_str) > 2)
-    e.numero_bulletin = atoi(bull_str + 2); // skip "N°"
+// Find first digit in bull_str
+int bi = 0;
+while (bull_str[bi] && (bull_str[bi] < '0' || bull_str[bi] > '9'))
+    bi++;
+e.numero_bulletin = atoi(bull_str + bi);
 
 if (strlen(e.mois_annee) == 0)
     getDateActuelle(e.mois_annee);
