@@ -83,6 +83,8 @@ int main(void) {
     int  champ_recherche = 0;
     int sort_col = -1;
     int sort_asc = 1;
+    float splash_timer = 2.5f;
+    int splash_done = 0;
     int  champ_actif     = -1;
     int  champ_mod      = -1;
     int  champ_mod_prev = -1;
@@ -111,6 +113,111 @@ int main(void) {
 
         BeginDrawing();
         ClearBackground(COL_BG);
+
+        // ══════════════════════════════════════
+// SPLASH SCREEN
+// ══════════════════════════════════════
+if (!splash_done) {
+    splash_timer -= GetFrameTime();
+    if (splash_timer <= 0.0f) splash_done = 1;
+
+    // Background
+    ClearBackground(COL_HEADER);
+
+    float progress = 1.0f - (splash_timer / 2.5f);
+
+    // ─── Fade in alpha ────────────────
+    unsigned char alpha = (unsigned char)(
+        progress < 0.4f ? (progress / 0.4f) * 255
+                        : 255);
+
+    // ─── Animated circle ──────────────
+    float scale = 0.5f + progress * 0.5f;
+    int   cx    = W / 2;
+    int   cy    = H / 2 - 60;
+    float r1    = 90 * scale;
+    float r2    = 70 * scale;
+
+    // Outer circle navy
+    DrawCircle(cx, cy, r1,
+        (Color){26, 43, 74, alpha});
+    // Inner circle accent
+    DrawCircle(cx, cy, r2,
+        (Color){37, 99, 235, alpha});
+
+    // White card shape
+    int cw = (int)(80 * scale);
+    int ch = (int)(90 * scale);
+    DrawRectangleRounded(
+        (Rectangle){cx - cw/2, cy - ch/2, cw, ch},
+        0.15f, 8,
+        (Color){255, 255, 255, alpha});
+
+    // Green net bar
+    DrawRectangleRounded(
+        (Rectangle){cx - cw/2, cy + ch/2 - 18, cw, 18},
+        0.1f, 8,
+        (Color){22, 163, 74, alpha});
+
+    // Lines on card
+    for (int i = 0; i < 3; i++) {
+        DrawRectangleRounded(
+            (Rectangle){cx - cw/2 + 8,
+                        cy - ch/2 + 12 + i*18,
+                        cw - 16, 8},
+            0.5f, 4,
+            (Color){226, 232, 240, alpha});
+    }
+
+    // ─── Title ────────────────────────
+    Vector2 ts = MeasureTextEx(font,
+        "EasySalaire", 42, 1);
+    DrawTextEx(font, "EasySalaire",
+        (Vector2){cx - ts.x/2, cy + r1 + 20},
+        42, 1,
+        (Color){255, 255, 255, alpha});
+
+    // Subtitle
+    Vector2 ss = MeasureTextEx(font,
+        "Gestion de paie simplifiee", 16, 1);
+    DrawTextEx(font,
+        "Gestion de paie simplifiee",
+        (Vector2){cx - ss.x/2, cy + r1 + 72},
+        16, 1,
+        (Color){148, 163, 184, alpha});
+
+    // ─── Loading bar ──────────────────
+    int bar_w = 200;
+    int bar_x = cx - bar_w / 2;
+    int bar_y = H - 80;
+
+    DrawRectangleRounded(
+        (Rectangle){bar_x, bar_y, bar_w, 6},
+        0.5f, 4,
+        (Color){255, 255, 255, 40});
+    DrawRectangleRounded(
+        (Rectangle){bar_x, bar_y,
+                    (int)(bar_w * progress), 6},
+        0.5f, 4,
+        (Color){37, 99, 235, alpha});
+
+    DrawTextEx(font, "Chargement...",
+        (Vector2){cx - 50, bar_y + 16},
+        13, 1,
+        (Color){148, 163, 184, alpha});
+
+    // ─── Fade out at end ──────────────
+    if (splash_timer < 0.4f) {
+        float fade = splash_timer / 0.4f;
+        unsigned char fa = (unsigned char)(
+            (1.0f - fade) * 200);
+        DrawRectangle(0, 0, W, H,
+            (Color){0, 0, 0, fa});
+    }
+
+    EndDrawing();
+    continue;
+}
 
         // ══════════════════════════════════════
         // HEADER BAR (all screens)
