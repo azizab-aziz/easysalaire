@@ -28,6 +28,30 @@ typedef enum {
     ECRAN_STATS
 } Ecran;
 
+
+// ─── Compare functions for sort ───────────────
+int compareNom(const void *a, const void *b) {
+    return strcmp(((Employe*)a)->nom, ((Employe*)b)->nom);
+}
+int compareNomDesc(const void *a, const void *b) {
+    return strcmp(((Employe*)b)->nom, ((Employe*)a)->nom);
+}
+int comparePoste(const void *a, const void *b) {
+    return strcmp(((Employe*)a)->poste, ((Employe*)b)->poste);
+}
+int comparePosteDesc(const void *a, const void *b) {
+    return strcmp(((Employe*)b)->poste, ((Employe*)a)->poste);
+}
+int compareSalaire(const void *a, const void *b) {
+    float diff = ((Employe*)a)->salaire_net - ((Employe*)b)->salaire_net;
+    return (diff > 0) - (diff < 0);
+}
+int compareSalaireDesc(const void *a, const void *b) {
+    float diff = ((Employe*)b)->salaire_net - ((Employe*)a)->salaire_net;
+    return (diff > 0) - (diff < 0);
+}
+
+
 int main(void) {
 
 
@@ -57,6 +81,8 @@ int main(void) {
 
     char recherche[50] = "";
     int  champ_recherche = 0;
+    int sort_col = -1;
+    int sort_asc = 1;
     int  champ_actif     = -1;
     int  champ_mod      = -1;
     int  champ_mod_prev = -1;
@@ -223,7 +249,7 @@ for (int i = 0; i < 6; i++) {
             GuiTextBox(r_prime,  prime,  20, champ_actif == 5);
 
 
-           int btn_w = 140;
+            int btn_w = 140;
             int btn_gap = 20;
             int total_btn_w = btn_w * 2 + btn_gap;
             int btn_x = card_x + (card_w - total_btn_w) / 2;
@@ -319,18 +345,66 @@ for (int i = 0; i < 6; i++) {
             // Header row
             DrawRectangle(20, table_y, W - 40, 36, COL_HDR_ROW);
 
-            float c1 = 20  + (W-40)*0.02f;
-            float c2 = 20  + (W-40)*0.22f;
-            float c3 = 20  + (W-40)*0.42f;
-            float c4 = 20  + (W-40)*0.62f;
-            float c5 = 20  + (W-40)*0.80f;
+float c1 = 20  + (W-40)*0.02f;
+float c2 = 20  + (W-40)*0.22f;
+float c3 = 20  + (W-40)*0.42f;
+float c4 = 20  + (W-40)*0.62f;
+float c5 = 20  + (W-40)*0.80f;
 
-           DrawTextEx(font, "Nom",         (Vector2){c1, table_y + 10}, 14, 1, WHITE);
-           DrawTextEx(font, "Prenom",      (Vector2){c2, table_y + 10}, 14, 1, WHITE);
-           DrawTextEx(font, "Poste",       (Vector2){c3, table_y + 10}, 14, 1, WHITE);
-           DrawTextEx(font, "Salaire net", (Vector2){c4, table_y + 10}, 14, 1, WHITE);
-           DrawTextEx(font, "Action",      (Vector2){c5, table_y + 10}, 14, 1, WHITE);
+// ─── Clickable sort headers ───────────────────
+const char *arr0 = (sort_col == 0) ? (sort_asc ? " ^" : " v") : "";
+const char *arr2 = (sort_col == 1) ? (sort_asc ? " ^" : " v") : "";
+const char *arr3 = (sort_col == 2) ? (sort_asc ? " ^" : " v") : "";
 
+char h_nom[20], h_poste[20], h_sal[20];
+sprintf(h_nom,  "Nom%s",         arr0);
+sprintf(h_poste,"Poste%s",       arr2);
+sprintf(h_sal,  "Salaire net%s", arr3);
+
+// Nom header — clickable
+Rectangle r_h_nom  = {c1, table_y, (W-40)*0.20f, 36};
+Rectangle r_h_post = {c3, table_y, (W-40)*0.20f, 36};
+Rectangle r_h_sal  = {c4, table_y, (W-40)*0.18f, 36};
+
+if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+    Vector2 m = GetMousePosition();
+    if (CheckCollisionPointRec(m, r_h_nom)) {
+        if (sort_col == 0) sort_asc = !sort_asc;
+        else { sort_col = 0; sort_asc = 1; }
+        if (sort_asc) qsort(employes, nb_employes, sizeof(Employe), compareNom);
+        else          qsort(employes, nb_employes, sizeof(Employe), compareNomDesc);
+        sauvegarderCSV(employes, nb_employes);
+    }
+    if (CheckCollisionPointRec(m, r_h_post)) {
+        if (sort_col == 1) sort_asc = !sort_asc;
+        else { sort_col = 1; sort_asc = 1; }
+        if (sort_asc) qsort(employes, nb_employes, sizeof(Employe), comparePoste);
+        else          qsort(employes, nb_employes, sizeof(Employe), comparePosteDesc);
+        sauvegarderCSV(employes, nb_employes);
+    }
+    if (CheckCollisionPointRec(m, r_h_sal)) {
+        if (sort_col == 2) sort_asc = !sort_asc;
+        else { sort_col = 2; sort_asc = 1; }
+        if (sort_asc) qsort(employes, nb_employes, sizeof(Employe), compareSalaire);
+        else          qsort(employes, nb_employes, sizeof(Employe), compareSalaireDesc);
+        sauvegarderCSV(employes, nb_employes);
+    }
+}
+
+// Hover effect
+Vector2 mouse = GetMousePosition();
+if (CheckCollisionPointRec(mouse, r_h_nom))
+    DrawRectangle(c1, table_y, (W-40)*0.20f, 36, (Color){255,255,255,30});
+if (CheckCollisionPointRec(mouse, r_h_post))
+    DrawRectangle(c3, table_y, (W-40)*0.20f, 36, (Color){255,255,255,30});
+if (CheckCollisionPointRec(mouse, r_h_sal))
+    DrawRectangle(c4, table_y, (W-40)*0.18f, 36, (Color){255,255,255,30});
+
+DrawTextEx(font, h_nom,   (Vector2){c1, table_y + 10}, 14, 1, WHITE);
+DrawTextEx(font, "Prenom",(Vector2){c2, table_y + 10}, 14, 1, WHITE);
+DrawTextEx(font, h_poste, (Vector2){c3, table_y + 10}, 14, 1, WHITE);
+DrawTextEx(font, h_sal,   (Vector2){c4, table_y + 10}, 14, 1, WHITE);
+DrawTextEx(font, "Action",(Vector2){c5, table_y + 10}, 14, 1, WHITE);
             // Rows
             int count = 0;
             for (int i = 0; i < nb_employes; i++) {
