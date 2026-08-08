@@ -27,7 +27,8 @@ typedef enum {
     ECRAN_FICHE,
     ECRAN_MODIFICATION,
     ECRAN_STATS,
-    ECRAN_HISTORIQUE
+    ECRAN_HISTORIQUE,
+    ECRAN_COMPARAISON
 } Ecran;
 
 
@@ -90,6 +91,9 @@ int main(void) {
     int  hist_nb       = 0;
     int  hist_scanned  = 0; // ← flag to scan only once
     int hist_confirm_del = -1;
+    int hist_compare_1 = -1;
+    int hist_compare_2 = -1;
+    int mode_compare = 0;
     int par_page = 10;
     float splash_timer = 2.5f;
     int splash_done = 0;
@@ -1265,6 +1269,38 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
         hist_scanned  = 0;
     }
 
+    // Toggle compare mode
+    if (mode_compare == 0) {
+       if (GuiButton((Rectangle){W - 310, 10, 135, 38},
+                  "Comparer")) {
+        mode_compare    = 1;
+        hist_compare_1  = -1;
+        hist_compare_2  = -1;
+    }
+} else {
+    DrawRectangleRounded(
+        (Rectangle){W - 310, 10, 135, 38},
+        0.3f, 8, COL_ACCENT);
+    if (GuiButton((Rectangle){W - 310, 10, 135, 38},
+                  "Annuler")) {
+        mode_compare   = 0;
+        hist_compare_1 = -1;
+        hist_compare_2 = -1;
+    }
+
+    // Instructions
+    char hint[60];
+    if (hist_compare_1 == -1)
+        strcpy(hint, "Selectionnez la 1ere fiche");
+    else if (hist_compare_2 == -1)
+        strcpy(hint, "Selectionnez la 2eme fiche");
+    else
+        strcpy(hint, "");
+
+    DrawTextEx(font, hint,
+               (Vector2){24, 95}, 13, 1, COL_ACCENT);
+}
+
     int card_w = (W > 900) ? W - 200 : W - 60;
     int card_x = (W - card_w) / 2;
     int cy     = 100;
@@ -1291,17 +1327,38 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
 
    for (int i = 0; i < hist_nb; i++) {
     int ry = ty + i * 50;
-    Color bg = (i % 2 == 0) ? COL_CARD : COL_ROW_ALT;
+
+    // Highlight selected files in compare mode
+    Color bg;
+    if (mode_compare && i == hist_compare_1)
+        bg = (Color){219, 234, 254, 255};
+    else if (mode_compare && i == hist_compare_2)
+        bg = (Color){220, 252, 231, 255};
+    else
+        bg = (i % 2 == 0) ? COL_CARD : COL_ROW_ALT;
 
     DrawRectangle(card_x, ry, card_w, 46, bg);
     DrawRectangle(card_x, ry + 45, card_w, 1, COL_BORDER);
 
+    // Selection indicator
+    if (mode_compare && i == hist_compare_1) {
+        DrawRectangle(card_x, ry, 4, 46, COL_ACCENT);
+        DrawTextEx(font, "1",
+                   (Vector2){card_x + 7, ry + 15},
+                   13, 1, COL_ACCENT);
+    } else if (mode_compare && i == hist_compare_2) {
+        DrawRectangle(card_x, ry, 4, 46, COL_SUCCESS);
+        DrawTextEx(font, "2",
+                   (Vector2){card_x + 7, ry + 15},
+                   13, 1, COL_SUCCESS);
+    }
+
     // File icon
     DrawRectangleRounded(
-        (Rectangle){card_x + 12, ry + 10, 28, 28},
+        (Rectangle){card_x + 16, ry + 10, 28, 28},
         0.2f, 4, COL_LIGHT_BLUE);
     DrawTextEx(font, "F",
-               (Vector2){card_x + 21, ry + 15},
+               (Vector2){card_x + 25, ry + 15},
                12, 1, COL_ACCENT);
 
     // Display name
@@ -1313,32 +1370,64 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
         if (display[j] == '_') display[j] = ' ';
 
     DrawTextEx(font, display,
-               (Vector2){card_x + 50, ry + 15},
+               (Vector2){card_x + 54, ry + 15},
                14, 1, COL_TEXT);
 
-    // ─── Ouvrir button ────────────────
-    if (GuiButton((Rectangle){card_x + card_w - 230,
-                               ry + 10, 100, 28},
-                  "Ouvrir")) {
-        char dossier[200];
-        sprintf(dossier,
-            "C:\\EasySalaire\\saves\\historique\\%s_%s",
-            e->nom, e->prenom);
-        char open_cmd[400];
-        sprintf(open_cmd, "start \"\" \"%s\\%s\"",
-                dossier, hist_files[i]);
-        system(open_cmd);
-    }
+    if (mode_compare) {
+        // In compare mode — click to select
+        Rectangle row_rect = {card_x, ry, card_w, 46};
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) &&
+            CheckCollisionPointRec(GetMousePosition(), row_rect)) {
+            if (hist_compare_1 == -1)
+                hist_compare_1 = i;
+            else if (hist_compare_2 == -1 && i != hist_compare_1)
+                hist_compare_2 = i;
+        }
 
-    // ─── Supprimer button ─────────────
+        // Hover effect
+        if (CheckCollisionPointRec(GetMousePosition(),
+            (Rectangle){card_x, ry, card_w, 46}))
+            DrawRectangle(card_x, ry, card_w, 46,
+                          (Color){0, 0, 0, 15});
+
+    } else {
+        // Normal mode — Ouvrir + Supprimer
+        if (GuiButton((Rectangle){card_x + card_w - 230,
+                                   ry + 10, 100, 28},
+                      "Ouvrir")) {
+            char dossier[200];
+            sprintf(dossier,
+                "C:\\EasySalaire\\saves\\historique\\%s_%s",
+                e->nom, e->prenom);
+            char open_cmd[400];
+            sprintf(open_cmd, "start \"\" \"%s\\%s\"",
+                    dossier, hist_files[i]);
+            system(open_cmd);
+        }
+
+        DrawRectangleRounded(
+            (Rectangle){card_x + card_w - 120,
+                        ry + 10, 100, 28},
+            0.3f, 8, (Color){254, 226, 226, 255});
+        if (GuiButton((Rectangle){card_x + card_w - 120,
+                                   ry + 10, 100, 28},
+                      "Supprimer")) {
+            hist_confirm_del = i;
+        }
+    }
+}
+
+// ─── Compare button when 2 selected ──────────
+if (mode_compare &&
+    hist_compare_1 >= 0 &&
+    hist_compare_2 >= 0) {
+
     DrawRectangleRounded(
-        (Rectangle){card_x + card_w - 120,
-                    ry + 10, 100, 28},
-        0.3f, 8, (Color){254, 226, 226, 255});
-    if (GuiButton((Rectangle){card_x + card_w - 120,
-                               ry + 10, 100, 28},
-                  "Supprimer")) {
-        hist_confirm_del = i;
+        (Rectangle){W/2 - 100, H - 90, 200, 40},
+        0.3f, 8, COL_ACCENT);
+    if (GuiButton((Rectangle){W/2 - 100, H - 90, 200, 40},
+                  "Voir comparaison")) {
+        ecran_actuel = ECRAN_COMPARAISON;
     }
 }
 
@@ -1430,6 +1519,181 @@ if (hist_confirm_del >= 0) {
     sprintf(footer, "%d fiche(s) dans l'historique", hist_nb);
     DrawTextEx(font, footer,
                (Vector2){24, H - 24}, 13, 1, COL_MUTED);
+}
+
+
+
+// ══════════════════════════════════════
+// ÉCRAN COMPARAISON
+// ══════════════════════════════════════
+if (ecran_actuel == ECRAN_COMPARAISON &&
+    employe_selectionne >= 0) {
+
+    Employe *e = &employes[employe_selectionne];
+
+    DrawTextEx(font, "Comparaison des fiches",
+               (Vector2){24, 68}, 16, 1, COL_MUTED);
+
+    if (GuiButton((Rectangle){W - 160, 10, 135, 38},
+                  "Retour")) {
+        ecran_actuel = ECRAN_HISTORIQUE;
+    }
+
+    // ─── Load two fiches ──────────────
+    char dossier[200];
+    sprintf(dossier,
+        "C:\\EasySalaire\\saves\\historique\\%s_%s",
+        e->nom, e->prenom);
+
+    char path1[400], path2[400];
+    sprintf(path1, "%s\\%s", dossier, hist_files[hist_compare_1]);
+    sprintf(path2, "%s\\%s", dossier, hist_files[hist_compare_2]);
+
+    Employe f1 = {0}, f2 = {0};
+    lireFiche(path1, &f1);
+    lireFiche(path2, &f2);
+
+    int card_w = (W > 900) ? W - 200 : W - 60;
+    int card_x = (W - card_w) / 2;
+    int cy     = 100;
+    int col_w  = (card_w - 40) / 3;
+
+    // ─── Header row ───────────────────
+    DrawRectangle(card_x, cy, card_w, 40, COL_HDR_ROW);
+
+    DrawTextEx(font, "Critere",
+               (Vector2){card_x + 10, cy + 12},
+               14, 1, WHITE);
+
+    // Fiche 1 name
+    char n1[60], n2[60];
+    strcpy(n1, hist_files[hist_compare_1]);
+    char *d1 = strrchr(n1, '.'); if (d1) *d1 = '\0';
+    for (int j = 0; n1[j]; j++)
+        if (n1[j] == '_') n1[j] = ' ';
+    strcpy(n2, hist_files[hist_compare_2]);
+    char *d2 = strrchr(n2, '.'); if (d2) *d2 = '\0';
+    for (int j = 0; n2[j]; j++)
+        if (n2[j] == '_') n2[j] = ' ';
+
+    DrawTextEx(font, n1,
+               (Vector2){card_x + col_w + 10, cy + 12},
+               13, 1, WHITE);
+    DrawTextEx(font, n2,
+               (Vector2){card_x + col_w*2 + 10, cy + 12},
+               13, 1, WHITE);
+
+    // ─── Comparison rows ──────────────
+    typedef struct {
+        const char *label;
+        float       v1;
+        float       v2;
+        int         is_good_high; // 1=higher is better, 0=lower is better
+    } CompRow;
+
+    CompRow rows[] = {
+        {"Salaire base",  f1.salaire_base, f2.salaire_base, 1},
+        {"CNSS",          f1.cnss,         f2.cnss,         0},
+        {"IR",            f1.ir,           f2.ir,           0},
+        {"Salaire net",   f1.salaire_net,  f2.salaire_net,  1},
+    };
+    int nb_rows = 4;
+
+    for (int i = 0; i < nb_rows; i++) {
+        int ry   = cy + 40 + i * 55;
+        Color bg = (i % 2 == 0) ? COL_CARD : COL_ROW_ALT;
+        DrawRectangle(card_x, ry, card_w, 55, bg);
+        DrawRectangle(card_x, ry + 54, card_w, 1, COL_BORDER);
+
+        // Label
+        DrawTextEx(font, rows[i].label,
+                   (Vector2){card_x + 10, ry + 8},
+                   14, 1, COL_TEXT);
+
+        // Value 1
+        char buf1[40], buf2[40];
+        sprintf(buf1, "%.2f TND", rows[i].v1);
+        sprintf(buf2, "%.2f TND", rows[i].v2);
+
+        Color c1 = COL_TEXT, c2 = COL_TEXT;
+        if (rows[i].v1 > rows[i].v2)
+            c1 = rows[i].is_good_high ? COL_SUCCESS : COL_DANGER;
+        else if (rows[i].v2 > rows[i].v1)
+            c2 = rows[i].is_good_high ? COL_SUCCESS : COL_DANGER;
+
+        DrawTextEx(font, buf1,
+                   (Vector2){card_x + col_w + 10, ry + 8},
+                   14, 1, c1);
+        DrawTextEx(font, buf2,
+                   (Vector2){card_x + col_w*2 + 10, ry + 8},
+                   14, 1, c2);
+
+        // Evolution arrow + difference
+        float diff = rows[i].v2 - rows[i].v1;
+        char evo[40];
+        if (diff > 0)
+            sprintf(evo, "+ %.2f", diff);
+        else if (diff < 0)
+            sprintf(evo, "- %.2f", -diff);
+        else
+            strcpy(evo, "=");
+
+        Color evo_col = (diff == 0) ? COL_MUTED :
+                        (diff > 0 && rows[i].is_good_high) ||
+                        (diff < 0 && !rows[i].is_good_high)
+                        ? COL_SUCCESS : COL_DANGER;
+
+        DrawTextEx(font, evo,
+                   (Vector2){card_x + col_w + 10, ry + 30},
+                   12, 1, evo_col);
+
+        // Visual bar comparison
+        int bar_max = col_w - 20;
+        float max_v = rows[i].v1 > rows[i].v2
+                    ? rows[i].v1 : rows[i].v2;
+        if (max_v > 0) {
+            int bw1 = (int)(bar_max * rows[i].v1 / max_v);
+            int bw2 = (int)(bar_max * rows[i].v2 / max_v);
+
+            DrawRectangle(card_x + 10, ry + 36,
+                          bar_max, 10, COL_BORDER);
+            DrawRectangle(card_x + 10, ry + 36,
+                          bw1, 10, (Color){37, 99, 235, 180});
+
+            DrawRectangle(card_x + col_w*2 + 10, ry + 36,
+                          bar_max, 10, COL_BORDER);
+            DrawRectangle(card_x + col_w*2 + 10, ry + 36,
+                          bw2, 10, (Color){37, 99, 235, 180});
+        }
+    }
+
+    // ─── Summary ──────────────────────
+    int sy = cy + 40 + nb_rows * 55 + 15;
+    float net_diff = f2.salaire_net - f1.salaire_net;
+
+    DrawRectangleRounded(
+        (Rectangle){card_x, sy, card_w, 54},
+        0.04f, 8,
+        net_diff >= 0
+        ? (Color){220, 252, 231, 255}
+        : (Color){254, 226, 226, 255});
+
+    char summary[100];
+    if (net_diff > 0)
+        sprintf(summary,
+            "Evolution positive : + %.2f TND sur le salaire net",
+            net_diff);
+    else if (net_diff < 0)
+        sprintf(summary,
+            "Evolution negative : - %.2f TND sur le salaire net",
+            -net_diff);
+    else
+        strcpy(summary, "Aucune evolution du salaire net");
+
+    Color sum_col = net_diff >= 0 ? COL_SUCCESS : COL_DANGER;
+    DrawTextEx(font, summary,
+               (Vector2){card_x + 20, sy + 18},
+               14, 1, sum_col);
 }
 
 

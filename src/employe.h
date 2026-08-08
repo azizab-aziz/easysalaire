@@ -31,6 +31,7 @@ float calculNet(Employe *e);
 void creerDossierSaves(void);
 int chargerCSV(Employe tab[]);
 void sauvegarderHistorique(Employe *e);
+int lireFiche(const char *filepath, Employe *out);
 
 // Gestion
 void ajouterEmploye(Employe tab[], int *nb, Employe e);

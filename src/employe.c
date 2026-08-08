@@ -269,3 +269,36 @@ if (strlen(e.mois_annee) == 0) {
     fclose(f);
     return nb;
 }
+
+
+int lireFiche(const char *filepath, Employe *out) {
+    FILE *f = fopen(filepath, "r");
+    if (!f) return 0;
+
+    char line[200];
+    while (fgets(line, sizeof(line), f)) {
+        float val;
+        char  str[100];
+
+        if (sscanf(line, "Nom          : %49[^\n]", str) == 1)
+            strcpy(out->nom, str);
+        else if (sscanf(line, "Prenom       : %49[^\n]", str) == 1)
+            strcpy(out->prenom, str);
+        else if (sscanf(line, "Poste        : %49[^\n]", str) == 1)
+            strcpy(out->poste, str);
+        else if (sscanf(line, "Periode      : %19[^\n]", str) == 1)
+            strcpy(out->mois_annee, str);
+        else if (sscanf(line, "Salaire base : %f", &val) == 1)
+            out->salaire_base = val;
+        else if (sscanf(line, "Salaire brut : %f", &val) == 1)
+            out->heures_sup = val;
+        else if (sscanf(line, "CNSS (9.18%%) : - %f", &val) == 1)
+            out->cnss = val;
+        else if (sscanf(line, "IR            : - %f", &val) == 1)
+            out->ir = val;
+        else if (sscanf(line, "SALAIRE NET  : %f", &val) == 1)
+            out->salaire_net = val;
+    }
+    fclose(f);
+    return 1;
+}
