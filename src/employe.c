@@ -86,6 +86,7 @@ void ajouterEmploye(Employe tab[], int *nb, Employe e) {
         bulletin_counter++;
         e.numero_bulletin = bulletin_counter;
         tab[(*nb)++] = e;
+        sauvegarderHistorique(&tab[(*nb)-1]);
     }
 }
 
@@ -133,6 +134,63 @@ void sauvegarderFiche(Employe *e) {
     fprintf(f, "CNSS (9.18%%) : - %.2f TND\n", e->cnss);
     fprintf(f, "IR            : - %.2f TND\n", e->ir);
 
+    fprintf(f, "\n========================================\n");
+    fprintf(f, "SALAIRE NET  : %.2f TND\n", e->salaire_net);
+    fprintf(f, "========================================\n");
+
+    fclose(f);
+}
+
+
+void sauvegarderHistorique(Employe *e) {
+    // Create base historique folder
+    #ifdef _WIN32
+        mkdir("C:\\EasySalaire\\saves\\historique");
+    #endif
+
+    // Create employee folder
+    char dossier[200];
+    sprintf(dossier, "C:\\EasySalaire\\saves\\historique\\%s_%s",
+            e->nom, e->prenom);
+    #ifdef _WIN32
+        mkdir(dossier);
+    #endif
+
+    // Create file
+    char filename[300];
+    sprintf(filename,
+        "C:\\EasySalaire\\saves\\historique\\%s_%s\\N%03d_%s.txt",
+        e->nom, e->prenom,
+        e->numero_bulletin,
+        e->mois_annee);
+
+    // Replace spaces in filename
+    for (int i = 0; filename[i]; i++)
+        if (filename[i] == ' ') filename[i] = '_';
+
+    FILE *f = fopen(filename, "w");
+    if (f == NULL) return;
+
+    float brut = calculBrut(e);
+
+    fprintf(f, "========================================\n");
+    fprintf(f, "      FICHE DE PAIE - EasySalaire      \n");
+    fprintf(f, "========================================\n\n");
+    fprintf(f, "Bulletin N   : N%03d\n", e->numero_bulletin);
+    fprintf(f, "Periode      : %s\n\n", e->mois_annee);
+    fprintf(f, "Nom          : %s\n", e->nom);
+    fprintf(f, "Prenom       : %s\n", e->prenom);
+    fprintf(f, "Poste        : %s\n", e->poste);
+    fprintf(f, "\nCALCUL DU SALAIRE\n");
+    fprintf(f, "-------------------------\n");
+    fprintf(f, "Salaire base : %.2f TND\n", e->salaire_base);
+    fprintf(f, "Heures sup   : + %.2f TND\n", e->heures_sup * 1.5f);
+    fprintf(f, "Prime        : + %.2f TND\n", e->prime);
+    fprintf(f, "Salaire brut : %.2f TND\n", brut);
+    fprintf(f, "\nRETENUES\n");
+    fprintf(f, "-------------------------\n");
+    fprintf(f, "CNSS (9.18%%) : - %.2f TND\n", e->cnss);
+    fprintf(f, "IR            : - %.2f TND\n", e->ir);
     fprintf(f, "\n========================================\n");
     fprintf(f, "SALAIRE NET  : %.2f TND\n", e->salaire_net);
     fprintf(f, "========================================\n");

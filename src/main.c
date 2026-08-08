@@ -20,12 +20,14 @@ static Color COL_CARD    = {255, 255, 255, 255};
 static Color COL_BORDER  = {226, 232, 240, 255};
 static Color COL_ROW_ALT = {248, 250, 252, 255};
 static Color COL_HDR_ROW = {30,  41,  59,  255};
+static Color COL_LIGHT_BLUE = {219, 234, 254, 255};
 typedef enum {
     ECRAN_FORMULAIRE,
     ECRAN_LISTE,
     ECRAN_FICHE,
     ECRAN_MODIFICATION,
-    ECRAN_STATS
+    ECRAN_STATS,
+    ECRAN_HISTORIQUE
 } Ecran;
 
 
@@ -84,6 +86,9 @@ int main(void) {
     int sort_col = -1;
     int sort_asc = 1;
     int page_actuelle = 0;
+    char hist_files[50][100];
+    int  hist_nb       = 0;
+    int  hist_scanned  = 0;  // ← flag to scan only once
     int par_page = 10;
     float splash_timer = 2.5f;
     int splash_done = 0;
@@ -831,10 +836,17 @@ DrawTextEx(font, date_label,
                 popup_save = 1;
             }
 
+            // Historique button — centered below
+            if (GuiButton((Rectangle){start_x + btn_w/2 + 30, btn_y + 50, btn_w + 40, 32},
+                         "Voir historique")) {
+               ecran_actuel = ECRAN_HISTORIQUE;
+               hist_scanned = 0;
+            }
+
             if (GuiButton((Rectangle){start_x + (btn_w + 30)*3, btn_y, btn_w, btn_h},
-              "Supprimer")) {
-    popup_confirm = 1;
-}
+                         "Supprimer")) {
+              popup_confirm = 1;
+           }
            draw_fiche_end:;
         }
 // ══════════════════════════════════════
@@ -1204,6 +1216,128 @@ if (ecran_actuel == ECRAN_STATS) {
     }
 }
 
+
+// ══════════════════════════════════════
+// ÉCRAN HISTORIQUE
+// ══════════════════════════════════════
+if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
+
+    Employe *e = &employes[employe_selectionne];
+
+    // ─── Scan folder ONCE ─────────────
+    if (!hist_scanned) {
+        hist_nb = 0;
+        char dossier[200];
+        sprintf(dossier,
+            "C:\\EasySalaire\\saves\\historique\\%s_%s",
+            e->nom, e->prenom);
+
+        char tmpfile[] = "C:\\EasySalaire\\saves\\tmp.txt";
+        char cmd[400];
+        sprintf(cmd, "dir \"%s\" /B /O-N > \"%s\" 2>nul",
+                dossier, tmpfile);
+        system(cmd);
+
+        FILE *fl = fopen(tmpfile, "r");
+        if (fl != NULL) {
+            char line[200];
+            while (fgets(line, sizeof(line), fl)
+                   && hist_nb < 50) {
+                line[strcspn(line, "\r\n")] = 0;
+                if (strlen(line) > 0 &&
+                    strstr(line, ".txt"))
+                    strcpy(hist_files[hist_nb++], line);
+            }
+            fclose(fl);
+        }
+        hist_scanned = 1;
+    }
+
+    // ─── Header ───────────────────────
+    DrawTextEx(font, "Historique des fiches",
+               (Vector2){24, 68}, 16, 1, COL_MUTED);
+
+    // Back button
+    if (GuiButton((Rectangle){W - 160, 10, 135, 38},
+                  "Retour fiche")) {
+        ecran_actuel  = ECRAN_FICHE;
+        hist_scanned  = 0;
+    }
+
+    int card_w = (W > 900) ? W - 200 : W - 60;
+    int card_x = (W - card_w) / 2;
+    int cy     = 100;
+
+    // Employee header
+    DrawRectangleRounded(
+        (Rectangle){card_x, cy, card_w, 50},
+        0.04f, 8, COL_HEADER);
+    char title[100];
+    sprintf(title, "%s %s  —  %s",
+            e->nom, e->prenom, e->poste);
+    DrawTextEx(font, title,
+               (Vector2){card_x + 20, cy + 15},
+               15, 1, WHITE);
+
+    // ─── File list ────────────────────
+    int ty = cy + 65;
+
+    if (hist_nb == 0) {
+        DrawTextEx(font, "Aucune fiche dans l'historique.",
+                   (Vector2){card_x + 20, ty + 20},
+                   14, 1, COL_MUTED);
+    }
+
+    for (int i = 0; i < hist_nb; i++) {
+        int ry = ty + i * 50;
+        Color bg = (i % 2 == 0) ? COL_CARD : COL_ROW_ALT;
+
+        DrawRectangle(card_x, ry, card_w, 46, bg);
+        DrawRectangle(card_x, ry + 45, card_w, 1, COL_BORDER);
+
+        // File icon
+        DrawRectangleRounded(
+            (Rectangle){card_x + 12, ry + 10, 28, 28},
+            0.2f, 4, COL_LIGHT_BLUE);
+        DrawTextEx(font, "F",
+                   (Vector2){card_x + 21, ry + 15},
+                   12, 1, COL_ACCENT);
+
+        // Display name
+        char display[100];
+        strcpy(display, hist_files[i]);
+        char *dot = strrchr(display, '.');
+        if (dot) *dot = '\0';
+        for (int j = 0; display[j]; j++)
+            if (display[j] == '_') display[j] = ' ';
+
+        DrawTextEx(font, display,
+                   (Vector2){card_x + 50, ry + 15},
+                   14, 1, COL_TEXT);
+
+        // Open button
+        if (GuiButton((Rectangle){card_x + card_w - 120,
+                                   ry + 10, 100, 28},
+                      "Ouvrir")) {
+            char dossier[200];
+            sprintf(dossier,
+                "C:\\EasySalaire\\saves\\historique\\%s_%s",
+                e->nom, e->prenom);
+            char open_cmd[400];
+            sprintf(open_cmd, "start \"\" \"%s\\%s\"",
+                    dossier, hist_files[i]);
+            system(open_cmd);
+        }
+    }
+
+    // Footer
+    DrawRectangle(0, H - 36, W, 36, COL_CARD);
+    DrawRectangle(0, H - 36, W, 1, COL_BORDER);
+    char footer[60];
+    sprintf(footer, "%d fiche(s) dans l'historique", hist_nb);
+    DrawTextEx(font, footer,
+               (Vector2){24, H - 24}, 13, 1, COL_MUTED);
+}
 
 
 

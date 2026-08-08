@@ -30,6 +30,7 @@ float calculIR(float brut);
 float calculNet(Employe *e);
 void creerDossierSaves(void);
 int chargerCSV(Employe tab[]);
+void sauvegarderHistorique(Employe *e);
 
 // Gestion
 void ajouterEmploye(Employe tab[], int *nb, Employe e);

@@ -1,0 +1,26 @@
+========================================
+      FICHE DE PAIE - EasySalaire      
+========================================
+
+Bulletin N   : N003
+Periode      : Aout 2026
+
+Nom          : KADRI
+Prenom       : NACER
+Poste        : cheft projet 
+
+CALCUL DU SALAIRE
+-------------------------
+Salaire base : 6000.00 TND
+Heures sup   : + 9.00 TND
+Prime        : + 500.00 TND
+Salaire brut : 6509.00 TND
+
+RETENUES
+-------------------------
+CNSS (9.18%) : - 597.53 TND
+IR            : - 1923.98 TND
+
+========================================
+SALAIRE NET  : 3987.49 TND
+========================================
