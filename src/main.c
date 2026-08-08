@@ -88,7 +88,8 @@ int main(void) {
     int page_actuelle = 0;
     char hist_files[50][100];
     int  hist_nb       = 0;
-    int  hist_scanned  = 0;  // ← flag to scan only once
+    int  hist_scanned  = 0; // ← flag to scan only once
+    int hist_confirm_del = -1;
     int par_page = 10;
     float splash_timer = 2.5f;
     int splash_done = 0;
@@ -1288,48 +1289,140 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
                    14, 1, COL_MUTED);
     }
 
-    for (int i = 0; i < hist_nb; i++) {
-        int ry = ty + i * 50;
-        Color bg = (i % 2 == 0) ? COL_CARD : COL_ROW_ALT;
+   for (int i = 0; i < hist_nb; i++) {
+    int ry = ty + i * 50;
+    Color bg = (i % 2 == 0) ? COL_CARD : COL_ROW_ALT;
 
-        DrawRectangle(card_x, ry, card_w, 46, bg);
-        DrawRectangle(card_x, ry + 45, card_w, 1, COL_BORDER);
+    DrawRectangle(card_x, ry, card_w, 46, bg);
+    DrawRectangle(card_x, ry + 45, card_w, 1, COL_BORDER);
 
-        // File icon
-        DrawRectangleRounded(
-            (Rectangle){card_x + 12, ry + 10, 28, 28},
-            0.2f, 4, COL_LIGHT_BLUE);
-        DrawTextEx(font, "F",
-                   (Vector2){card_x + 21, ry + 15},
-                   12, 1, COL_ACCENT);
+    // File icon
+    DrawRectangleRounded(
+        (Rectangle){card_x + 12, ry + 10, 28, 28},
+        0.2f, 4, COL_LIGHT_BLUE);
+    DrawTextEx(font, "F",
+               (Vector2){card_x + 21, ry + 15},
+               12, 1, COL_ACCENT);
 
-        // Display name
-        char display[100];
-        strcpy(display, hist_files[i]);
-        char *dot = strrchr(display, '.');
-        if (dot) *dot = '\0';
-        for (int j = 0; display[j]; j++)
-            if (display[j] == '_') display[j] = ' ';
+    // Display name
+    char display[100];
+    strcpy(display, hist_files[i]);
+    char *dot = strrchr(display, '.');
+    if (dot) *dot = '\0';
+    for (int j = 0; display[j]; j++)
+        if (display[j] == '_') display[j] = ' ';
 
-        DrawTextEx(font, display,
-                   (Vector2){card_x + 50, ry + 15},
-                   14, 1, COL_TEXT);
+    DrawTextEx(font, display,
+               (Vector2){card_x + 50, ry + 15},
+               14, 1, COL_TEXT);
 
-        // Open button
-        if (GuiButton((Rectangle){card_x + card_w - 120,
-                                   ry + 10, 100, 28},
-                      "Ouvrir")) {
-            char dossier[200];
-            sprintf(dossier,
-                "C:\\EasySalaire\\saves\\historique\\%s_%s",
-                e->nom, e->prenom);
-            char open_cmd[400];
-            sprintf(open_cmd, "start \"\" \"%s\\%s\"",
-                    dossier, hist_files[i]);
-            system(open_cmd);
-        }
+    // ─── Ouvrir button ────────────────
+    if (GuiButton((Rectangle){card_x + card_w - 230,
+                               ry + 10, 100, 28},
+                  "Ouvrir")) {
+        char dossier[200];
+        sprintf(dossier,
+            "C:\\EasySalaire\\saves\\historique\\%s_%s",
+            e->nom, e->prenom);
+        char open_cmd[400];
+        sprintf(open_cmd, "start \"\" \"%s\\%s\"",
+                dossier, hist_files[i]);
+        system(open_cmd);
     }
 
+    // ─── Supprimer button ─────────────
+    DrawRectangleRounded(
+        (Rectangle){card_x + card_w - 120,
+                    ry + 10, 100, 28},
+        0.3f, 8, (Color){254, 226, 226, 255});
+    if (GuiButton((Rectangle){card_x + card_w - 120,
+                               ry + 10, 100, 28},
+                  "Supprimer")) {
+        hist_confirm_del = i;
+    }
+}
+
+
+// ─── Confirmation popup ───────────────────
+if (hist_confirm_del >= 0) {
+
+    DrawRectangle(0, 0, W, H, (Color){0, 0, 0, 150});
+
+    int pw = 380;
+    int ph = 200;
+    int px = (W - pw) / 2;
+    int py = (H - ph) / 2;
+
+    DrawRectangleRounded(
+        (Rectangle){px, py, pw, ph},
+        0.08f, 8, COL_CARD);
+    DrawRectangleLinesEx(
+        (Rectangle){px, py, pw, ph},
+        2.0f, COL_DANGER);
+
+    // Warning icon
+    DrawRectangleRounded(
+        (Rectangle){px + pw/2 - 25, py + 15, 50, 50},
+        0.3f, 8, (Color){254, 226, 226, 255});
+    DrawTextEx(font, "!",
+               (Vector2){px + pw/2 - 8, py + 25},
+               30, 1, COL_DANGER);
+
+    DrawTextEx(font, "Supprimer cette fiche ?",
+               (Vector2){px + 20, py + 80},
+               16, 1, COL_TEXT);
+
+    // Show filename
+    char disp[100];
+    strcpy(disp, hist_files[hist_confirm_del]);
+    char *d = strrchr(disp, '.');
+    if (d) *d = '\0';
+    for (int j = 0; disp[j]; j++)
+        if (disp[j] == '_') disp[j] = ' ';
+
+    DrawTextEx(font, disp,
+               (Vector2){px + 20, py + 108},
+               12, 1, COL_MUTED);
+
+    DrawTextEx(font, "Cette action est irreversible.",
+               (Vector2){px + 20, py + 128},
+               12, 1, COL_DANGER);
+
+    // Annuler
+    if (GuiButton((Rectangle){px + 20, py + 155, 140, 34},
+                  "Annuler")) {
+        hist_confirm_del = -1;
+    }
+
+    // Confirmer suppression
+    DrawRectangleRounded(
+        (Rectangle){px + 180, py + 155, 180, 34},
+        0.3f, 8, COL_DANGER);
+    if (GuiButton((Rectangle){px + 180, py + 155, 180, 34},
+                  "Oui, supprimer")) {
+
+        // Build full path
+        char dossier[200];
+        sprintf(dossier,
+            "C:\\EasySalaire\\saves\\historique\\%s_%s",
+            e->nom, e->prenom);
+
+        char filepath[400];
+        sprintf(filepath, "%s\\%s",
+                dossier,
+                hist_files[hist_confirm_del]);
+
+        // Delete the file
+        remove(filepath);
+
+        // Reset and rescan
+        hist_confirm_del = -1;
+        hist_scanned     = 0;
+
+        strcpy(success_msg, "Fiche supprimee de l'historique !");
+        success_timer = 3.0f;
+    }
+}
     // Footer
     DrawRectangle(0, H - 36, W, 36, COL_CARD);
     DrawRectangle(0, H - 36, W, 1, COL_BORDER);
