@@ -90,6 +90,8 @@ int main(void) {
     char hist_files[50][100];
     int  hist_nb       = 0;
     int  hist_scanned  = 0; // ← flag to scan only once
+    char hist_first_date[50] = "";
+    int cached_bull_nb = -1;
     int hist_confirm_del = -1;
     int hist_compare_1 = -1;
     int hist_compare_2 = -1;
@@ -596,23 +598,13 @@ for (int fi = start; fi < end; fi++) {
         (Rectangle){c5, ry+8, 110, 28},
         0.3f, 8, COL_ACCENT);
     if (GuiButton((Rectangle){c5, ry+8, 110, 28},
-                  "Voir fiche")) {
-        employe_selectionne = i;
-        ecran_actuel = ECRAN_FICHE;
-    }
-
-    // Bulletin count badge
-int nb_bull = compterBulletins(
-    employes[i].nom, employes[i].prenom);
-if (nb_bull > 0) {
-    char badge[10];
-    sprintf(badge, "%d", nb_bull);
-    DrawCircle(c5 + 118, ry + 6, 10,
-               COL_ACCENT);
-    DrawTextEx(font, badge,
-               (Vector2){c5 + 113, ry},
-               11, 1, WHITE);
+              "Voir fiche")) {
+    employe_selectionne = i;
+    ecran_actuel        = ECRAN_FICHE;
+    cached_bull_nb      = -1;  // reset cache
 }
+
+
     count++;
 }
 
@@ -741,10 +733,13 @@ DrawTextEx(font, date_label,
            13, 1, COL_MUTED);
 
            // Bulletin count
-int total_bull = compterBulletins(e->nom, e->prenom);
-if (total_bull > 0) {
+// Count once, cache result
+if (cached_bull_nb < 0)
+    cached_bull_nb = compterBulletins(e->nom, e->prenom);
+
+if (cached_bull_nb > 0) {
     char bull_info[60];
-    sprintf(bull_info, "%d bulletin(s)", total_bull);
+    sprintf(bull_info, "%d bulletin(s)", cached_bull_nb);
     DrawTextEx(font, bull_info,
                (Vector2){card_x + card_w - date_sz.x - 20, cy + 30},
                11, 1, COL_MUTED);
@@ -1291,6 +1286,7 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
                   "Retour fiche")) {
         ecran_actuel  = ECRAN_FICHE;
         hist_scanned  = 0;
+        hist_first_date[0] = '\0';
     }
 
     // Toggle compare mode
@@ -1540,13 +1536,14 @@ if (hist_confirm_del >= 0) {
 DrawRectangle(0, H - 36, W, 36, COL_CARD);
 DrawRectangle(0, H - 36, W, 1, COL_BORDER);
 
-char first_date[50] = "";
-premierBulletin(e->nom, e->prenom, first_date);
+// Only call once per visit
+if (!hist_scanned && strlen(hist_first_date) == 0)
+    premierBulletin(e->nom, e->prenom, hist_first_date);
 
 char footer[150];
-if (strlen(first_date) > 0)
+if (strlen(hist_first_date) > 0)
     sprintf(footer, "%s a %d bulletin(s) depuis %s",
-            e->nom, hist_nb, first_date);
+            e->nom, hist_nb, hist_first_date);
 else
     sprintf(footer, "%s a %d bulletin(s)",
             e->nom, hist_nb);
