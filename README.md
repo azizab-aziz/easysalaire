@@ -15,47 +15,47 @@ EasySalaire est un logiciel de paie léger, autonome et gratuit pour les petites
 
 ### Écran d'accueil (Splash Screen)
 ```
-[ Screenshot : splash screen avec logo animé + barre de chargement ]
+![Splash Screen](screenshots/01_splash.png)
 ```
 
 ### Formulaire d'ajout
 ```
-[ Screenshot : formulaire centré avec champs Nom, Prénom, Poste, Salaire, Heures sup, Prime ]
+![Formulaire](screenshots/02_formulaire.png)
 ```
 
 ### Liste des employés
 ```
-[ Screenshot : tableau avec tri par colonnes, recherche, pagination, bouton Exporter Excel ]
+![Liste](screenshots/03_liste.png)
 ```
 
 ### Fiche de paie
 ```
-[ Screenshot : fiche complète avec CNSS, IR, Net — boutons Modifier/Enregistrer/Supprimer ]
+![Fiche de paie](screenshots/04_fiche.png)
 ```
 
 ### Statistiques
 ```
-[ Screenshot : cartes Total/Moyenne/Min/Max + tableau avec barres de progression ]
+![Statistiques](screenshots/05_statistiques.png)
 ```
 
 ### Historique des fiches
 ```
-[ Screenshot : liste des bulletins passés avec boutons Ouvrir/Supprimer/Comparer ]
+![Historique](screenshots/06_historique.png)
 ```
 
 ### Comparaison de fiches
 ```
-[ Screenshot : tableau comparatif deux mois côte à côte avec indicateurs vert/rouge ]
+![Comparaison](screenshots/07_comparaison.png)
 ```
 
 ### Export Excel
 ```
-[ Screenshot : fichier .xlsx avec en-tête navy, lignes alternées, couleurs professionnelles ]
+![Export Excel](screenshots/08_excel.png)
 ```
 
 ### Export PDF
 ```
-[ Screenshot : fiche de paie en PDF avec logo et mise en page professionnelle ]
+![Export PDF](screenshots/09_pdf.png)
 ```
 
 ---
