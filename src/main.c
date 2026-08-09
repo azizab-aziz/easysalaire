@@ -600,6 +600,19 @@ for (int fi = start; fi < end; fi++) {
         employe_selectionne = i;
         ecran_actuel = ECRAN_FICHE;
     }
+
+    // Bulletin count badge
+int nb_bull = compterBulletins(
+    employes[i].nom, employes[i].prenom);
+if (nb_bull > 0) {
+    char badge[10];
+    sprintf(badge, "%d", nb_bull);
+    DrawCircle(c5 + 118, ry + 6, 10,
+               COL_ACCENT);
+    DrawTextEx(font, badge,
+               (Vector2){c5 + 113, ry},
+               11, 1, WHITE);
+}
     count++;
 }
 
@@ -726,6 +739,17 @@ Vector2 date_sz = MeasureTextEx(font, date_label, 13, 1);
 DrawTextEx(font, date_label,
            (Vector2){card_x + card_w - date_sz.x - 20, cy + 12},
            13, 1, COL_MUTED);
+
+           // Bulletin count
+int total_bull = compterBulletins(e->nom, e->prenom);
+if (total_bull > 0) {
+    char bull_info[60];
+    sprintf(bull_info, "%d bulletin(s)", total_bull);
+    DrawTextEx(font, bull_info,
+               (Vector2){card_x + card_w - date_sz.x - 20, cy + 30},
+               11, 1, COL_MUTED);
+}
+
             DrawTextEx(font, "Nom :",         (Vector2){card_x + 20, cy + 34}, 15, 1, COL_MUTED);
             DrawTextEx(font, e->nom,          (Vector2){card_x + 120, cy + 34}, 15, 1, COL_TEXT);
             DrawTextEx(font, "Prenom :",      (Vector2){card_x + 20, cy + 56}, 15, 1, COL_MUTED);
@@ -1513,12 +1537,22 @@ if (hist_confirm_del >= 0) {
     }
 }
     // Footer
-    DrawRectangle(0, H - 36, W, 36, COL_CARD);
-    DrawRectangle(0, H - 36, W, 1, COL_BORDER);
-    char footer[60];
-    sprintf(footer, "%d fiche(s) dans l'historique", hist_nb);
-    DrawTextEx(font, footer,
-               (Vector2){24, H - 24}, 13, 1, COL_MUTED);
+DrawRectangle(0, H - 36, W, 36, COL_CARD);
+DrawRectangle(0, H - 36, W, 1, COL_BORDER);
+
+char first_date[50] = "";
+premierBulletin(e->nom, e->prenom, first_date);
+
+char footer[150];
+if (strlen(first_date) > 0)
+    sprintf(footer, "%s a %d bulletin(s) depuis %s",
+            e->nom, hist_nb, first_date);
+else
+    sprintf(footer, "%s a %d bulletin(s)",
+            e->nom, hist_nb);
+
+DrawTextEx(font, footer,
+           (Vector2){24, H - 24}, 13, 1, COL_MUTED);
 }
 
 

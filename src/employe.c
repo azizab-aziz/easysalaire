@@ -198,6 +198,72 @@ void sauvegarderHistorique(Employe *e) {
     fclose(f);
 }
 
+int compterBulletins(const char *nom, const char *prenom) {
+    char dossier[200];
+    sprintf(dossier,
+        "C:\\EasySalaire\\saves\\historique\\%s_%s",
+        nom, prenom);
+
+    char tmpfile[] = "C:\\EasySalaire\\saves\\tmp_count.txt";
+    char cmd[400];
+    sprintf(cmd, "dir \"%s\" /B /O-N > \"%s\" 2>nul",
+            dossier, tmpfile);
+    system(cmd);
+
+    FILE *f = fopen(tmpfile, "r");
+    if (!f) return 0;
+
+    int count = 0;
+    char line[200];
+    while (fgets(line, sizeof(line), f))
+        if (strstr(line, ".txt")) count++;
+
+    fclose(f);
+    return count;
+}
+
+void premierBulletin(const char *nom, const char *prenom,
+                     char *out_date) {
+    char dossier[200];
+    sprintf(dossier,
+        "C:\\EasySalaire\\saves\\historique\\%s_%s",
+        nom, prenom);
+
+    char tmpfile[] = "C:\\EasySalaire\\saves\\tmp_first.txt";
+    char cmd[400];
+    // /O-N = newest first, so last line = oldest
+    sprintf(cmd, "dir \"%s\" /B /ON > \"%s\" 2>nul",
+            dossier, tmpfile);
+    system(cmd);
+
+    FILE *f = fopen(tmpfile, "r");
+    if (!f) { strcpy(out_date, ""); return; }
+
+    char line[200];
+    char last[200] = "";
+    while (fgets(line, sizeof(line), f))
+        if (strstr(line, ".txt"))
+            strcpy(last, line);
+    fclose(f);
+
+    // Extract date from filename N001_Juillet_2026.txt
+    // Find first _ then copy until .txt
+    char *start = strchr(last, '_');
+    if (!start) { strcpy(out_date, ""); return; }
+    start++;
+
+    char *end = strstr(start, ".txt");
+    if (!end) { strcpy(out_date, ""); return; }
+
+    int len = end - start;
+    strncpy(out_date, start, len);
+    out_date[len] = '\0';
+
+    // Replace _ with space
+    for (int i = 0; out_date[i]; i++)
+        if (out_date[i] == '_') out_date[i] = ' ';
+}
+
 void sauvegarderCSV(Employe tab[], int nb) {
     creerDossierSaves();
     FILE *f = fopen("C:\\EasySalaire\\saves\\employes.csv", "w");
