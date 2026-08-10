@@ -4,7 +4,13 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
-
+#define WIN32_LEAN_AND_MEAN
+#define NOGDI
+#define NOUSER
+#define NOMINMAX
+#include <windows.h>
+#undef NOGDI
+#undef NOUSER
 
 static int bulletin_counter = 0;
 
@@ -199,56 +205,57 @@ void sauvegarderHistorique(Employe *e) {
 }
 
 int compterBulletins(const char *nom, const char *prenom) {
-    char dossier[200];
-    sprintf(dossier,
-        "C:\\EasySalaire\\saves\\historique\\%s_%s",
+    char pattern[250];
+    sprintf(pattern,
+        "C:\\EasySalaire\\saves\\historique\\%s_%s\\*.txt",
         nom, prenom);
 
-    char tmpfile[] = "C:\\EasySalaire\\saves\\tmp_count.txt";
-    char cmd[400];
-    sprintf(cmd, "dir \"%s\" /B /O-N > \"%s\" 2>nul",
-            dossier, tmpfile);
-    system(cmd);
-
-    FILE *f = fopen(tmpfile, "r");
-    if (!f) return 0;
+    WIN32_FIND_DATA fd;
+    HANDLE h = FindFirstFile(pattern, &fd);
+    if (h == INVALID_HANDLE_VALUE) return 0;
 
     int count = 0;
-    char line[200];
-    while (fgets(line, sizeof(line), f))
-        if (strstr(line, ".txt")) count++;
+    do {
+        if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+            count++;
+    } while (FindNextFile(h, &fd));
 
-    fclose(f);
+    FindClose(h);
     return count;
 }
 
 void premierBulletin(const char *nom, const char *prenom,
                      char *out_date) {
-    char dossier[200];
-    sprintf(dossier,
-        "C:\\EasySalaire\\saves\\historique\\%s_%s",
+    char pattern[250];
+    sprintf(pattern,
+        "C:\\EasySalaire\\saves\\historique\\%s_%s\\*.txt",
         nom, prenom);
 
-    char tmpfile[] = "C:\\EasySalaire\\saves\\tmp_first.txt";
-    char cmd[400];
-    // /O-N = newest first, so last line = oldest
-    sprintf(cmd, "dir \"%s\" /B /ON > \"%s\" 2>nul",
-            dossier, tmpfile);
-    system(cmd);
+    WIN32_FIND_DATA fd;
+    HANDLE h = FindFirstFile(pattern, &fd);
+    if (h == INVALID_HANDLE_VALUE) {
+        strcpy(out_date, "");
+        return;
+    }
 
-    FILE *f = fopen(tmpfile, "r");
-    if (!f) { strcpy(out_date, ""); return; }
+    // Find oldest file (smallest name = first bulletin)
+    char oldest[200] = "";
+    do {
+        if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+            if (strlen(oldest) == 0 ||
+                strcmp(fd.cFileName, oldest) < 0)
+                strcpy(oldest, fd.cFileName);
+        }
+    } while (FindNextFile(h, &fd));
+    FindClose(h);
 
-    char line[200];
-    char last[200] = "";
-    while (fgets(line, sizeof(line), f))
-        if (strstr(line, ".txt"))
-            strcpy(last, line);
-    fclose(f);
+    if (strlen(oldest) == 0) {
+        strcpy(out_date, "");
+        return;
+    }
 
-    // Extract date from filename N001_Juillet_2026.txt
-    // Find first _ then copy until .txt
-    char *start = strchr(last, '_');
+    // Extract date from N001_Juillet_2026.txt
+    char *start = strchr(oldest, '_');
     if (!start) { strcpy(out_date, ""); return; }
     start++;
 
@@ -259,7 +266,6 @@ void premierBulletin(const char *nom, const char *prenom,
     strncpy(out_date, start, len);
     out_date[len] = '\0';
 
-    // Replace _ with space
     for (int i = 0; out_date[i]; i++)
         if (out_date[i] == '_') out_date[i] = ' ';
 }
@@ -367,4 +373,37 @@ int lireFiche(const char *filepath, Employe *out) {
     }
     fclose(f);
     return 1;
+}
+
+int scannerHistorique(const char *nom, const char *prenom,
+                      char fichiers[][100], int max) {
+    char pattern[300];
+    sprintf(pattern,
+        "C:\\EasySalaire\\saves\\historique\\%s_%s\\*.txt",
+        nom, prenom);
+
+    WIN32_FIND_DATA fd;
+    HANDLE h = FindFirstFile(pattern, &fd);
+    int nb = 0;
+
+    if (h != INVALID_HANDLE_VALUE) {
+        do {
+            if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+                && nb < max) {
+                strcpy(fichiers[nb++], fd.cFileName);
+            }
+        } while (FindNextFile(h, &fd));
+        FindClose(h);
+
+        // Sort newest first
+        for (int a = 0; a < nb - 1; a++)
+            for (int b = a + 1; b < nb; b++)
+                if (strcmp(fichiers[a], fichiers[b]) < 0) {
+                    char tmp[100];
+                    strcpy(tmp, fichiers[a]);
+                    strcpy(fichiers[a], fichiers[b]);
+                    strcpy(fichiers[b], tmp);
+                }
+    }
+    return nb;
 }

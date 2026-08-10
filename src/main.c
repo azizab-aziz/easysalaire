@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <windows.h>
 
 // ─── Colors ───────────────────────────────────
 // ─── Colors ───────────────────────────────────
@@ -1256,24 +1257,8 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
             "C:\\EasySalaire\\saves\\historique\\%s_%s",
             e->nom, e->prenom);
 
-        char tmpfile[] = "C:\\EasySalaire\\saves\\tmp.txt";
-        char cmd[400];
-        sprintf(cmd, "dir \"%s\" /B /O-N > \"%s\" 2>nul",
-                dossier, tmpfile);
-        system(cmd);
-
-        FILE *fl = fopen(tmpfile, "r");
-        if (fl != NULL) {
-            char line[200];
-            while (fgets(line, sizeof(line), fl)
-                   && hist_nb < 50) {
-                line[strcspn(line, "\r\n")] = 0;
-                if (strlen(line) > 0 &&
-                    strstr(line, ".txt"))
-                    strcpy(hist_files[hist_nb++], line);
-            }
-            fclose(fl);
-        }
+      hist_nb = scannerHistorique(e->nom, e->prenom,
+                             hist_files, 50);
         hist_scanned = 1;
     }
 

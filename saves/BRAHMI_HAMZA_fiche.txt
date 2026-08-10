@@ -4,25 +4,25 @@
 
 INFORMATIONS PERSONNELLES
 -------------------------
-Bulletin N   : 002
+Bulletin N   : 006
 Periode      : Aout 2026
 
 Nom          : BRAHMI
 Prenom       : HAMZA
-Poste        : chef projet 
+Poste        : chef projet
 
 CALCUL DU SALAIRE
 -------------------------
 Salaire base : 6000.00 TND
-Heures sup   : + 18.00 TND
+Heures sup   : + 15.00 TND
 Prime        : + 1000.00 TND
-Salaire brut : 7018.00 TND
+Salaire brut : 7015.00 TND
 
 RETENUES
 -------------------------
-CNSS (9.18%) : - 644.25 TND
-IR            : - 2102.13 TND
+CNSS (9.18%) : - 643.98 TND
+IR            : - 2101.08 TND
 
 ========================================
-SALAIRE NET  : 4271.61 TND
+SALAIRE NET  : 4269.94 TND
 ========================================
