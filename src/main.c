@@ -1250,17 +1250,11 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
     Employe *e = &employes[employe_selectionne];
 
     // ─── Scan folder ONCE ─────────────
-    if (!hist_scanned) {
-        hist_nb = 0;
-        char dossier[200];
-        sprintf(dossier,
-            "C:\\EasySalaire\\saves\\historique\\%s_%s",
-            e->nom, e->prenom);
-
-      hist_nb = scannerHistorique(e->nom, e->prenom,
-                             hist_files, 50);
-        hist_scanned = 1;
-    }
+   if (!hist_scanned) {
+    hist_nb = scannerHistorique(e->nom, e->prenom,
+                                hist_files, 50);
+    hist_scanned = 1;
+}
 
     // ─── Header ───────────────────────
     DrawTextEx(font, "Historique des fiches",

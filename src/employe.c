@@ -5,7 +5,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
-#include <dirent.h>
+
 static int bulletin_counter = 0;
 
 void creerDossierSaves(void) {
@@ -204,15 +204,20 @@ int compterBulletins(const char *nom, const char *prenom) {
         "C:\\EasySalaire\\saves\\historique\\%s_%s",
         nom, prenom);
 
-    DIR *d = opendir(dossier);
-    if (!d) return 0;
+    char tmp[] = "C:\\EasySalaire\\saves\\tmp_count.txt";
+    char cmd[600];
+    sprintf(cmd, "dir \"%s\\*.txt\" /B > \"%s\" 2>nul",
+            dossier, tmp);
+    system(cmd);
+
+    FILE *f = fopen(tmp, "r");
+    if (!f) return 0;
 
     int count = 0;
-    struct dirent *entry;
-    while ((entry = readdir(d)) != NULL)
-        if (strstr(entry->d_name, ".txt")) count++;
-
-    closedir(d);
+    char line[200];
+    while (fgets(line, sizeof(line), f))
+        if (strlen(line) > 2) count++;
+    fclose(f);
     return count;
 }
 
@@ -223,37 +228,36 @@ void premierBulletin(const char *nom, const char *prenom,
         "C:\\EasySalaire\\saves\\historique\\%s_%s",
         nom, prenom);
 
-    DIR *d = opendir(dossier);
-    if (!d) { strcpy(out_date, ""); return; }
+    char tmp[] = "C:\\EasySalaire\\saves\\tmp_first.txt";
+    char cmd[600];
+    sprintf(cmd, "dir \"%s\\*.txt\" /B /ON > \"%s\" 2>nul",
+            dossier, tmp);
+    system(cmd);
+
+    FILE *f = fopen(tmp, "r");
+    if (!f) { strcpy(out_date, ""); return; }
 
     char oldest[200] = "";
-    struct dirent *entry;
-    while ((entry = readdir(d)) != NULL) {
-        if (strstr(entry->d_name, ".txt")) {
-            if (strlen(oldest) == 0 ||
-                strcmp(entry->d_name, oldest) < 0)
-                strcpy(oldest, entry->d_name);
-        }
+    char line[200];
+    while (fgets(line, sizeof(line), f)) {
+        line[strcspn(line, "\r\n")] = 0;
+        if (strlen(line) > 2)
+            strcpy(oldest, line);
     }
-    closedir(d);
+    fclose(f);
 
     if (strlen(oldest) == 0) {
-        strcpy(out_date, "");
-        return;
+        strcpy(out_date, ""); return;
     }
 
-    // Extract date from N001_Juillet_2026.txt
     char *start = strchr(oldest, '_');
     if (!start) { strcpy(out_date, ""); return; }
     start++;
-
     char *end = strstr(start, ".txt");
     if (!end) { strcpy(out_date, ""); return; }
-
     int len = end - start;
     strncpy(out_date, start, len);
     out_date[len] = '\0';
-
     for (int i = 0; out_date[i]; i++)
         if (out_date[i] == '_') out_date[i] = ' ';
 }
@@ -362,7 +366,7 @@ int lireFiche(const char *filepath, Employe *out) {
     return 1;
 }
 
-#include <dirent.h>
+
 
 int scannerHistorique(const char *nom, const char *prenom,
                       char fichiers[][100], int max) {
@@ -371,26 +375,32 @@ int scannerHistorique(const char *nom, const char *prenom,
         "C:\\EasySalaire\\saves\\historique\\%s_%s",
         nom, prenom);
 
-    DIR *d = opendir(dossier);
-    if (!d) return 0;
+    char tmp[300] = "C:\\EasySalaire\\saves\\tmp_scan.txt";
+    char cmd[600];
+    sprintf(cmd, "dir \"%s\\*.txt\" /B /ON > \"%s\" 2>nul",
+            dossier, tmp);
+    system(cmd);
+
+    FILE *f = fopen(tmp, "r");
+    if (!f) return 0;
 
     int nb = 0;
-    struct dirent *entry;
-    while ((entry = readdir(d)) != NULL && nb < max) {
-        if (strstr(entry->d_name, ".txt"))
-            strcpy(fichiers[nb++], entry->d_name);
+    char line[200];
+    while (fgets(line, sizeof(line), f) && nb < max) {
+        line[strcspn(line, "\r\n")] = 0;
+        if (strlen(line) > 0)
+            strcpy(fichiers[nb++], line);
     }
-    closedir(d);
+    fclose(f);
 
     // Sort newest first
     for (int a = 0; a < nb - 1; a++)
         for (int b = a + 1; b < nb; b++)
             if (strcmp(fichiers[a], fichiers[b]) < 0) {
-                char tmp[100];
-                strcpy(tmp, fichiers[a]);
+                char t[100];
+                strcpy(t, fichiers[a]);
                 strcpy(fichiers[a], fichiers[b]);
-                strcpy(fichiers[b], tmp);
+                strcpy(fichiers[b], t);
             }
-
     return nb;
 }
