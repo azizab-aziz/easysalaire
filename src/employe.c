@@ -1,17 +1,11 @@
 #include "employe.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
-#define WIN32_LEAN_AND_MEAN
-#define NOGDI
-#define NOUSER
-#define NOMINMAX
-#include <windows.h>
-#undef NOGDI
-#undef NOUSER
-
+#include <dirent.h>
 static int bulletin_counter = 0;
 
 void creerDossierSaves(void) {
@@ -205,49 +199,43 @@ void sauvegarderHistorique(Employe *e) {
 }
 
 int compterBulletins(const char *nom, const char *prenom) {
-    char pattern[250];
-    sprintf(pattern,
-        "C:\\EasySalaire\\saves\\historique\\%s_%s\\*.txt",
+    char dossier[300];
+    sprintf(dossier,
+        "C:\\EasySalaire\\saves\\historique\\%s_%s",
         nom, prenom);
 
-    WIN32_FIND_DATA fd;
-    HANDLE h = FindFirstFile(pattern, &fd);
-    if (h == INVALID_HANDLE_VALUE) return 0;
+    DIR *d = opendir(dossier);
+    if (!d) return 0;
 
     int count = 0;
-    do {
-        if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-            count++;
-    } while (FindNextFile(h, &fd));
+    struct dirent *entry;
+    while ((entry = readdir(d)) != NULL)
+        if (strstr(entry->d_name, ".txt")) count++;
 
-    FindClose(h);
+    closedir(d);
     return count;
 }
 
 void premierBulletin(const char *nom, const char *prenom,
                      char *out_date) {
-    char pattern[250];
-    sprintf(pattern,
-        "C:\\EasySalaire\\saves\\historique\\%s_%s\\*.txt",
+    char dossier[300];
+    sprintf(dossier,
+        "C:\\EasySalaire\\saves\\historique\\%s_%s",
         nom, prenom);
 
-    WIN32_FIND_DATA fd;
-    HANDLE h = FindFirstFile(pattern, &fd);
-    if (h == INVALID_HANDLE_VALUE) {
-        strcpy(out_date, "");
-        return;
-    }
+    DIR *d = opendir(dossier);
+    if (!d) { strcpy(out_date, ""); return; }
 
-    // Find oldest file (smallest name = first bulletin)
     char oldest[200] = "";
-    do {
-        if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+    struct dirent *entry;
+    while ((entry = readdir(d)) != NULL) {
+        if (strstr(entry->d_name, ".txt")) {
             if (strlen(oldest) == 0 ||
-                strcmp(fd.cFileName, oldest) < 0)
-                strcpy(oldest, fd.cFileName);
+                strcmp(entry->d_name, oldest) < 0)
+                strcpy(oldest, entry->d_name);
         }
-    } while (FindNextFile(h, &fd));
-    FindClose(h);
+    }
+    closedir(d);
 
     if (strlen(oldest) == 0) {
         strcpy(out_date, "");
@@ -269,7 +257,6 @@ void premierBulletin(const char *nom, const char *prenom,
     for (int i = 0; out_date[i]; i++)
         if (out_date[i] == '_') out_date[i] = ' ';
 }
-
 void sauvegarderCSV(Employe tab[], int nb) {
     creerDossierSaves();
     FILE *f = fopen("C:\\EasySalaire\\saves\\employes.csv", "w");
@@ -375,35 +362,35 @@ int lireFiche(const char *filepath, Employe *out) {
     return 1;
 }
 
+#include <dirent.h>
+
 int scannerHistorique(const char *nom, const char *prenom,
                       char fichiers[][100], int max) {
-    char pattern[300];
-    sprintf(pattern,
-        "C:\\EasySalaire\\saves\\historique\\%s_%s\\*.txt",
+    char dossier[300];
+    sprintf(dossier,
+        "C:\\EasySalaire\\saves\\historique\\%s_%s",
         nom, prenom);
 
-    WIN32_FIND_DATA fd;
-    HANDLE h = FindFirstFile(pattern, &fd);
+    DIR *d = opendir(dossier);
+    if (!d) return 0;
+
     int nb = 0;
-
-    if (h != INVALID_HANDLE_VALUE) {
-        do {
-            if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-                && nb < max) {
-                strcpy(fichiers[nb++], fd.cFileName);
-            }
-        } while (FindNextFile(h, &fd));
-        FindClose(h);
-
-        // Sort newest first
-        for (int a = 0; a < nb - 1; a++)
-            for (int b = a + 1; b < nb; b++)
-                if (strcmp(fichiers[a], fichiers[b]) < 0) {
-                    char tmp[100];
-                    strcpy(tmp, fichiers[a]);
-                    strcpy(fichiers[a], fichiers[b]);
-                    strcpy(fichiers[b], tmp);
-                }
+    struct dirent *entry;
+    while ((entry = readdir(d)) != NULL && nb < max) {
+        if (strstr(entry->d_name, ".txt"))
+            strcpy(fichiers[nb++], entry->d_name);
     }
+    closedir(d);
+
+    // Sort newest first
+    for (int a = 0; a < nb - 1; a++)
+        for (int b = a + 1; b < nb; b++)
+            if (strcmp(fichiers[a], fichiers[b]) < 0) {
+                char tmp[100];
+                strcpy(tmp, fichiers[a]);
+                strcpy(fichiers[a], fichiers[b]);
+                strcpy(fichiers[b], tmp);
+            }
+
     return nb;
 }

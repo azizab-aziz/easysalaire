@@ -1522,7 +1522,7 @@ DrawRectangle(0, H - 36, W, 36, COL_CARD);
 DrawRectangle(0, H - 36, W, 1, COL_BORDER);
 
 // Only call once per visit
-if (!hist_scanned && strlen(hist_first_date) == 0)
+if (hist_scanned && strlen(hist_first_date) == 0)
     premierBulletin(e->nom, e->prenom, hist_first_date);
 
 char footer[150];
