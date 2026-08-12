@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <windows.h>
 
 // ─── Colors ───────────────────────────────────
 // ─── Colors ───────────────────────────────────
@@ -273,22 +272,22 @@ if (!splash_done) {
             int fy  = card_y + 30;
             int gap = 72;
 
-            Rectangle rect_nom    = {fx, fy + gap*0, fw, fh};
-            Rectangle rect_prenom = {fx, fy + gap*1, fw, fh};
-            Rectangle rect_poste  = {fx, fy + gap*2, fw, fh};
-            Rectangle rect_base   = {fx, fy + gap*3, fw, fh};
-            Rectangle rect_hsup   = {fx, fy + gap*4, fw, fh};
-            Rectangle rect_prime  = {fx, fy + gap*5, fw, fh};
+            Rectangle r_nom    = {fx, fy + gap*0, fw, fh};
+            Rectangle r_prenom = {fx, fy + gap*1, fw, fh};
+            Rectangle r_poste  = {fx, fy + gap*2, fw, fh};
+            Rectangle r_base   = {fx, fy + gap*3, fw, fh};
+            Rectangle r_hsup   = {fx, fy + gap*4, fw, fh};
+            Rectangle r_prime  = {fx, fy + gap*5, fw, fh};
 
             // Mouse
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                 Vector2 m = GetMousePosition();
-                if      (CheckCollisionPointRec(m, rect_nom))    champ_actif = 0;
-                else if (CheckCollisionPointRec(m, rect_prenom)) champ_actif = 1;
-                else if (CheckCollisionPointRec(m, rect_poste))  champ_actif = 2;
-                else if (CheckCollisionPointRec(m, rect_base))   champ_actif = 3;
-                else if (CheckCollisionPointRec(m, rect_hsup))   champ_actif = 4;
-                else if (CheckCollisionPointRec(m, rect_prime))  champ_actif = 5;
+                if      (CheckCollisionPointRec(m, r_nom))    champ_actif = 0;
+                else if (CheckCollisionPointRec(m, r_prenom)) champ_actif = 1;
+                else if (CheckCollisionPointRec(m, r_poste))  champ_actif = 2;
+                else if (CheckCollisionPointRec(m, r_base))   champ_actif = 3;
+                else if (CheckCollisionPointRec(m, r_hsup))   champ_actif = 4;
+                else if (CheckCollisionPointRec(m, r_prime))  champ_actif = 5;
                 else champ_actif = -1;
             }
 
@@ -353,8 +352,8 @@ for (int i = 0; i < 6; i++) {
 
             // Active field highlight
             Rectangle rects[] = {
-                rect_nom, rect_prenom, rect_poste,
-                rect_base, r_hsup, rect_prime
+                r_nom, r_prenom, r_poste,
+                r_base, r_hsup, r_prime
             };
             for (int i = 0; i < 6; i++) {
                 DrawRectangleRec(rects[i], COL_CARD);
@@ -363,12 +362,12 @@ for (int i = 0; i < 6; i++) {
                 DrawRectangleLinesEx(rects[i], 1.5f, border);
             }
 
-            GuiTextBox(rect_nom,    nom,    50, champ_actif == 0);
-            GuiTextBox(rect_prenom, prenom, 50, champ_actif == 1);
-            GuiTextBox(rect_poste,  poste,  50, champ_actif == 2);
-            GuiTextBox(rect_base,   base,   20, champ_actif == 3);
-            GuiTextBox(rect_hsup,   hsup,   20, champ_actif == 4);
-            GuiTextBox(rect_prime,  prime,  20, champ_actif == 5);
+            GuiTextBox(r_nom,    nom,    50, champ_actif == 0);
+            GuiTextBox(r_prenom, prenom, 50, champ_actif == 1);
+            GuiTextBox(r_poste,  poste,  50, champ_actif == 2);
+            GuiTextBox(r_base,   base,   20, champ_actif == 3);
+            GuiTextBox(r_hsup,   hsup,   20, champ_actif == 4);
+            GuiTextBox(r_prime,  prime,  20, champ_actif == 5);
 
 
             int btn_w = 140;
@@ -440,16 +439,16 @@ for (int i = 0; i < 6; i++) {
             // ─── Search bar ───────────────────
             int sb_y = 105;
             DrawTextEx(font,"Recherche :", (Vector2){24, sb_y + 8}, 15,1, COL_TEXT);
-            Rectangle rect_rech = {140, sb_y, 250, 34};
-            DrawRectangleRec(rect_rech, COL_CARD);
-            DrawRectangleLinesEx(rect_rech,
+            Rectangle r_rech = {140, sb_y, 250, 34};
+            DrawRectangleRec(r_rech, COL_CARD);
+            DrawRectangleLinesEx(r_rech,
                 1.5f, champ_recherche ? COL_ACCENT : COL_BORDER);
 
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                 Vector2 m = GetMousePosition();
-                champ_recherche = CheckCollisionPointRec(m, rect_rech);
+                champ_recherche = CheckCollisionPointRec(m, r_rech);
             }
-            GuiTextBox(rect_rech, recherche, 50, champ_recherche);
+            GuiTextBox(r_rech, recherche, 50, champ_recherche);
 
             // Reset page on new search
             static char prev_recherche[50] = "";
@@ -733,10 +732,6 @@ DrawTextEx(font, date_label,
            (Vector2){card_x + card_w - date_sz.x - 20, cy + 12},
            13, 1, COL_MUTED);
 
-printf("BEFORE count\n"); fflush(stdout);
-if (cached_bull_nb < 0)
-    cached_bull_nb = compterBulletins(e->nom, e->prenom);
-printf("AFTER count\n"); fflush(stdout);
            // Bulletin count
 // Count once, cache result
 if (cached_bull_nb < 0)
@@ -1244,13 +1239,7 @@ if (ecran_actuel == ECRAN_STATS) {
         }
     }
 }
-// Before switching to ECRAN_HISTORIQUE
-if (GuiButton(..., "Voir historique")) {
-    printf("BEFORE historique\n"); fflush(stdout);
-    ecran_actuel = ECRAN_HISTORIQUE;
-    hist_scanned = 0;
-    printf("AFTER historique\n"); fflush(stdout);
-}
+
 
 // ══════════════════════════════════════
 // ÉCRAN HISTORIQUE
@@ -1260,11 +1249,33 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
     Employe *e = &employes[employe_selectionne];
 
     // ─── Scan folder ONCE ─────────────
-   if (!hist_scanned) {
-    hist_nb = scannerHistorique(e->nom, e->prenom,
-                                hist_files, 50);
-    hist_scanned = 1;
-}
+    if (!hist_scanned) {
+        hist_nb = 0;
+        char dossier[200];
+        sprintf(dossier,
+            "C:\\EasySalaire\\saves\\historique\\%s_%s",
+            e->nom, e->prenom);
+
+        char tmpfile[] = "C:\\EasySalaire\\saves\\tmp.txt";
+        char cmd[400];
+        sprintf(cmd, "dir \"%s\" /B /O-N > \"%s\" 2>nul",
+                dossier, tmpfile);
+        system(cmd);
+
+        FILE *fl = fopen(tmpfile, "r");
+        if (fl != NULL) {
+            char line[200];
+            while (fgets(line, sizeof(line), fl)
+                   && hist_nb < 50) {
+                line[strcspn(line, "\r\n")] = 0;
+                if (strlen(line) > 0 &&
+                    strstr(line, ".txt"))
+                    strcpy(hist_files[hist_nb++], line);
+            }
+            fclose(fl);
+        }
+        hist_scanned = 1;
+    }
 
     // ─── Header ───────────────────────
     DrawTextEx(font, "Historique des fiches",
@@ -1526,7 +1537,7 @@ DrawRectangle(0, H - 36, W, 36, COL_CARD);
 DrawRectangle(0, H - 36, W, 1, COL_BORDER);
 
 // Only call once per visit
-if (hist_scanned && strlen(hist_first_date) == 0)
+if (!hist_scanned && strlen(hist_first_date) == 0)
     premierBulletin(e->nom, e->prenom, hist_first_date);
 
 char footer[150];

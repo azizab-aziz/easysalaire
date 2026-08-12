@@ -32,11 +32,8 @@ void creerDossierSaves(void);
 int chargerCSV(Employe tab[]);
 void sauvegarderHistorique(Employe *e);
 int lireFiche(const char *filepath, Employe *out);
-void ajouterIndex(Employe *e);
 int  compterBulletins(const char *nom, const char *prenom);
-void premierBulletin(const char *nom, const char *prenom, char *out_date);
-int  scannerHistorique(const char *nom, const char *prenom,
-                       char fichiers[][100], int max);
+void premierBulletin(const char *nom, const char *prenom,char *out_date);
 
 // Gestion
 void ajouterEmploye(Employe tab[], int *nb, Employe e);

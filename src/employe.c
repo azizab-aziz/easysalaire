@@ -1,20 +1,18 @@
 #include "employe.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
+
 
 static int bulletin_counter = 0;
 
 void creerDossierSaves(void) {
     #ifdef _WIN32
         mkdir("C:\\EasySalaire\\saves");
-        mkdir("C:\\EasySalaire\\saves\\historique");
     #else
         mkdir("saves", 0777);
-        mkdir("saves/historique", 0777);
     #endif
 }
 
@@ -89,7 +87,6 @@ void ajouterEmploye(Employe tab[], int *nb, Employe e) {
         e.numero_bulletin = bulletin_counter;
         tab[(*nb)++] = e;
         sauvegarderHistorique(&tab[(*nb)-1]);
-        ajouterIndex(&tab[(*nb)-1]);
     }
 }
 
@@ -201,82 +198,70 @@ void sauvegarderHistorique(Employe *e) {
     fclose(f);
 }
 
-void ajouterIndex(Employe *e) {
-    FILE *f = fopen("C:\\EasySalaire\\saves\\historique\\index.csv", "a");
-    if (!f) return;
-    fprintf(f, "%s,%s,%d,%s,%.2f\n",
-        e->nom, e->prenom,
-        e->numero_bulletin,
-        e->mois_annee,
-        e->salaire_net);
-    fclose(f);
-}
-
 int compterBulletins(const char *nom, const char *prenom) {
-    FILE *f = fopen("C:\\EasySalaire\\saves\\historique\\index.csv", "r");
+    char dossier[200];
+    sprintf(dossier,
+        "C:\\EasySalaire\\saves\\historique\\%s_%s",
+        nom, prenom);
+
+    char tmpfile[] = "C:\\EasySalaire\\saves\\tmp_count.txt";
+    char cmd[400];
+    sprintf(cmd, "dir \"%s\" /B /O-N > \"%s\" 2>nul",
+            dossier, tmpfile);
+    system(cmd);
+
+    FILE *f = fopen(tmpfile, "r");
     if (!f) return 0;
+
     int count = 0;
-    char line[300];
-    while (fgets(line, sizeof(line), f)) {
-        char n[50], p[50];
-        sscanf(line, "%49[^,],%49[^,]", n, p);
-        if (strcmp(n, nom) == 0 && strcmp(p, prenom) == 0)
-            count++;
-    }
+    char line[200];
+    while (fgets(line, sizeof(line), f))
+        if (strstr(line, ".txt")) count++;
+
     fclose(f);
     return count;
 }
 
 void premierBulletin(const char *nom, const char *prenom,
                      char *out_date) {
-    FILE *f = fopen("C:\\EasySalaire\\saves\\historique\\index.csv", "r");
+    char dossier[200];
+    sprintf(dossier,
+        "C:\\EasySalaire\\saves\\historique\\%s_%s",
+        nom, prenom);
+
+    char tmpfile[] = "C:\\EasySalaire\\saves\\tmp_first.txt";
+    char cmd[400];
+    // /O-N = newest first, so last line = oldest
+    sprintf(cmd, "dir \"%s\" /B /ON > \"%s\" 2>nul",
+            dossier, tmpfile);
+    system(cmd);
+
+    FILE *f = fopen(tmpfile, "r");
     if (!f) { strcpy(out_date, ""); return; }
-    char line[300];
-    strcpy(out_date, "");
-    while (fgets(line, sizeof(line), f)) {
-        char n[50], p[50], date[30];
-        sscanf(line, "%49[^,],%49[^,],%*d,%29[^,]", n, p, date);
-        if (strcmp(n, nom) == 0 && strcmp(p, prenom) == 0) {
-            if (strlen(out_date) == 0)
-                strcpy(out_date, date);
-        }
-    }
-    fclose(f);
-}
 
-typedef struct {
-    int   numero;
-    char  mois[30];
-    float net;
-} BulletinInfo;
-
-int scannerHistorique(const char *nom, const char *prenom,
-                      char fichiers[][100], int max) {
-    FILE *f = fopen("C:\\EasySalaire\\saves\\historique\\index.csv", "r");
-    if (!f) return 0;
-    int nb = 0;
-    char line[300];
-    while (fgets(line, sizeof(line), f) && nb < max) {
-        char n[50], p[50], date[30];
-        int  num;
-        float net;
-        sscanf(line, "%49[^,],%49[^,],%d,%29[^,],%f",
-               n, p, &num, date, &net);
-        if (strcmp(n, nom) == 0 && strcmp(p, prenom) == 0) {
-            sprintf(fichiers[nb++], "N%03d_%s.txt", num, date);
-        }
-    }
+    char line[200];
+    char last[200] = "";
+    while (fgets(line, sizeof(line), f))
+        if (strstr(line, ".txt"))
+            strcpy(last, line);
     fclose(f);
-    // Sort newest first
-    for (int a = 0; a < nb-1; a++)
-        for (int b = a+1; b < nb; b++)
-            if (strcmp(fichiers[a], fichiers[b]) < 0) {
-                char t[100];
-                strcpy(t, fichiers[a]);
-                strcpy(fichiers[a], fichiers[b]);
-                strcpy(fichiers[b], t);
-            }
-    return nb;
+
+    // Extract date from filename N001_Juillet_2026.txt
+    // Find first _ then copy until .txt
+    char *start = strchr(last, '_');
+    if (!start) { strcpy(out_date, ""); return; }
+    start++;
+
+    char *end = strstr(start, ".txt");
+    if (!end) { strcpy(out_date, ""); return; }
+
+    int len = end - start;
+    strncpy(out_date, start, len);
+    out_date[len] = '\0';
+
+    // Replace _ with space
+    for (int i = 0; out_date[i]; i++)
+        if (out_date[i] == '_') out_date[i] = ' ';
 }
 
 void sauvegarderCSV(Employe tab[], int nb) {
@@ -383,6 +368,3 @@ int lireFiche(const char *filepath, Employe *out) {
     fclose(f);
     return 1;
 }
-
-
-

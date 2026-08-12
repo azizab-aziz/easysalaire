@@ -1,0 +1,79 @@
+[33mdd13a05[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m make new function for the lagging part
+[33mc3e87fc[m working on the delay when you press the buttons
+[33m71b3e1e[m .....
+[33ma006698[m fixing some UX
+[33m267011e[m fixing the dashboard
+[33m87dc80e[m Merge branch 'main' of https://github.com/azizab-aziz/easysalaire
+[33m22306f7[m seeing how much paiment file for an employee
+[33mc65d77b[m Update screenshots section in README.md
+[33m8a3c28d[m Update README with image links for screenshotsAdd screenshots to README
+[33m1068afd[m Add files via upload
+[33m8d1a2c3[m Create .gitkeep
+[33m78cbcf7[m update README v3.0-add all new features
+[33mf8c8bc0[m make a compare betwen two different paiment file for the same employee
+[33mef2441b[m more flexibilty fo historic function
+[33m009ce39[m add a historie paiment file
+[33m162f759[m fixing excel
+[33m99496b9[m fixing the number of file
+[33m1f4565f[m add the number of paiment file
+[33maef8a39[m adding a new page after 10 employee
+[33m509f29b[m adding splash screen
+[33m76b8c94[m tri de la list
+[33m2f808b1[m excel exportation
+[33m8e78cb1[m fixing
+[33me781cde[m add date
+[33m2b72ff8[m adding a statics dashboard
+[33mabdceb1[m sending message when the task pass correctly
+[33mb3c170f[m confirmign the delete
+[33m040c3d7[m fixing the pdf saving
+[33m615aa98[m make a pdf saving option
+[33m7bc12fc[m fixing interface2
+[33me424009[m fixing the intface
+[33m7e187ad[m download file in excel
+[33m6733cd1[m final modify
+[33m333e222[m modify the UX
+[33mf2b9d0d[m updating the modifer method
+[33m272b7d2[m keep the saved file
+[33m80b2648[m changing save method
+[33mae43e78[m .....
+[33m18c7885[m ....
+[33m8f3eb5d[m changing the buttons
+[33m9eca1f8[m saving
+[33m5422550[m working on the metohd of saving the file
+[33mad4dffd[m saving method
+[33m1a2bbbb[m saving upgrade
+[33m51a999e[m file saving method
+[33mdd429d7[m save file upgrading
+[33mbac1f17[m save file .csv
+[33mdb72b00[m save as a .txt
+[33m8fb0ff2[m interface upgrading
+[33m6e5d2cb[m upgrade interface
+[33maf88768[m more clarity
+[33m8c261c8[m Rename screenshots to match README
+[33md67fecf[m Merge branch 'main' of https://github.com/azizab-aziz/easysalaire
+[33m84e4080[m Update screenshots
+[33m4601c9c[m Replace old screenshots with new ones
+[33m4bc612e[m fixing the search by name
+[33mc03741c[m fixing the range of filling the list
+[33m5310a50[m fixing the double screen
+[33m678fd14[m add icon to task bar
+[33m9d64ff4[m adding icon & fixing interface
+[33m80b9248[m dashboard upgrading
+[33m18f598f[m changing colors and font
+[33m0a0ab32[m second step :modifing UX
+[33macfb9a0[m first step :modifing UX
+[33m5284594[m now we can modify an existing eomplyee
+[33m39e730c[m Update README.md
+[33m2fc438f[m Merge branch 'main' of https://github.com/azizab-aziz/easysalaire
+[33mb9aa3eb[m add screenshots to README
+[33m492a2b7[m Update README.md
+[33mdd3b835[m Revise README.md for clarity and detail
+[33m62dd052[m smoother trnaslation
+[33m893e3d7[m control the restor button
+[33mc2fdf6f[m new UI
+[33mde26558[m add code::Blocks project files
+[33mda613af[m ignore local Code::Blocks config files
+[33m52e010d[m Merge branch 'main' of https://github.com/azizab-aziz/easysalaire
+[33m6cfa8f7[m[33m ([m[1;31morigin/master[m[33m, [m[1;32mmaster[m[33m)[m update
+[33m9aab213[m Add files via upload
+[33m1d336f6[m Initial commit
