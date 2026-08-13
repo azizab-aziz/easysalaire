@@ -1255,7 +1255,7 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
         char dossier[200];
         sprintf(dossier,
             "C:\\EasySalaire\\saves\\historique\\%s_%s",
-            e->nom, e->prenom);
+            e->id);
 
         char tmpfile[] = "C:\\EasySalaire\\saves\\tmp.txt";
         char cmd[400];
@@ -1418,8 +1418,8 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
                       "Ouvrir")) {
             char dossier[200];
             sprintf(dossier,
-                "C:\\EasySalaire\\saves\\historique\\%s_%s",
-                e->nom, e->prenom);
+                "C:\\EasySalaire\\saves\\historique\\emp_%d",
+                e->id);
             char open_cmd[400];
             sprintf(open_cmd, "start \"\" \"%s\\%s\"",
                     dossier, hist_files[i]);
@@ -1575,7 +1575,7 @@ if (ecran_actuel == ECRAN_COMPARAISON &&
     char dossier[200];
     sprintf(dossier,
         "C:\\EasySalaire\\saves\\historique\\%s_%s",
-        e->nom, e->prenom);
+        e->id);
 
     char path1[400], path2[400];
     sprintf(path1, "%s\\%s", dossier, hist_files[hist_compare_1]);

@@ -6,9 +6,9 @@ ID Employe   : 1
 Bulletin N   : N001
 Periode      : Aout 2026
 
-Nom          : ABIDI 
+Nom          : ABIDI
 Prenom       : MED aziz
-Poste        : Developpeur
+Poste        : developpeur
 
 CALCUL DU SALAIRE
 -------------------------

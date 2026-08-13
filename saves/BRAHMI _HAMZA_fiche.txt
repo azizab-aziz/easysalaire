@@ -9,7 +9,7 @@ Periode      : Aout 2026
 
 Nom          : BRAHMI 
 Prenom       : HAMZA
-Poste        : chef projet
+Poste        : chef projet 
 
 CALCUL DU SALAIRE
 -------------------------

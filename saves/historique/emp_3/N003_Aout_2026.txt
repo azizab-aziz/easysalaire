@@ -6,22 +6,22 @@ ID Employe   : 3
 Bulletin N   : N003
 Periode      : Aout 2026
 
-Nom          : BEN SLEMA
-Prenom       : AHMED
-Poste        : responsable logistique
+Nom          : KADRI 
+Prenom       : NACER
+Poste        : chef projet 
 
 CALCUL DU SALAIRE
 -------------------------
-Salaire base : 4500.00 TND
-Heures sup   : + 12.00 TND
-Prime        : + 560.00 TND
-Salaire brut : 5072.00 TND
+Salaire base : 6000.00 TND
+Heures sup   : + 9.00 TND
+Prime        : + 500.00 TND
+Salaire brut : 6509.00 TND
 
 RETENUES
 -------------------------
-CNSS (9.18%) : - 465.61 TND
-IR            : - 1421.03 TND
+CNSS (9.18%) : - 597.53 TND
+IR            : - 1923.98 TND
 
 ========================================
-SALAIRE NET  : 3185.36 TND
+SALAIRE NET  : 3987.49 TND
 ========================================

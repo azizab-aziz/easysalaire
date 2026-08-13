@@ -6,22 +6,22 @@ ID Employe   : 6
 Bulletin N   : N006
 Periode      : Aout 2026
 
-Nom          : ABIDI
-Prenom       : MED aziz
-Poste        : Developpeur
+Nom          : HWAWI
+Prenom       : HADIL
+Poste        : responsable logistique
 
 CALCUL DU SALAIRE
 -------------------------
-Salaire base : 2900.00 TND
-Heures sup   : + 12.00 TND
-Prime        : + 700.00 TND
-Salaire brut : 3612.00 TND
+Salaire base : 3800.00 TND
+Heures sup   : + 6.00 TND
+Prime        : + 480.00 TND
+Salaire brut : 4286.00 TND
 
 RETENUES
 -------------------------
-CNSS (9.18%) : - 331.58 TND
-IR            : - 910.03 TND
+CNSS (9.18%) : - 393.45 TND
+IR            : - 1145.93 TND
 
 ========================================
-SALAIRE NET  : 2370.39 TND
+SALAIRE NET  : 2746.61 TND
 ========================================

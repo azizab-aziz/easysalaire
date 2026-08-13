@@ -6,22 +6,22 @@ ID Employe   : 4
 Bulletin N   : N004
 Periode      : Aout 2026
 
-Nom          : KADRI
-Prenom       : NACER
-Poste        : CHEF PROJET
+Nom          : BESBES
+Prenom       : MARIEM
+Poste        : RH
 
 CALCUL DU SALAIRE
 -------------------------
-Salaire base : 6000.00 TND
-Heures sup   : + 9.00 TND
-Prime        : + 500.00 TND
-Salaire brut : 6509.00 TND
+Salaire base : 4500.00 TND
+Heures sup   : + 13.50 TND
+Prime        : + 800.00 TND
+Salaire brut : 5313.50 TND
 
 RETENUES
 -------------------------
-CNSS (9.18%) : - 597.53 TND
-IR            : - 1923.98 TND
+CNSS (9.18%) : - 487.78 TND
+IR            : - 1505.56 TND
 
 ========================================
-SALAIRE NET  : 3987.49 TND
+SALAIRE NET  : 3320.16 TND
 ========================================

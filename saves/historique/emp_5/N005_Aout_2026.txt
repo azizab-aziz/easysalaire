@@ -6,22 +6,22 @@ ID Employe   : 5
 Bulletin N   : N005
 Periode      : Aout 2026
 
-Nom          : BESBES
-Prenom       : MARIEM
-Poste        : RH
+Nom          : BEN SLEMA
+Prenom       : BILEL
+Poste        : technisien supérieur
 
 CALCUL DU SALAIRE
 -------------------------
-Salaire base : 5000.00 TND
-Heures sup   : + 9.00 TND
-Prime        : + 500.00 TND
-Salaire brut : 5509.00 TND
+Salaire base : 1500.00 TND
+Heures sup   : + 6.00 TND
+Prime        : + 260.00 TND
+Salaire brut : 1766.00 TND
 
 RETENUES
 -------------------------
-CNSS (9.18%) : - 505.73 TND
-IR            : - 1573.98 TND
+CNSS (9.18%) : - 162.12 TND
+IR            : - 300.63 TND
 
 ========================================
-SALAIRE NET  : 3429.29 TND
+SALAIRE NET  : 1303.25 TND
 ========================================
