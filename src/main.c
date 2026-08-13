@@ -810,6 +810,8 @@ if (cached_bull_nb > 0) {
             int total_w = btn_w * 4 + 30 * 3;
             int start_x = (W - total_w) / 2;
 
+            start_x = card_x + 10;
+
             if (GuiButton((Rectangle){start_x, btn_y, btn_w, btn_h},
                           "Retour liste")) {
                 ecran_actuel = ECRAN_LISTE;
@@ -817,7 +819,7 @@ if (cached_bull_nb > 0) {
             }
 
 
-            Rectangle rect_mod = {start_x + btn_w + 30, btn_y, btn_w, btn_h};
+            Rectangle rect_mod = {start_x + btn_w + 15, btn_y, btn_w, btn_h};
 
             bool inside_mod = CheckCollisionPointRec(GetMousePosition(), rect_mod);
             bool clicked_mod = GuiButton(rect_mod, "Modifier");
@@ -854,18 +856,18 @@ if (cached_bull_nb > 0) {
               ecran_actuel = ECRAN_MODIFICATION;
             }
 
-            if (GuiButton((Rectangle){start_x + (btn_w + 30)*2, btn_y, btn_w, btn_h},
+            if (GuiButton((Rectangle){start_x + (btn_w + 15)*2, btn_y, btn_w, btn_h},
                           "Enregistrer")) {
                 save_index = employe_selectionne;
                 popup_save = 1;
             }
 
             // Historique button — centered below
-            if (GuiButton((Rectangle){start_x + (btn_w + 30)*3, btn_y, btn_w, btn_h},
+            if (GuiButton((Rectangle){start_x + (btn_w + 15)*3, btn_y, btn_w, btn_h},
              "Supprimer")) {
   popup_confirm = 1;
 }
-if (GuiButton((Rectangle){start_x + (btn_w + 30)*4, btn_y, btn_w, btn_h},
+if (GuiButton((Rectangle){start_x + (btn_w + 15)*4, btn_y, btn_w, btn_h},
              "Voir historique")) {
    ecran_actuel = ECRAN_HISTORIQUE;
    hist_scanned = 0;
