@@ -206,6 +206,8 @@ void sauvegarderHistorique(Employe *e) {
 }
 
 int compterBulletins(int id) {
+    if (id <= 0) return 0;
+
     char dossier[200];
     sprintf(dossier,
         "C:\\EasySalaire\\saves\\historique\\emp_%d",

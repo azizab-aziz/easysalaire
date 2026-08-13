@@ -1254,7 +1254,7 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
         hist_nb = 0;
         char dossier[200];
         sprintf(dossier,
-            "C:\\EasySalaire\\saves\\historique\\%s_%s",
+            "C:\\EasySalaire\\saves\\historique\\emp_%d",
             e->id);
 
         char tmpfile[] = "C:\\EasySalaire\\saves\\tmp.txt";
@@ -1514,8 +1514,8 @@ if (hist_confirm_del >= 0) {
         // Build full path
         char dossier[200];
         sprintf(dossier,
-            "C:\\EasySalaire\\saves\\historique\\%s_%s",
-            e->nom, e->prenom);
+            "C:\\EasySalaire\\saves\\historique\\emp_%d",
+            e->id);
 
         char filepath[400];
         sprintf(filepath, "%s\\%s",
