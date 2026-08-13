@@ -861,16 +861,15 @@ if (cached_bull_nb > 0) {
             }
 
             // Historique button — centered below
-            if (GuiButton((Rectangle){start_x + btn_w/2 + 30, btn_y + 50, btn_w + 40, 32},
-                         "Voir historique")) {
-               ecran_actuel = ECRAN_HISTORIQUE;
-               hist_scanned = 0;
-            }
-
             if (GuiButton((Rectangle){start_x + (btn_w + 30)*3, btn_y, btn_w, btn_h},
-                         "Supprimer")) {
-              popup_confirm = 1;
-           }
+             "Supprimer")) {
+  popup_confirm = 1;
+}
+if (GuiButton((Rectangle){start_x + (btn_w + 30)*4, btn_y, btn_w, btn_h},
+             "Voir historique")) {
+   ecran_actuel = ECRAN_HISTORIQUE;
+   hist_scanned = 0;
+}
            draw_fiche_end:;
         }
 // ══════════════════════════════════════
