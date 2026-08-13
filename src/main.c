@@ -735,7 +735,7 @@ DrawTextEx(font, date_label,
            // Bulletin count
 // Count once, cache result
 if (cached_bull_nb < 0)
-    cached_bull_nb = compterBulletins(e->nom, e->prenom);
+    cached_bull_nb = compterBulletins(e->id);
 
 if (cached_bull_nb > 0) {
     char bull_info[60];
@@ -1539,7 +1539,7 @@ DrawRectangle(0, H - 36, W, 1, COL_BORDER);
 
 // Only call once per visit
 if (!hist_scanned && strlen(hist_first_date) == 0)
-    premierBulletin(e->nom, e->prenom, hist_first_date);
+    premierBulletin(e->id, hist_first_date);
 
 char footer[150];
 if (strlen(hist_first_date) > 0)

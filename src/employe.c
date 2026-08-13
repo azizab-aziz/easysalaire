@@ -7,6 +7,12 @@
 
 
 static int bulletin_counter = 0;
+static int id_counter = 0;
+
+int prochainId(void) {
+    id_counter++;
+    return id_counter;
+}
 
 void creerDossierSaves(void) {
     #ifdef _WIN32
@@ -85,6 +91,7 @@ void ajouterEmploye(Employe tab[], int *nb, Employe e) {
         getDateActuelle(e.mois_annee);
         bulletin_counter++;
         e.numero_bulletin = bulletin_counter;
+        e.id = prochainId();
         tab[(*nb)++] = e;
         sauvegarderHistorique(&tab[(*nb)-1]);
     }
@@ -148,10 +155,9 @@ void sauvegarderHistorique(Employe *e) {
         mkdir("C:\\EasySalaire\\saves\\historique");
     #endif
 
-    // Create employee folder
+    // Create employee folder — par ID, jamais par nom (plus de collisions)
     char dossier[200];
-    sprintf(dossier, "C:\\EasySalaire\\saves\\historique\\%s_%s",
-            e->nom, e->prenom);
+    sprintf(dossier, "C:\\EasySalaire\\saves\\historique\\emp_%d", e->id);
     #ifdef _WIN32
         mkdir(dossier);
     #endif
@@ -159,8 +165,8 @@ void sauvegarderHistorique(Employe *e) {
     // Create file
     char filename[300];
     sprintf(filename,
-        "C:\\EasySalaire\\saves\\historique\\%s_%s\\N%03d_%s.txt",
-        e->nom, e->prenom,
+        "C:\\EasySalaire\\saves\\historique\\emp_%d\\N%03d_%s.txt",
+        e->id,
         e->numero_bulletin,
         e->mois_annee);
 
@@ -176,6 +182,7 @@ void sauvegarderHistorique(Employe *e) {
     fprintf(f, "========================================\n");
     fprintf(f, "      FICHE DE PAIE - EasySalaire      \n");
     fprintf(f, "========================================\n\n");
+    fprintf(f, "ID Employe   : %d\n", e->id);
     fprintf(f, "Bulletin N   : N%03d\n", e->numero_bulletin);
     fprintf(f, "Periode      : %s\n\n", e->mois_annee);
     fprintf(f, "Nom          : %s\n", e->nom);
@@ -198,11 +205,11 @@ void sauvegarderHistorique(Employe *e) {
     fclose(f);
 }
 
-int compterBulletins(const char *nom, const char *prenom) {
+int compterBulletins(int id) {
     char dossier[200];
     sprintf(dossier,
-        "C:\\EasySalaire\\saves\\historique\\%s_%s",
-        nom, prenom);
+        "C:\\EasySalaire\\saves\\historique\\emp_%d",
+        id);
 
     char tmpfile[] = "C:\\EasySalaire\\saves\\tmp_count.txt";
     char cmd[400];
@@ -222,12 +229,11 @@ int compterBulletins(const char *nom, const char *prenom) {
     return count;
 }
 
-void premierBulletin(const char *nom, const char *prenom,
-                     char *out_date) {
+void premierBulletin(int id, char *out_date) {
     char dossier[200];
     sprintf(dossier,
-        "C:\\EasySalaire\\saves\\historique\\%s_%s",
-        nom, prenom);
+        "C:\\EasySalaire\\saves\\historique\\emp_%d",
+        id);
 
     char tmpfile[] = "C:\\EasySalaire\\saves\\tmp_first.txt";
     char cmd[400];
@@ -270,11 +276,12 @@ void sauvegarderCSV(Employe tab[], int nb) {
     if (f == NULL) return;
 
     // Header
-   fprintf(f, "Nom,Prenom,Poste,Salaire Base,Heures Sup,Prime,CNSS,IR,Salaire Net,Periode,Bulletin\n");
+   fprintf(f, "Id,Nom,Prenom,Poste,Salaire Base,Heures Sup,Prime,CNSS,IR,Salaire Net,Periode,Bulletin\n");
 
     // Data
     for (int i = 0; i < nb; i++) {
-        fprintf(f, "%s,%s,%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%s,N°%03d\n",
+        fprintf(f, "%d,%s,%s,%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%s,N°%03d\n",
+    tab[i].id,
     tab[i].nom,
     tab[i].prenom,
     tab[i].poste,
@@ -301,11 +308,13 @@ int chargerCSV(Employe tab[]) {
     // Skip header line
     fgets(line, sizeof(line), f);
 
-    while (fgets(line, sizeof(line), f) && nb < MAX_EMPLOYES) {
+while (fgets(line, sizeof(line), f) && nb < MAX_EMPLOYES) {
         Employe e;
 e.numero_bulletin = 0;
+e.id = 0;
 char bull_str[10] = "";
-sscanf(line, "%49[^,],%49[^,],%49[^,],%f,%f,%f,%f,%f,%f,%19[^,\n],%9[^,\n]",
+sscanf(line, "%d,%49[^,],%49[^,],%49[^,],%f,%f,%f,%f,%f,%f,%19[^,\n],%9[^,\n]",
+    &e.id,
     e.nom, e.prenom, e.poste,
     &e.salaire_base, &e.heures_sup, &e.prime,
     &e.cnss, &e.ir, &e.salaire_net,
@@ -322,9 +331,12 @@ e.numero_bulletin = atoi(bull_str + bi);
 if (strlen(e.mois_annee) == 0)
     getDateActuelle(e.mois_annee);
 
-// Update counter to highest bulletin number
+// Update counters to highest values seen, so nothing gets reused
 if (e.numero_bulletin > bulletin_counter)
     bulletin_counter = e.numero_bulletin;
+if (e.id > id_counter)
+    id_counter = e.id;
+
         tab[nb++] = e;
 
 if (strlen(e.mois_annee) == 0) {
@@ -342,11 +354,15 @@ int lireFiche(const char *filepath, Employe *out) {
     if (!f) return 0;
 
     char line[200];
+    out->id = 0;
     while (fgets(line, sizeof(line), f)) {
         float val;
         char  str[100];
+        int   idval;
 
-        if (sscanf(line, "Nom          : %49[^\n]", str) == 1)
+        if (sscanf(line, "ID Employe   : %d", &idval) == 1)
+            out->id = idval;
+        else if (sscanf(line, "Nom          : %49[^\n]", str) == 1)
             strcpy(out->nom, str);
         else if (sscanf(line, "Prenom       : %49[^\n]", str) == 1)
             strcpy(out->prenom, str);

@@ -4,25 +4,25 @@
 
 INFORMATIONS PERSONNELLES
 -------------------------
-Bulletin N   : 006
+Bulletin N   : 001
 Periode      : Aout 2026
 
-Nom          : BRAHMI
-Prenom       : HAMZA
-Poste        : chef projet
+Nom          : ABIDI 
+Prenom       : MED aziz
+Poste        : Developpeur
 
 CALCUL DU SALAIRE
 -------------------------
-Salaire base : 6000.00 TND
-Heures sup   : + 15.00 TND
-Prime        : + 1000.00 TND
-Salaire brut : 7015.00 TND
+Salaire base : 2900.00 TND
+Heures sup   : + 9.00 TND
+Prime        : + 500.00 TND
+Salaire brut : 3409.00 TND
 
 RETENUES
 -------------------------
-CNSS (9.18%) : - 643.98 TND
-IR            : - 2101.08 TND
+CNSS (9.18%) : - 312.95 TND
+IR            : - 838.98 TND
 
 ========================================
-SALAIRE NET  : 4269.94 TND
+SALAIRE NET  : 2257.07 TND
 ========================================

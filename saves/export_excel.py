@@ -37,7 +37,7 @@ border = Border(left=thin, right=thin, top=thin, bottom=thin)
 
 # ─── Header row ───────────────────────────
 headers = [
-    "Nom", "Prenom", "Poste",
+    "ID","Nom", "Prenom", "Poste",
     "Salaire Base", "Heures Sup", "Prime",
     "CNSS", "IR", "Salaire Net", "Periode","Bulletin"
 ]

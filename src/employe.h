@@ -8,6 +8,7 @@
 
 // ─── Struct Employe ───────────────────────────
 typedef struct {
+    int id ;
     char  nom[50];
     char  prenom[50];
     char  poste[50];
@@ -32,9 +33,9 @@ void creerDossierSaves(void);
 int chargerCSV(Employe tab[]);
 void sauvegarderHistorique(Employe *e);
 int lireFiche(const char *filepath, Employe *out);
-int  compterBulletins(const char *nom, const char *prenom);
-void premierBulletin(const char *nom, const char *prenom,char *out_date);
-
+int  compterBulletins(int id);
+void premierBulletin(int id, char *out_date);
+int prochainID(void);
 // Gestion
 void ajouterEmploye(Employe tab[], int *nb, Employe e);
 void supprimerEmploye(Employe tab[], int *nb, int index);

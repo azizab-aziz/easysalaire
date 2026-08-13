@@ -1,0 +1,27 @@
+========================================
+      FICHE DE PAIE - EasySalaire      
+========================================
+
+ID Employe   : 1
+Bulletin N   : N001
+Periode      : Aout 2026
+
+Nom          : ABIDI 
+Prenom       : MED aziz
+Poste        : Developpeur
+
+CALCUL DU SALAIRE
+-------------------------
+Salaire base : 2900.00 TND
+Heures sup   : + 9.00 TND
+Prime        : + 500.00 TND
+Salaire brut : 3409.00 TND
+
+RETENUES
+-------------------------
+CNSS (9.18%) : - 312.95 TND
+IR            : - 838.98 TND
+
+========================================
+SALAIRE NET  : 2257.07 TND
+========================================

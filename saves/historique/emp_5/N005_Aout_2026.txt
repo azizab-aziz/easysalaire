@@ -1,0 +1,27 @@
+========================================
+      FICHE DE PAIE - EasySalaire      
+========================================
+
+ID Employe   : 5
+Bulletin N   : N005
+Periode      : Aout 2026
+
+Nom          : BESBES
+Prenom       : MARIEM
+Poste        : RH
+
+CALCUL DU SALAIRE
+-------------------------
+Salaire base : 5000.00 TND
+Heures sup   : + 9.00 TND
+Prime        : + 500.00 TND
+Salaire brut : 5509.00 TND
+
+RETENUES
+-------------------------
+CNSS (9.18%) : - 505.73 TND
+IR            : - 1573.98 TND
+
+========================================
+SALAIRE NET  : 3429.29 TND
+========================================
