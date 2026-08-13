@@ -1701,10 +1701,15 @@ if (ecran_actuel == ECRAN_COMPARAISON &&
         ecran_actuel = ECRAN_HISTORIQUE;
     }
 
-    // ─── Load two fiches ──────────────
+// ─── Load two fiches ──────────────
+    if (hist_compare_1 < 0 || hist_compare_2 < 0) {
+        ecran_actuel = ECRAN_HISTORIQUE;
+        goto skip_comparaison;
+    }
+
     char dossier[200];
     sprintf(dossier,
-        "C:\\EasySalaire\\saves\\historique\\%s_%s",
+        "C:\\EasySalaire\\saves\\historique\\emp_%d",
         e->id);
 
     char path1[400], path2[400];
@@ -1852,11 +1857,17 @@ if (ecran_actuel == ECRAN_COMPARAISON &&
     else
         strcpy(summary, "Aucune evolution du salaire net");
 
-    Color sum_col = net_diff >= 0 ? COL_SUCCESS : COL_DANGER;
+Color sum_col = net_diff >= 0 ? COL_SUCCESS : COL_DANGER;
     DrawTextEx(font, summary,
                (Vector2){card_x + 20, sy + 18},
                14, 1, sum_col);
+
+    skip_comparaison:;
 }
+
+
+
+// ─── Popup choix format ───────────────────
 
 
 
