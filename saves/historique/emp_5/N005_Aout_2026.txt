@@ -6,22 +6,22 @@ ID Employe   : 5
 Bulletin N   : N005
 Periode      : Aout 2026
 
-Nom          : BEN SLEMA
-Prenom       : BILEL
-Poste        : technisien supérieur
+Nom          : ABIDI
+Prenom       : MED aziz
+Poste        : developpeur
 
 CALCUL DU SALAIRE
 -------------------------
-Salaire base : 1500.00 TND
-Heures sup   : + 6.00 TND
-Prime        : + 260.00 TND
-Salaire brut : 1766.00 TND
+Salaire base : 2900.00 TND
+Heures sup   : + 18.00 TND
+Prime        : + 1000.00 TND
+Salaire brut : 3918.00 TND
 
 RETENUES
 -------------------------
-CNSS (9.18%) : - 162.12 TND
-IR            : - 300.63 TND
+CNSS (9.18%) : - 359.67 TND
+IR            : - 1017.13 TND
 
 ========================================
-SALAIRE NET  : 1303.25 TND
+SALAIRE NET  : 2541.19 TND
 ========================================

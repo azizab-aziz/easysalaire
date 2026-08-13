@@ -37,7 +37,9 @@ int  compterBulletins(int id);
 void premierBulletin(int id, char *out_date);
 int prochainID(void);
 // Gestion
+// Gestion
 void ajouterEmploye(Employe tab[], int *nb, Employe e);
+void nouveauBulletin(Employe *e, float base, float hsup, float prime);
 void supprimerEmploye(Employe tab[], int *nb, int index);
 
 void sauvegarderFiche(Employe *e);

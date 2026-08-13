@@ -6,9 +6,9 @@ ID Employe   : 2
 Bulletin N   : N002
 Periode      : Aout 2026
 
-Nom          : BRAHMI 
+Nom          : BRAHMI
 Prenom       : HAMZA
-Poste        : chef projet 
+Poste        : CHEF PROJET 
 
 CALCUL DU SALAIRE
 -------------------------

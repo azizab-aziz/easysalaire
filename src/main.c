@@ -28,7 +28,8 @@ typedef enum {
     ECRAN_MODIFICATION,
     ECRAN_STATS,
     ECRAN_HISTORIQUE,
-    ECRAN_COMPARAISON
+    ECRAN_COMPARAISON,
+    ECRAN_NOUVEAU_BULLETIN
 } Ecran;
 
 
@@ -113,6 +114,9 @@ int main(void) {
 
     char mod_nom[50]   = "", mod_prenom[50] = "", mod_poste[50] = "";
     char mod_base[20]  = "", mod_hsup[20]   = "", mod_prime[20] = "";
+
+    char nb_base[20] = "", nb_hsup[20] = "", nb_prime[20] = "";
+    int  champ_nb = -1;
 
     nb_employes = chargerCSV(employes);
     printf("Loaded %d employees from CSV\n", nb_employes);
@@ -872,6 +876,23 @@ if (GuiButton((Rectangle){start_x + (btn_w + 15)*4, btn_y, btn_w, btn_h},
    ecran_actuel = ECRAN_HISTORIQUE;
    hist_scanned = 0;
 }
+
+// ─── Nouvelle fiche (nouveau mois) ─────────
+int nb_btn_w = 220;
+int nb_btn_x = card_x + (card_w - nb_btn_w) / 2;
+int nb_btn_y = btn_y + 50;
+DrawRectangleRounded(
+    (Rectangle){nb_btn_x, nb_btn_y, nb_btn_w, 38},
+    0.3f, 8, COL_ACCENT);
+if (GuiButton((Rectangle){nb_btn_x, nb_btn_y, nb_btn_w, 38},
+             "Nouvelle fiche (nouveau mois)")) {
+    nb_base[0]  = '\0';
+    nb_hsup[0]  = '\0';
+    nb_prime[0] = '\0';
+    champ_nb = 0;
+    ecran_actuel = ECRAN_NOUVEAU_BULLETIN;
+}
+
            draw_fiche_end:;
         }
 // ══════════════════════════════════════
@@ -1032,6 +1053,115 @@ if (key > 0 && champ_mod >= 0) {
 
 
 
+
+
+// ══════════════════════════════════════
+// ÉCRAN NOUVEAU BULLETIN
+// ══════════════════════════════════════
+if (ecran_actuel == ECRAN_NOUVEAU_BULLETIN && employe_selectionne >= 0) {
+
+    Employe *e = &employes[employe_selectionne];
+
+    DrawTextEx(font, "Nouveau bulletin", (Vector2){24, 75}, 18, 1, COL_MUTED);
+
+    int card_w = 500;
+    int card_h = 400;
+    int card_x = (W - card_w) / 2;
+    int card_y = (H - card_h) / 2;
+
+    DrawRectangleRounded(
+        (Rectangle){card_x, card_y, card_w, card_h},
+        0.04f, 8, COL_CARD);
+    DrawRectangleLinesEx(
+        (Rectangle){card_x, card_y, card_w, card_h},
+        1.5f, COL_BORDER);
+
+    // ─── Infos employé (lecture seule) ────
+    char info[100];
+    sprintf(info, "%s %s — %s", e->nom, e->prenom, e->poste);
+    DrawTextEx(font, info,
+               (Vector2){card_x + 30, card_y + 25},
+               16, 1, COL_TEXT);
+
+    DrawTextEx(font, "Ces informations ne changent pas.",
+               (Vector2){card_x + 30, card_y + 50},
+               12, 1, COL_MUTED);
+
+    DrawRectangle(card_x + 30, card_y + 75, card_w - 60, 1, COL_BORDER);
+
+    int lx  = card_x + 30;
+    int fx  = card_x + 190;
+    int fw  = 270;
+    int fh  = 36;
+    int fy  = card_y + 100;
+    int gap = 62;
+
+    Rectangle rnb_base  = {fx, fy + gap*0, fw, fh};
+    Rectangle rnb_hsup  = {fx, fy + gap*1, fw, fh};
+    Rectangle rnb_prime = {fx, fy + gap*2, fw, fh};
+
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        Vector2 m = GetMousePosition();
+        if      (CheckCollisionPointRec(m, rnb_base))  champ_nb = 0;
+        else if (CheckCollisionPointRec(m, rnb_hsup))  champ_nb = 1;
+        else if (CheckCollisionPointRec(m, rnb_prime)) champ_nb = 2;
+        else champ_nb = -1;
+    }
+
+    if (IsKeyPressed(KEY_TAB)) {
+        if (IsKeyDown(KEY_LEFT_SHIFT))
+            champ_nb = (champ_nb - 1 + 3) % 3;
+        else
+            champ_nb = (champ_nb + 1) % 3;
+    }
+    if (IsKeyPressed(KEY_DOWN))
+        champ_nb = (champ_nb + 1) % 3;
+    if (IsKeyPressed(KEY_UP))
+        champ_nb = (champ_nb - 1 + 3) % 3;
+
+    const char *nb_labels[] = {
+        "Salaire base :", "Heures sup :", "Prime :"
+    };
+    for (int i = 0; i < 3; i++)
+        DrawTextEx(font, nb_labels[i],
+                   (Vector2){lx, fy + gap*i + 10}, 16, 1, COL_TEXT);
+
+    Rectangle nb_rects[] = {rnb_base, rnb_hsup, rnb_prime};
+    for (int i = 0; i < 3; i++) {
+        DrawRectangleRec(nb_rects[i], COL_CARD);
+        Color border = (champ_nb == i) ? COL_ACCENT : COL_BORDER;
+        DrawRectangleLinesEx(nb_rects[i], 1.5f, border);
+    }
+
+    GuiTextBox(rnb_base,  nb_base,  20, champ_nb == 0);
+    GuiTextBox(rnb_hsup,  nb_hsup,  20, champ_nb == 1);
+    GuiTextBox(rnb_prime, nb_prime, 20, champ_nb == 2);
+
+    int btn_y2 = card_y + card_h - 60;
+    int btn_w2 = 140;
+    int btn_h2 = 38;
+
+    if (GuiButton((Rectangle){card_x + 60, btn_y2, btn_w2, btn_h2},
+                  "Generer")) {
+        if (strlen(nb_base) > 0) {
+            nouveauBulletin(e,
+                atof(nb_base),
+                strlen(nb_hsup)  > 0 ? atof(nb_hsup)  : 0.0f,
+                strlen(nb_prime) > 0 ? atof(nb_prime) : 0.0f);
+            sauvegarderCSV(employes, nb_employes);
+            strcpy(success_msg, "Nouveau bulletin genere !");
+            success_timer = 3.0f;
+            cached_bull_nb = -1;
+            hist_scanned   = 0;
+            ecran_actuel   = ECRAN_FICHE;
+        }
+    }
+
+    if (GuiButton((Rectangle){card_x + 220, btn_y2, btn_w2, btn_h2},
+                  "Annuler")) {
+        ecran_actuel = ECRAN_FICHE;
+    }
+}
 
 
 // ══════════════════════════════════════

@@ -97,6 +97,18 @@ void ajouterEmploye(Employe tab[], int *nb, Employe e) {
     }
 }
 
+// ─── Générer un nouveau bulletin (même employé) ─
+void nouveauBulletin(Employe *e, float base, float hsup, float prime) {
+    e->salaire_base = base;
+    e->heures_sup   = hsup;
+    e->prime        = prime;
+    calculNet(e);
+    getDateActuelle(e->mois_annee);
+    bulletin_counter++;
+    e->numero_bulletin = bulletin_counter;
+    sauvegarderHistorique(e);   // écrit dans le MÊME dossier emp_<id>
+}
+
 // ─── Supprimer un employé ─────────────────────
 void supprimerEmploye(Employe tab[], int *nb, int index) {
     if (index < 0 || index >= *nb) return;

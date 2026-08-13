@@ -13,15 +13,15 @@ Poste        : developpeur
 CALCUL DU SALAIRE
 -------------------------
 Salaire base : 2900.00 TND
-Heures sup   : + 9.00 TND
-Prime        : + 500.00 TND
-Salaire brut : 3409.00 TND
+Heures sup   : + 7.50 TND
+Prime        : + 480.00 TND
+Salaire brut : 3387.50 TND
 
 RETENUES
 -------------------------
-CNSS (9.18%) : - 312.95 TND
-IR            : - 838.98 TND
+CNSS (9.18%) : - 310.97 TND
+IR            : - 831.46 TND
 
 ========================================
-SALAIRE NET  : 2257.07 TND
+SALAIRE NET  : 2245.07 TND
 ========================================

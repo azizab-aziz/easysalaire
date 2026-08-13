@@ -1,10 +1,9 @@
 ========================================
-         FICHE DE PAIE - EasySalaire   
+      FICHE DE PAIE - EasySalaire      
 ========================================
 
-INFORMATIONS PERSONNELLES
--------------------------
-Bulletin N   : 007
+ID Employe   : 1
+Bulletin N   : N006
 Periode      : Aout 2026
 
 Nom          : ABIDI

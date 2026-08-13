@@ -7,7 +7,7 @@ Bulletin N   : N003
 Periode      : Aout 2026
 
 Nom          : KADRI 
-Prenom       : NACER
+Prenom       :  NACER
 Poste        : chef projet 
 
 CALCUL DU SALAIRE
