@@ -1693,56 +1693,58 @@ if (hist_confirm_del >= 0) {
         success_timer = 3.0f;
     }
 }
-   // ─── Actions principales ──────────
-    int hb_w1 = 220;
-    int hb_h  = 38;
-    int hb_total1 = hb_w1 * 2 + 20;
-    int hb_x1 = card_x + (card_w - hb_total1) / 2;
-    int hb_y1 = H - 140;
+   // ─── Actions principales (masquees en mode comparaison) ────
+    if (!mode_compare) {
+        int hb_w1 = 220;
+        int hb_h  = 38;
+        int hb_total1 = hb_w1 * 2 + 20;
+        int hb_x1 = card_x + (card_w - hb_total1) / 2;
+        int hb_y1 = H - 140;
 
-    DrawRectangleRounded(
-        (Rectangle){hb_x1, hb_y1, hb_w1, hb_h},
-        0.3f, 8, COL_ACCENT);
-    if (GuiButton((Rectangle){hb_x1, hb_y1, hb_w1, hb_h},
-                  "Nouvelle fiche (nouveau mois)")) {
-        nb_base[0]  = '\0';
-        nb_hsup[0]  = '\0';
-        nb_prime[0] = '\0';
-        getDateTimeActuelle(nb_date);
-        champ_nb = 0;
-        ecran_actuel = ECRAN_NOUVEAU_BULLETIN;
-    }
+        DrawRectangleRounded(
+            (Rectangle){hb_x1, hb_y1, hb_w1, hb_h},
+            0.3f, 8, COL_ACCENT);
+        if (GuiButton((Rectangle){hb_x1, hb_y1, hb_w1, hb_h},
+                      "Nouvelle fiche (nouveau mois)")) {
+            nb_base[0]  = '\0';
+            nb_hsup[0]  = '\0';
+            nb_prime[0] = '\0';
+            getDateTimeActuelle(nb_date);
+            champ_nb = 0;
+            ecran_actuel = ECRAN_NOUVEAU_BULLETIN;
+        }
 
-    if (GuiButton((Rectangle){hb_x1 + hb_w1 + 20, hb_y1, hb_w1, hb_h},
-                  "Voir historique")) {
-        ecran_actuel = ECRAN_DATES_AJOUT;
-    }
+        if (GuiButton((Rectangle){hb_x1 + hb_w1 + 20, hb_y1, hb_w1, hb_h},
+                      "Voir historique")) {
+            ecran_actuel = ECRAN_DATES_AJOUT;
+        }
 
-    // ─── Actions secondaires (employe) ────
-    int hb_w2 = 150;
-    int hb_total2 = hb_w2 * 2 + 15;
-    int hb_x2 = card_x + (card_w - hb_total2) / 2;
-    int hb_y2 = hb_y1 + 50;
+        // ─── Actions secondaires (employe) ────
+        int hb_w2 = 150;
+        int hb_total2 = hb_w2 * 2 + 15;
+        int hb_x2 = card_x + (card_w - hb_total2) / 2;
+        int hb_y2 = hb_y1 + 50;
 
-    if (GuiButton((Rectangle){hb_x2, hb_y2, hb_w2, 32},
-                  "Modifier les informations")) {
-        strcpy(mod_nom,    e->nom);
-        strcpy(mod_prenom, e->prenom);
-        strcpy(mod_poste,  e->poste);
-        sprintf(mod_base,  "%.2f", e->salaire_base);
-        sprintf(mod_hsup,  "%.2f", e->heures_sup);
-        sprintf(mod_prime, "%.2f", e->prime);
-        champ_mod = 0;
-        champ_mod_prev = -1;
-        ecran_actuel = ECRAN_MODIFICATION;
-    }
+        if (GuiButton((Rectangle){hb_x2, hb_y2, hb_w2, 32},
+                      "Modifier les informations")) {
+            strcpy(mod_nom,    e->nom);
+            strcpy(mod_prenom, e->prenom);
+            strcpy(mod_poste,  e->poste);
+            sprintf(mod_base,  "%.2f", e->salaire_base);
+            sprintf(mod_hsup,  "%.2f", e->heures_sup);
+            sprintf(mod_prime, "%.2f", e->prime);
+            champ_mod = 0;
+            champ_mod_prev = -1;
+            ecran_actuel = ECRAN_MODIFICATION;
+        }
 
-    DrawRectangleRounded(
-        (Rectangle){hb_x2 + hb_w2 + 15, hb_y2, hb_w2, 32},
-        0.3f, 8, (Color){254, 226, 226, 255});
-    if (GuiButton((Rectangle){hb_x2 + hb_w2 + 15, hb_y2, hb_w2, 32},
-                  "Supprimer cet employe")) {
-        popup_confirm = 1;
+        DrawRectangleRounded(
+            (Rectangle){hb_x2 + hb_w2 + 15, hb_y2, hb_w2, 32},
+            0.3f, 8, (Color){254, 226, 226, 255});
+        if (GuiButton((Rectangle){hb_x2 + hb_w2 + 15, hb_y2, hb_w2, 32},
+                      "Supprimer cet employe")) {
+            popup_confirm = 1;
+        }
     }
 
     // Footer
