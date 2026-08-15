@@ -1113,7 +1113,7 @@ if (ecran_actuel == ECRAN_NOUVEAU_BULLETIN && employe_selectionne >= 0) {
         else champ_nb = -1;
     }
 
-    if (IsKeyPressed(KEY_TAB)) {
+   if (IsKeyPressed(KEY_TAB)) {
         if (IsKeyDown(KEY_LEFT_SHIFT))
             champ_nb = (champ_nb - 1 + 3) % 3;
         else
@@ -1123,6 +1123,25 @@ if (ecran_actuel == ECRAN_NOUVEAU_BULLETIN && employe_selectionne >= 0) {
         champ_nb = (champ_nb + 1) % 3;
     if (IsKeyPressed(KEY_UP))
         champ_nb = (champ_nb - 1 + 3) % 3;
+
+    if (IsKeyPressed(KEY_ENTER)) {
+        if (champ_nb == 2 && strlen(nb_base) > 0) {
+            // Dernier champ + salaire base rempli → generer directement
+            nouveauBulletin(e,
+                atof(nb_base),
+                strlen(nb_hsup)  > 0 ? atof(nb_hsup)  : 0.0f,
+                strlen(nb_prime) > 0 ? atof(nb_prime) : 0.0f);
+            sauvegarderCSV(employes, nb_employes);
+            strcpy(success_msg, "Nouveau bulletin genere !");
+            success_timer = 3.0f;
+            cached_bull_nb = -1;
+            hist_scanned   = 0;
+            ecran_actuel   = ECRAN_FICHE;
+        } else {
+            // Sinon → champ suivant
+            champ_nb = (champ_nb + 1) % 3;
+        }
+    }
 
     const char *nb_labels[] = {
         "Salaire base :", "Heures sup :", "Prime :"
@@ -2072,9 +2091,6 @@ if (ecran_actuel == ECRAN_VOIR_BULLETIN && bulletin_view_idx >= 0) {
 
 // ─── Popup choix format ───────────────────
 
-
-
-// ─── Popup choix format ───────────────────
 
 
 
