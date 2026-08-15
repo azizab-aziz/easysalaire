@@ -405,3 +405,85 @@ int lireFiche(const char *filepath, Employe *out) {
     fclose(f);
     return 1;
 }
+
+// ─── Registre complet de tous les bulletins ───
+// Ne scanne QUE les employes actuellement presents dans tab[]
+// (evite d'inclure des dossiers orphelins d'employes supprimes)
+void genererRegistreBulletins(Employe tab[], int nb) {
+    creerDossierSaves();
+
+    // Lister tous les dossiers emp_<id>
+    char tmp_dirs[] = "C:\\EasySalaire\\saves\\tmp_dirs.txt";
+    system("dir \"C:\\EasySalaire\\saves\\historique\" /AD /B > "
+           "\"C:\\EasySalaire\\saves\\tmp_dirs.txt\" 2>nul");
+
+    FILE *fd = fopen(tmp_dirs, "r");
+    if (!fd) return;
+
+    FILE *out = fopen("C:\\EasySalaire\\saves\\bulletins.csv", "w");
+    if (!out) { fclose(fd); return; }
+
+    fprintf(out,
+        "Id,Nom,Prenom,Poste,Bulletin,Periode,"
+        "Salaire Base,Heures Sup,Prime,CNSS,IR,Salaire Net\n");
+
+    char dirline[100];
+    while (fgets(dirline, sizeof(dirline), fd)) {
+        dirline[strcspn(dirline, "\r\n")] = 0;
+        if (strlen(dirline) == 0) continue;
+        if (strncmp(dirline, "emp_", 4) != 0) continue;
+
+        // Verifier que cet id existe encore dans la liste actuelle
+        int folder_id = atoi(dirline + 4);
+        int existe = 0;
+        for (int k = 0; k < nb; k++) {
+            if (tab[k].id == folder_id) { existe = 1; break; }
+        }
+        if (!existe) continue;
+
+        char dossier[250];
+        sprintf(dossier, "C:\\EasySalaire\\saves\\historique\\%s", dirline);
+
+        char tmp_files[] = "C:\\EasySalaire\\saves\\tmp_files.txt";
+        char cmd[500];
+        sprintf(cmd, "dir \"%s\" /B /ON > \"%s\" 2>nul", dossier, tmp_files);
+        system(cmd);
+
+        FILE *ff = fopen(tmp_files, "r");
+        if (!ff) continue;
+
+        char fline[200];
+        while (fgets(fline, sizeof(fline), ff)) {
+            fline[strcspn(fline, "\r\n")] = 0;
+            if (strlen(fline) == 0 || !strstr(fline, ".txt")) continue;
+
+            char filepath[400];
+            sprintf(filepath, "%s\\%s", dossier, fline);
+
+            Employe b = {0};
+            if (lireFiche(filepath, &b)) {
+                fprintf(out,
+                    "%s,%s,%s,%s,N%03d,%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
+                    dirline + 4, // id sans le prefixe "emp_"
+                    b.nom, b.prenom, b.poste,
+                    b.numero_bulletin, b.mois_annee,
+                    b.salaire_base, b.heures_sup, b.prime,
+                    b.cnss, b.ir, b.salaire_net);
+            }
+        }
+        fclose(ff);
+    }
+
+    fclose(fd);
+    fclose(out);
+}
+
+// ─── Supprimer le dossier historique d'un employe ─
+void supprimerHistoriqueEmploye(int id) {
+    char dossier[200];
+    sprintf(dossier, "C:\\EasySalaire\\saves\\historique\\emp_%d", id);
+
+    char cmd[300];
+    sprintf(cmd, "rmdir /S /Q \"%s\" 2>nul", dossier);
+    system(cmd);
+}

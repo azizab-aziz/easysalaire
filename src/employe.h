@@ -35,7 +35,9 @@ void sauvegarderHistorique(Employe *e);
 int lireFiche(const char *filepath, Employe *out);
 int  compterBulletins(int id);
 void premierBulletin(int id, char *out_date);
-int prochainID(void);
+int  prochainId(void);   // renvoie le prochain id unique disponible
+void genererRegistreBulletins(Employe tab[], int nb);
+void supprimerHistoriqueEmploye(int id);
 // Gestion
 // Gestion
 void ajouterEmploye(Employe tab[], int *nb, Employe e);

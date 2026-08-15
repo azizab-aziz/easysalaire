@@ -473,8 +473,14 @@ for (int i = 0; i < 6; i++) {
                 recherche[0] = '\0';
                 page_actuelle = 0;
             }
-            if (GuiButton((Rectangle){500, sb_y, 150, 34}, "Exporter Excel")) {
+           if (GuiButton((Rectangle){500, sb_y, 150, 34}, "Exporter Excel")) {
                 system("python C:\\EasySalaire\\saves\\export_excel.py");
+            }
+            if (GuiButton((Rectangle){660, sb_y, 170, 34}, "Exporter registre")) {
+                genererRegistreBulletins(employes, nb_employes);
+                system("python C:\\EasySalaire\\saves\\export_registre.py");
+                strcpy(success_msg, "Registre des bulletins exporte !");
+                success_timer = 3.0f;
             }
 
             // ─── Table ────────────────────────
@@ -2231,6 +2237,8 @@ if (popup_confirm == 1) {
         0.3f, 8, COL_DANGER);
     if (GuiButton((Rectangle){px + 185, py + 152, 155, 36},
                   "Oui, supprimer")) {
+        int id_a_supprimer = employes[employe_selectionne].id;
+        supprimerHistoriqueEmploye(id_a_supprimer);
         supprimerEmploye(employes, &nb_employes,
                          employe_selectionne);
         sauvegarderCSV(employes, nb_employes);
