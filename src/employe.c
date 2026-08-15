@@ -6,7 +6,7 @@
 #include <time.h>
 
 
-static int bulletin_counter = 0;
+
 static int id_counter = 0;
 
 int prochainId(void) {
@@ -89,9 +89,8 @@ void ajouterEmploye(Employe tab[], int *nb, Employe e) {
     if (*nb < MAX_EMPLOYES) {
         calculNet(&e);
         getDateActuelle(e.mois_annee);
-        bulletin_counter++;
-        e.numero_bulletin = bulletin_counter;
         e.id = prochainId();
+        e.numero_bulletin = compterBulletins(e.id) + 1; // toujours 1 pour un nouvel employe
         tab[(*nb)++] = e;
         sauvegarderHistorique(&tab[(*nb)-1]);
     }
@@ -104,9 +103,8 @@ void nouveauBulletin(Employe *e, float base, float hsup, float prime) {
     e->prime        = prime;
     calculNet(e);
     getDateActuelle(e->mois_annee);
-    bulletin_counter++;
-    e->numero_bulletin = bulletin_counter;
-    sauvegarderHistorique(e);   // écrit dans le MÊME dossier emp_<id>
+    e->numero_bulletin = compterBulletins(e->id) + 1;
+    sauvegarderHistorique(e);
 }
 
 // ─── Supprimer un employé ─────────────────────
@@ -345,9 +343,7 @@ e.numero_bulletin = atoi(bull_str + bi);
 if (strlen(e.mois_annee) == 0)
     getDateActuelle(e.mois_annee);
 
-// Update counters to highest values seen, so nothing gets reused
-if (e.numero_bulletin > bulletin_counter)
-    bulletin_counter = e.numero_bulletin;
+// Update id counter to highest value seen, so no id gets reused
 if (e.id > id_counter)
     id_counter = e.id;
 
@@ -486,4 +482,40 @@ void supprimerHistoriqueEmploye(int id) {
     char cmd[300];
     sprintf(cmd, "rmdir /S /Q \"%s\" 2>nul", dossier);
     system(cmd);
+}
+
+// ─── Modifier un bulletin archive existant ────
+// Recalcule et reecrit le MEME fichier (meme numero, meme periode)
+void modifierBulletin(const char *filepath, Employe *e) {
+    calculNet(e);
+
+    FILE *f = fopen(filepath, "w");
+    if (f == NULL) return;
+
+    float brut = calculBrut(e);
+
+    fprintf(f, "========================================\n");
+    fprintf(f, "      FICHE DE PAIE - EasySalaire      \n");
+    fprintf(f, "========================================\n\n");
+    fprintf(f, "ID Employe   : %d\n", e->id);
+    fprintf(f, "Bulletin N   : N%03d\n", e->numero_bulletin);
+    fprintf(f, "Periode      : %s\n\n", e->mois_annee);
+    fprintf(f, "Nom          : %s\n", e->nom);
+    fprintf(f, "Prenom       : %s\n", e->prenom);
+    fprintf(f, "Poste        : %s\n", e->poste);
+    fprintf(f, "\nCALCUL DU SALAIRE\n");
+    fprintf(f, "-------------------------\n");
+    fprintf(f, "Salaire base : %.2f TND\n", e->salaire_base);
+    fprintf(f, "Heures sup   : + %.2f TND\n", e->heures_sup * 1.5f);
+    fprintf(f, "Prime        : + %.2f TND\n", e->prime);
+    fprintf(f, "Salaire brut : %.2f TND\n", brut);
+    fprintf(f, "\nRETENUES\n");
+    fprintf(f, "-------------------------\n");
+    fprintf(f, "CNSS (9.18%%) : - %.2f TND\n", e->cnss);
+    fprintf(f, "IR            : - %.2f TND\n", e->ir);
+    fprintf(f, "\n========================================\n");
+    fprintf(f, "SALAIRE NET  : %.2f TND\n", e->salaire_net);
+    fprintf(f, "========================================\n");
+
+    fclose(f);
 }

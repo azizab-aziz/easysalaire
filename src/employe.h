@@ -38,6 +38,7 @@ void premierBulletin(int id, char *out_date);
 int  prochainId(void);   // renvoie le prochain id unique disponible
 void genererRegistreBulletins(Employe tab[], int nb);
 void supprimerHistoriqueEmploye(int id);
+void modifierBulletin(const char *filepath, Employe *e);
 // Gestion
 // Gestion
 void ajouterEmploye(Employe tab[], int *nb, Employe e);

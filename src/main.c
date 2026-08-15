@@ -30,7 +30,8 @@ typedef enum {
     ECRAN_HISTORIQUE,
     ECRAN_COMPARAISON,
     ECRAN_NOUVEAU_BULLETIN,
-    ECRAN_VOIR_BULLETIN
+    ECRAN_VOIR_BULLETIN,
+    ECRAN_MODIFIER_BULLETIN
 } Ecran;
 
 
@@ -122,6 +123,10 @@ int main(void) {
     Employe bulletin_view;
     int bulletin_view_idx = -1;
     int bulletin_delete_confirm = 0;
+
+    char mb_base[20] = "", mb_hsup[20] = "", mb_prime[20] = "";
+    int  champ_mb = -1;
+    int  save_from_bulletin = 0;
 
     nb_employes = chargerCSV(employes);
     printf("Loaded %d employees from CSV\n", nb_employes);
@@ -491,25 +496,22 @@ for (int i = 0; i < 6; i++) {
             DrawRectangle(20, table_y, W - 40, 36, COL_HDR_ROW);
 
 float c1 = 20  + (W-40)*0.02f;
-float c2 = 20  + (W-40)*0.22f;
-float c3 = 20  + (W-40)*0.42f;
-float c4 = 20  + (W-40)*0.62f;
-float c5 = 20  + (W-40)*0.80f;
+float c2 = 20  + (W-40)*0.30f;
+float c3 = 20  + (W-40)*0.55f;
+int   action_btn_w = 170;
+float c4 = (W - 20) - action_btn_w - 10; // Action ancree a droite : jamais de debordement
 
 // ─── Clickable sort headers ───────────────────
 const char *arr0 = (sort_col == 0) ? (sort_asc ? " ^" : " v") : "";
 const char *arr2 = (sort_col == 1) ? (sort_asc ? " ^" : " v") : "";
-const char *arr3 = (sort_col == 2) ? (sort_asc ? " ^" : " v") : "";
 
-char h_nom[20], h_poste[20], h_sal[20];
-sprintf(h_nom,  "Nom%s",         arr0);
-sprintf(h_poste,"Poste%s",       arr2);
-sprintf(h_sal,  "Salaire net%s", arr3);
+char h_nom[20], h_poste[20];
+sprintf(h_nom,  "Nom%s",   arr0);
+sprintf(h_poste,"Poste%s", arr2);
 
-// Nom header — clickable
-Rectangle r_h_nom  = {c1, table_y, (W-40)*0.20f, 36};
-Rectangle r_h_post = {c3, table_y, (W-40)*0.20f, 36};
-Rectangle r_h_sal  = {c4, table_y, (W-40)*0.18f, 36};
+// Nom / Poste headers — clickable
+Rectangle r_h_nom  = {c1, table_y, c2 - c1 - 10, 36};
+Rectangle r_h_post = {c3, table_y, c4 - c3 - 10, 36};
 
 if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
     Vector2 m = GetMousePosition();
@@ -527,29 +529,19 @@ if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         else          qsort(employes, nb_employes, sizeof(Employe), comparePosteDesc);
         sauvegarderCSV(employes, nb_employes);
     }
-    if (CheckCollisionPointRec(m, r_h_sal)) {
-        if (sort_col == 2) sort_asc = !sort_asc;
-        else { sort_col = 2; sort_asc = 1; }
-        if (sort_asc) qsort(employes, nb_employes, sizeof(Employe), compareSalaire);
-        else          qsort(employes, nb_employes, sizeof(Employe), compareSalaireDesc);
-        sauvegarderCSV(employes, nb_employes);
-    }
 }
 
 // Hover effect
 Vector2 mouse = GetMousePosition();
 if (CheckCollisionPointRec(mouse, r_h_nom))
-    DrawRectangle(c1, table_y, (W-40)*0.20f, 36, (Color){255,255,255,30});
+    DrawRectangle(r_h_nom.x, table_y, r_h_nom.width, 36, (Color){255,255,255,30});
 if (CheckCollisionPointRec(mouse, r_h_post))
-    DrawRectangle(c3, table_y, (W-40)*0.20f, 36, (Color){255,255,255,30});
-if (CheckCollisionPointRec(mouse, r_h_sal))
-    DrawRectangle(c4, table_y, (W-40)*0.18f, 36, (Color){255,255,255,30});
+    DrawRectangle(r_h_post.x, table_y, r_h_post.width, 36, (Color){255,255,255,30});
 
 DrawTextEx(font, h_nom,   (Vector2){c1, table_y + 10}, 14, 1, WHITE);
 DrawTextEx(font, "Prenom",(Vector2){c2, table_y + 10}, 14, 1, WHITE);
 DrawTextEx(font, h_poste, (Vector2){c3, table_y + 10}, 14, 1, WHITE);
-DrawTextEx(font, h_sal,   (Vector2){c4, table_y + 10}, 14, 1, WHITE);
-DrawTextEx(font, "Action",(Vector2){c5, table_y + 10}, 14, 1, WHITE);
+DrawTextEx(font, "Action",(Vector2){c4, table_y + 10}, 14, 1, WHITE);
             // Rows
             // ─── Build filtered list ──────────────────────
 int filtered[MAX_EMPLOYES];
@@ -605,15 +597,11 @@ for (int fi = start; fi < end; fi++) {
     DrawTextEx(font, prenom_cut, (Vector2){c2, ry+15}, 15, 1, COL_TEXT);
     DrawTextEx(font, poste_cut,  (Vector2){c3, ry+15}, 15, 1, COL_TEXT);
 
-    char net[30];
-    sprintf(net, "%.2f TND", employes[i].salaire_net);
-    DrawTextEx(font, net, (Vector2){c4, ry+15}, 15, 1, COL_SUCCESS);
-
     DrawRectangleRounded(
-        (Rectangle){c5, ry+8, 110, 28},
+        (Rectangle){c4, ry+8, action_btn_w, 28},
         0.3f, 8, COL_ACCENT);
-    if (GuiButton((Rectangle){c5, ry+8, 110, 28},
-              "Voir fiche")) {
+    if (GuiButton((Rectangle){c4, ry+8, action_btn_w, 28},
+              "Voir tous les fiches")) {
     employe_selectionne = i;
     ecran_actuel        = ECRAN_FICHE;
     cached_bull_nb      = -1;  // reset cache
@@ -821,11 +809,9 @@ if (cached_bull_nb > 0) {
             DrawTextEx(font, txt, (Vector2){vx, net_y + 17}, 20, 1, COL_SUCCESS);
 // ─── Buttons ──────────────────────────────
             int btn_h   = 38;
-            int btn_w   = 145;
-            int total_w = btn_w * 4 + 30 * 3;
-            int start_x = (W - total_w) / 2;
-
-            start_x = card_x + 10;
+            int btn_w   = 190;
+            int total_w = btn_w * 3 + 20 * 2;
+            int start_x = card_x + (card_w - total_w) / 2;
 
             if (GuiButton((Rectangle){start_x, btn_y, btn_w, btn_h},
                           "Retour liste")) {
@@ -833,76 +819,23 @@ if (cached_bull_nb > 0) {
                 employe_selectionne = -1;
             }
 
-
-            Rectangle rect_mod = {start_x + btn_w + 15, btn_y, btn_w, btn_h};
-
-            bool inside_mod = CheckCollisionPointRec(GetMousePosition(), rect_mod);
-            bool clicked_mod = GuiButton(rect_mod, "Modifier");
-
-            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                DrawText(TextFormat("Click at %.0f,%.0f | Inside rect? %s | GuiButton fired? %s",
-                    GetMousePosition().x, GetMousePosition().y,
-                    inside_mod ? "YES" : "NO",
-                    clicked_mod ? "YES" : "NO"),
-                    10, H - 30, 14, RED);
+            if (GuiButton((Rectangle){start_x + (btn_w + 20), btn_y, btn_w, btn_h},
+                         "Voir historique")) {
+               ecran_actuel = ECRAN_HISTORIQUE;
+               hist_scanned = 0;
             }
 
-            if (clicked_mod) {
-               // Store original values for display
-               strcpy(mod_nom,    e->nom);
-               strcpy(mod_prenom, e->prenom);
-               strcpy(mod_poste,  e->poste);
-               sprintf(mod_base,  "%.2f", e->salaire_base);
-               sprintf(mod_hsup,  "%.2f", e->heures_sup);
-               sprintf(mod_prime, "%.2f", e->prime);
-
-               // Store originals for hint display
-               char orig_nom[50], orig_prenom[50], orig_poste[50];
-               char orig_base[20], orig_hsup[20], orig_prime[20];
-               strcpy(orig_nom,    mod_nom);
-               strcpy(orig_prenom, mod_prenom);
-               strcpy(orig_poste,  mod_poste);
-               strcpy(orig_base,   mod_base);
-               strcpy(orig_hsup,   mod_hsup);
-               strcpy(orig_prime,  mod_prime);
-
-              champ_mod = 0;
-              champ_mod_prev = -1;  // ← reset
-              ecran_actuel = ECRAN_MODIFICATION;
+            DrawRectangleRounded(
+                (Rectangle){start_x + (btn_w + 20)*2, btn_y, btn_w, btn_h},
+                0.3f, 8, COL_ACCENT);
+            if (GuiButton((Rectangle){start_x + (btn_w + 20)*2, btn_y, btn_w, btn_h},
+                         "Nouvelle fiche (nouveau mois)")) {
+                nb_base[0]  = '\0';
+                nb_hsup[0]  = '\0';
+                nb_prime[0] = '\0';
+                champ_nb = 0;
+                ecran_actuel = ECRAN_NOUVEAU_BULLETIN;
             }
-
-            if (GuiButton((Rectangle){start_x + (btn_w + 15)*2, btn_y, btn_w, btn_h},
-                          "Enregistrer")) {
-                save_index = employe_selectionne;
-                popup_save = 1;
-            }
-
-            // Historique button — centered below
-            if (GuiButton((Rectangle){start_x + (btn_w + 15)*3, btn_y, btn_w, btn_h},
-             "Supprimer")) {
-  popup_confirm = 1;
-}
-if (GuiButton((Rectangle){start_x + (btn_w + 15)*4, btn_y, btn_w, btn_h},
-             "Voir historique")) {
-   ecran_actuel = ECRAN_HISTORIQUE;
-   hist_scanned = 0;
-}
-
-// ─── Nouvelle fiche (nouveau mois) ─────────
-int nb_btn_w = 220;
-int nb_btn_x = card_x + (card_w - nb_btn_w) / 2;
-int nb_btn_y = btn_y + 50;
-DrawRectangleRounded(
-    (Rectangle){nb_btn_x, nb_btn_y, nb_btn_w, 38},
-    0.3f, 8, COL_ACCENT);
-if (GuiButton((Rectangle){nb_btn_x, nb_btn_y, nb_btn_w, 38},
-             "Nouvelle fiche (nouveau mois)")) {
-    nb_base[0]  = '\0';
-    nb_hsup[0]  = '\0';
-    nb_prime[0] = '\0';
-    champ_nb = 0;
-    ecran_actuel = ECRAN_NOUVEAU_BULLETIN;
-}
 
            draw_fiche_end:;
         }
@@ -2017,30 +1950,38 @@ if (ecran_actuel == ECRAN_VOIR_BULLETIN && bulletin_view_idx >= 0) {
     DrawTextEx(font, "SALAIRE NET :", (Vector2){lx, net_y + 17}, 18, 1, COL_TEXT);
     DrawTextEx(font, txt,             (Vector2){vx, net_y + 17}, 20, 1, COL_SUCCESS);
 
-    // ─── Boutons ──────────────────────
-    int btn_w3 = 180;
-    int total_w3 = btn_w3 * 2 + 20;
+   // ─── Boutons ──────────────────────
+    int btn_w3 = 140;
+    int total_w3 = btn_w3 * 4 + 15 * 3;
     int start_x3 = card_x + (card_w - total_w3) / 2;
 
     if (GuiButton((Rectangle){start_x3, btn_y3, btn_w3, 38},
-                  "Exporter PDF")) {
-        char cmd[1024];
-        sprintf(cmd,
-            "python C:\\EasySalaire\\saves\\export_pdf.py "
-            "\"%s\" \"%s\" \"%s\" %.2f %.2f %.2f %.2f %.2f %.2f",
-            bv->nom, bv->prenom, bv->poste,
-            bv->salaire_base, bv->heures_sup * 1.5f, bv->prime,
-            bv->cnss, bv->ir, bv->salaire_net);
-        system(cmd);
-        strcpy(success_msg, "Fiche PDF generee !");
-        success_timer = 3.0f;
+                  "Retour liste")) {
+        ecran_actuel = ECRAN_LISTE;
+        employe_selectionne = -1;
+        bulletin_view_idx = -1;
+    }
+
+    if (GuiButton((Rectangle){start_x3 + (btn_w3 + 15), btn_y3, btn_w3, 38},
+                  "Modifier")) {
+        sprintf(mb_base,  "%.2f", bv->salaire_base);
+        sprintf(mb_hsup,  "%.2f", bv->heures_sup);
+        sprintf(mb_prime, "%.2f", bv->prime);
+        champ_mb = 0;
+        ecran_actuel = ECRAN_MODIFIER_BULLETIN;
+    }
+
+    if (GuiButton((Rectangle){start_x3 + (btn_w3 + 15)*2, btn_y3, btn_w3, 38},
+                  "Enregistrer")) {
+        save_from_bulletin = 1;
+        popup_save = 1;
     }
 
     DrawRectangleRounded(
-        (Rectangle){start_x3 + btn_w3 + 20, btn_y3, btn_w3, 38},
+        (Rectangle){start_x3 + (btn_w3 + 15)*3, btn_y3, btn_w3, 38},
         0.3f, 8, (Color){254, 226, 226, 255});
-    if (GuiButton((Rectangle){start_x3 + btn_w3 + 20, btn_y3, btn_w3, 38},
-                  "Supprimer ce bulletin")) {
+    if (GuiButton((Rectangle){start_x3 + (btn_w3 + 15)*3, btn_y3, btn_w3, 38},
+                  "Supprimer")) {
         bulletin_delete_confirm = 1;
     }
 
@@ -2095,6 +2036,120 @@ if (ecran_actuel == ECRAN_VOIR_BULLETIN && bulletin_view_idx >= 0) {
 }
 
 
+// ══════════════════════════════════════
+// ÉCRAN MODIFIER BULLETIN
+// ══════════════════════════════════════
+if (ecran_actuel == ECRAN_MODIFIER_BULLETIN &&
+    employe_selectionne >= 0 && bulletin_view_idx >= 0) {
+
+    Employe *owner = &employes[employe_selectionne];
+    Employe *bv    = &bulletin_view;
+
+    DrawTextEx(font, "Modifier le bulletin", (Vector2){24, 75}, 18, 1, COL_MUTED);
+
+    int card_w = 500;
+    int card_h = 400;
+    int card_x = (W - card_w) / 2;
+    int card_y = (H - card_h) / 2;
+
+    DrawRectangleRounded(
+        (Rectangle){card_x, card_y, card_w, card_h},
+        0.04f, 8, COL_CARD);
+    DrawRectangleLinesEx(
+        (Rectangle){card_x, card_y, card_w, card_h},
+        1.5f, COL_BORDER);
+
+    char info[100];
+    sprintf(info, "%s %s - %s (N %03d)", bv->nom, bv->prenom, bv->poste, bv->numero_bulletin);
+    DrawTextEx(font, info,
+               (Vector2){card_x + 30, card_y + 25}, 16, 1, COL_TEXT);
+    DrawTextEx(font, "Seuls les montants peuvent etre modifies.",
+               (Vector2){card_x + 30, card_y + 50}, 12, 1, COL_MUTED);
+
+    DrawRectangle(card_x + 30, card_y + 75, card_w - 60, 1, COL_BORDER);
+
+    int lx  = card_x + 30;
+    int fx  = card_x + 190;
+    int fw  = 270;
+    int fh  = 36;
+    int fy  = card_y + 100;
+    int gap = 62;
+
+    Rectangle rmb_base  = {fx, fy + gap*0, fw, fh};
+    Rectangle rmb_hsup  = {fx, fy + gap*1, fw, fh};
+    Rectangle rmb_prime = {fx, fy + gap*2, fw, fh};
+
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        Vector2 m = GetMousePosition();
+        if      (CheckCollisionPointRec(m, rmb_base))  champ_mb = 0;
+        else if (CheckCollisionPointRec(m, rmb_hsup))  champ_mb = 1;
+        else if (CheckCollisionPointRec(m, rmb_prime)) champ_mb = 2;
+        else champ_mb = -1;
+    }
+
+    if (IsKeyPressed(KEY_TAB)) {
+        if (IsKeyDown(KEY_LEFT_SHIFT))
+            champ_mb = (champ_mb - 1 + 3) % 3;
+        else
+            champ_mb = (champ_mb + 1) % 3;
+    }
+    if (IsKeyPressed(KEY_DOWN))
+        champ_mb = (champ_mb + 1) % 3;
+    if (IsKeyPressed(KEY_UP))
+        champ_mb = (champ_mb - 1 + 3) % 3;
+
+    const char *mb_labels[] = {
+        "Salaire base :", "Heures sup :", "Prime :"
+    };
+    for (int i = 0; i < 3; i++)
+        DrawTextEx(font, mb_labels[i],
+                   (Vector2){lx, fy + gap*i + 10}, 16, 1, COL_TEXT);
+
+    Rectangle mb_rects[] = {rmb_base, rmb_hsup, rmb_prime};
+    for (int i = 0; i < 3; i++) {
+        DrawRectangleRec(mb_rects[i], COL_CARD);
+        Color border = (champ_mb == i) ? COL_ACCENT : COL_BORDER;
+        DrawRectangleLinesEx(mb_rects[i], 1.5f, border);
+    }
+
+    GuiTextBox(rmb_base,  mb_base,  20, champ_mb == 0);
+    GuiTextBox(rmb_hsup,  mb_hsup,  20, champ_mb == 1);
+    GuiTextBox(rmb_prime, mb_prime, 20, champ_mb == 2);
+
+    int btn_y4 = card_y + card_h - 60;
+    int btn_w4 = 140;
+    int btn_h4 = 38;
+
+    if (GuiButton((Rectangle){card_x + 60, btn_y4, btn_w4, btn_h4},
+                  "Sauvegarder")) {
+        if (strlen(mb_base) > 0) {
+            char dossier[200];
+            sprintf(dossier, "C:\\EasySalaire\\saves\\historique\\emp_%d", owner->id);
+            char filepath[400];
+            sprintf(filepath, "%s\\%s", dossier, hist_files[bulletin_view_idx]);
+
+            bv->salaire_base = atof(mb_base);
+            bv->heures_sup   = strlen(mb_hsup)  > 0 ? atof(mb_hsup)  : 0.0f;
+            bv->prime        = strlen(mb_prime) > 0 ? atof(mb_prime) : 0.0f;
+
+            modifierBulletin(filepath, bv);
+
+            strcpy(success_msg, "Bulletin modifie !");
+            success_timer = 3.0f;
+            ecran_actuel = ECRAN_VOIR_BULLETIN;
+        }
+    }
+
+    DrawRectangleRounded(
+        (Rectangle){card_x + 220, btn_y4, btn_w4, btn_h4},
+        0.3f, 8, COL_BORDER);
+    if (GuiButton((Rectangle){card_x + 220, btn_y4, btn_w4, btn_h4},
+                  "Annuler")) {
+        ecran_actuel = ECRAN_VOIR_BULLETIN;
+    }
+}
+
+
 // ─── Popup choix format ───────────────────
 
 
@@ -2127,11 +2182,14 @@ if (popup_save == 1) {
     // Fiche .txt
     if (GuiButton((Rectangle){px + 15, py + 80, 90, 38},
                   "Fiche .txt")) {
-        if (save_index >= 0)
+        if (save_from_bulletin)
+            sauvegarderFiche(&bulletin_view);
+        else if (save_index >= 0)
             sauvegarderFiche(&employes[save_index]);
-            popup_save = 0;
-            strcpy(success_msg, "Fiche .txt sauvgardee !");
-            success_timer = 3.0f;
+        popup_save = 0;
+        save_from_bulletin = 0;
+        strcpy(success_msg, "Fiche .txt sauvgardee !");
+        success_timer = 3.0f;
     }
 
     // Liste .csv
@@ -2139,6 +2197,7 @@ if (popup_save == 1) {
                   "Liste .csv")) {
         sauvegarderCSV(employes, nb_employes);
         popup_save = 0;
+        save_from_bulletin = 0;
         strcpy(success_msg, "Fiche .txt sauvgardee !");
         success_timer = 3.0f;
     }
@@ -2146,8 +2205,11 @@ if (popup_save == 1) {
     // Fiche PDF
     if (GuiButton((Rectangle){px + 235, py + 80, 90, 38},
                   "Fiche PDF")) {
-        if (save_index >= 0) {
-            Employe *ep = &employes[save_index];
+        Employe *ep = NULL;
+        if (save_from_bulletin) ep = &bulletin_view;
+        else if (save_index >= 0) ep = &employes[save_index];
+
+        if (ep != NULL) {
             char cmd[1024];
             sprintf(cmd,
                 "python C:\\EasySalaire\\saves\\export_pdf.py "
@@ -2158,6 +2220,7 @@ if (popup_save == 1) {
             system(cmd);
         }
         popup_save = 0;
+        save_from_bulletin = 0;
         strcpy(success_msg, "Fiche PDF generee !");
         success_timer = 3.0f;
     }
@@ -2166,6 +2229,7 @@ if (popup_save == 1) {
     if (GuiButton((Rectangle){px + 100, py + 140, 130, 36},
                   "Annuler")) {
         popup_save = 0;
+        save_from_bulletin = 0;
     }
 
     Vector2 mouse = GetMousePosition();
