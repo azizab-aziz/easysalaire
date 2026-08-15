@@ -3,8 +3,10 @@
 ========================================
 
 ID Employe   : 1
-Bulletin N   : N001
+Bulletin N   : N003
 Periode      : Aout 2026
+
+Date ajout   : 15 october 2025 - 12:42
 
 Nom          : ABIDI
 Prenom       : MED aziz
@@ -12,16 +14,16 @@ Poste        : developpeur
 
 CALCUL DU SALAIRE
 -------------------------
-Salaire base : 2900.00 TND
-Heures sup   : + 7.50 TND
-Prime        : + 480.00 TND
-Salaire brut : 3387.50 TND
+Salaire base : 2300.00 TND
+Heures sup   : + 18.00 TND
+Prime        : + 450.00 TND
+Salaire brut : 2768.00 TND
 
 RETENUES
 -------------------------
-CNSS (9.18%) : - 310.97 TND
-IR            : - 831.46 TND
+CNSS (9.18%) : - 254.10 TND
+IR            : - 614.63 TND
 
 ========================================
-SALAIRE NET  : 2245.07 TND
+SALAIRE NET  : 1899.26 TND
 ========================================

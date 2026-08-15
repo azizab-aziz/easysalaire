@@ -84,6 +84,24 @@ void getDateActuelle(char *buf) {
             tm_info->tm_year + 1900);
 }
 
+void getDateTimeActuelle(char *buf) {
+    time_t t = time(NULL);
+    struct tm *tm_info = localtime(&t);
+
+    const char *mois[] = {
+        "Janvier", "Fevrier", "Mars", "Avril",
+        "Mai", "Juin", "Juillet", "Aout",
+        "Septembre", "Octobre", "Novembre", "Decembre"
+    };
+
+    sprintf(buf, "%02d %s %d - %02d:%02d",
+            tm_info->tm_mday,
+            mois[tm_info->tm_mon],
+            tm_info->tm_year + 1900,
+            tm_info->tm_hour,
+            tm_info->tm_min);
+}
+
 // ─── Ajouter un employé ───────────────────────
 void ajouterEmploye(Employe tab[], int *nb, Employe e) {
     if (*nb < MAX_EMPLOYES) {
@@ -91,19 +109,21 @@ void ajouterEmploye(Employe tab[], int *nb, Employe e) {
         getDateActuelle(e.mois_annee);
         e.id = prochainId();
         e.numero_bulletin = compterBulletins(e.id) + 1; // toujours 1 pour un nouvel employe
+        getDateTimeActuelle(e.date_ajout);
         tab[(*nb)++] = e;
         sauvegarderHistorique(&tab[(*nb)-1]);
     }
 }
 
 // ─── Générer un nouveau bulletin (même employé) ─
-void nouveauBulletin(Employe *e, float base, float hsup, float prime) {
+void nouveauBulletin(Employe *e, float base, float hsup, float prime, const char *date_ajout) {
     e->salaire_base = base;
     e->heures_sup   = hsup;
     e->prime        = prime;
     calculNet(e);
     getDateActuelle(e->mois_annee);
     e->numero_bulletin = compterBulletins(e->id) + 1;
+    strcpy(e->date_ajout, date_ajout);
     sauvegarderHistorique(e);
 }
 
@@ -195,6 +215,7 @@ void sauvegarderHistorique(Employe *e) {
     fprintf(f, "ID Employe   : %d\n", e->id);
     fprintf(f, "Bulletin N   : N%03d\n", e->numero_bulletin);
     fprintf(f, "Periode      : %s\n\n", e->mois_annee);
+    fprintf(f, "Date ajout   : %s\n\n", e->date_ajout);
     fprintf(f, "Nom          : %s\n", e->nom);
     fprintf(f, "Prenom       : %s\n", e->prenom);
     fprintf(f, "Poste        : %s\n", e->poste);
@@ -368,6 +389,7 @@ int lireFiche(const char *filepath, Employe *out) {
     out->numero_bulletin = 0;
     out->heures_sup = 0;
     out->prime = 0;
+    out->date_ajout[0] = '\0';
     while (fgets(line, sizeof(line), f)) {
         float val;
         char  str[100];
@@ -377,6 +399,8 @@ int lireFiche(const char *filepath, Employe *out) {
             out->id = idval;
         else if (sscanf(line, "Bulletin N   : N%d", &idval) == 1)
             out->numero_bulletin = idval;
+        else if (sscanf(line, "Date ajout   : %29[^\n]", str) == 1)
+            strcpy(out->date_ajout, str);
         else if (sscanf(line, "Nom          : %49[^\n]", str) == 1)
             strcpy(out->nom, str);
         else if (sscanf(line, "Prenom       : %49[^\n]", str) == 1)
@@ -421,8 +445,7 @@ void genererRegistreBulletins(Employe tab[], int nb) {
 
     fprintf(out,
         "Id,Nom,Prenom,Poste,Bulletin,Periode,"
-        "Salaire Base,Heures Sup,Prime,CNSS,IR,Salaire Net\n");
-
+        "Salaire Base,Heures Sup,Prime,CNSS,IR,Salaire Net,Date Ajout\n");
     char dirline[100];
     while (fgets(dirline, sizeof(dirline), fd)) {
         dirline[strcspn(dirline, "\r\n")] = 0;
@@ -456,15 +479,15 @@ void genererRegistreBulletins(Employe tab[], int nb) {
             char filepath[400];
             sprintf(filepath, "%s\\%s", dossier, fline);
 
-            Employe b = {0};
+           Employe b = {0};
             if (lireFiche(filepath, &b)) {
                 fprintf(out,
-                    "%s,%s,%s,%s,N%03d,%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
+                    "%s,%s,%s,%s,N%03d,%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%s\n",
                     dirline + 4, // id sans le prefixe "emp_"
                     b.nom, b.prenom, b.poste,
                     b.numero_bulletin, b.mois_annee,
                     b.salaire_base, b.heures_sup, b.prime,
-                    b.cnss, b.ir, b.salaire_net);
+                    b.cnss, b.ir, b.salaire_net, b.date_ajout);
             }
         }
         fclose(ff);
@@ -499,7 +522,8 @@ void modifierBulletin(const char *filepath, Employe *e) {
     fprintf(f, "========================================\n\n");
     fprintf(f, "ID Employe   : %d\n", e->id);
     fprintf(f, "Bulletin N   : N%03d\n", e->numero_bulletin);
-    fprintf(f, "Periode      : %s\n\n", e->mois_annee);
+    fprintf(f, "Periode      : %s\n", e->mois_annee);
+    fprintf(f, "Date ajout   : %s\n\n", e->date_ajout);
     fprintf(f, "Nom          : %s\n", e->nom);
     fprintf(f, "Prenom       : %s\n", e->prenom);
     fprintf(f, "Poste        : %s\n", e->poste);

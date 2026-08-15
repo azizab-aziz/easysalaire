@@ -20,6 +20,7 @@ typedef struct {
     float salaire_net;
     char mois_annee[20];
     int numero_bulletin;
+    char date_ajout[30];
 } Employe;
 
 // ─── Prototypes ───────────────────────────────
@@ -39,10 +40,8 @@ int  prochainId(void);   // renvoie le prochain id unique disponible
 void genererRegistreBulletins(Employe tab[], int nb);
 void supprimerHistoriqueEmploye(int id);
 void modifierBulletin(const char *filepath, Employe *e);
-// Gestion
-// Gestion
 void ajouterEmploye(Employe tab[], int *nb, Employe e);
-void nouveauBulletin(Employe *e, float base, float hsup, float prime);
+void nouveauBulletin(Employe *e, float base, float hsup, float prime, const char *date_ajout);
 void supprimerEmploye(Employe tab[], int *nb, int index);
 
 void sauvegarderFiche(Employe *e);
@@ -51,5 +50,6 @@ void sauvegarderFiche(Employe *e);
 void sauvegarderCSV(Employe tab[], int nb);
 
 void getDateActuelle(char *buf);
+void getDateTimeActuelle(char *buf);
 
 #endif
