@@ -369,6 +369,9 @@ int lireFiche(const char *filepath, Employe *out) {
 
     char line[200];
     out->id = 0;
+    out->numero_bulletin = 0;
+    out->heures_sup = 0;
+    out->prime = 0;
     while (fgets(line, sizeof(line), f)) {
         float val;
         char  str[100];
@@ -376,6 +379,8 @@ int lireFiche(const char *filepath, Employe *out) {
 
         if (sscanf(line, "ID Employe   : %d", &idval) == 1)
             out->id = idval;
+        else if (sscanf(line, "Bulletin N   : N%d", &idval) == 1)
+            out->numero_bulletin = idval;
         else if (sscanf(line, "Nom          : %49[^\n]", str) == 1)
             strcpy(out->nom, str);
         else if (sscanf(line, "Prenom       : %49[^\n]", str) == 1)
@@ -386,8 +391,10 @@ int lireFiche(const char *filepath, Employe *out) {
             strcpy(out->mois_annee, str);
         else if (sscanf(line, "Salaire base : %f", &val) == 1)
             out->salaire_base = val;
-        else if (sscanf(line, "Salaire brut : %f", &val) == 1)
-            out->heures_sup = val;
+        else if (sscanf(line, "Heures sup   : + %f", &val) == 1)
+            out->heures_sup = val / 1.5f;
+        else if (sscanf(line, "Prime        : + %f", &val) == 1)
+            out->prime = val;
         else if (sscanf(line, "CNSS (9.18%%) : - %f", &val) == 1)
             out->cnss = val;
         else if (sscanf(line, "IR            : - %f", &val) == 1)

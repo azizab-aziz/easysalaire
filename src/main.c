@@ -29,7 +29,8 @@ typedef enum {
     ECRAN_STATS,
     ECRAN_HISTORIQUE,
     ECRAN_COMPARAISON,
-    ECRAN_NOUVEAU_BULLETIN
+    ECRAN_NOUVEAU_BULLETIN,
+    ECRAN_VOIR_BULLETIN
 } Ecran;
 
 
@@ -117,6 +118,10 @@ int main(void) {
 
     char nb_base[20] = "", nb_hsup[20] = "", nb_prime[20] = "";
     int  champ_nb = -1;
+
+    Employe bulletin_view;
+    int bulletin_view_idx = -1;
+    int bulletin_delete_confirm = 0;
 
     nb_employes = chargerCSV(employes);
     printf("Loaded %d employees from CSV\n", nb_employes);
@@ -1541,8 +1546,26 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
             DrawRectangle(card_x, ry, card_w, 46,
                           (Color){0, 0, 0, 15});
 
-    } else {
-        // Normal mode — Ouvrir + Supprimer
+} else {
+        // Normal mode — Voir + Ouvrir + Supprimer
+        DrawRectangleRounded(
+            (Rectangle){card_x + card_w - 340,
+                        ry + 10, 100, 28},
+            0.3f, 8, COL_ACCENT);
+        if (GuiButton((Rectangle){card_x + card_w - 340,
+                                   ry + 10, 100, 28},
+                      "Voir")) {
+            char dossier[200];
+            sprintf(dossier,
+                "C:\\EasySalaire\\saves\\historique\\emp_%d",
+                e->id);
+            char filepath[400];
+            sprintf(filepath, "%s\\%s", dossier, hist_files[i]);
+            lireFiche(filepath, &bulletin_view);
+            bulletin_view_idx = i;
+            ecran_actuel = ECRAN_VOIR_BULLETIN;
+        }
+
         if (GuiButton((Rectangle){card_x + card_w - 230,
                                    ry + 10, 100, 28},
                       "Ouvrir")) {
@@ -1862,8 +1885,192 @@ Color sum_col = net_diff >= 0 ? COL_SUCCESS : COL_DANGER;
                (Vector2){card_x + 20, sy + 18},
                14, 1, sum_col);
 
-    skip_comparaison:;
+skip_comparaison:;
 }
+
+
+// ══════════════════════════════════════
+// ÉCRAN VOIR BULLETIN (lecture seule)
+// ══════════════════════════════════════
+if (ecran_actuel == ECRAN_VOIR_BULLETIN && bulletin_view_idx >= 0) {
+
+    Employe *bv = &bulletin_view;
+    float brut = calculBrut(bv);
+
+    DrawTextEx(font, "Bulletin archive", (Vector2){24, 68}, 16, 1, COL_MUTED);
+
+    if (GuiButton((Rectangle){W - 160, 10, 135, 38},
+                  "Retour historique")) {
+        ecran_actuel = ECRAN_HISTORIQUE;
+        bulletin_view_idx = -1;
+    }
+
+    int card_w = (W > 900) ? W - 200 : W - 60;
+    int card_x = (W - card_w) / 2;
+    int cy     = 100;
+    int vx     = card_x + card_w * 0.65f;
+
+    // Info card
+    DrawRectangleRounded(
+        (Rectangle){card_x, cy, card_w, 100},
+        0.04f, 8, COL_CARD);
+    DrawRectangleLinesEx(
+        (Rectangle){card_x, cy, card_w, 100},
+        1.5f, COL_BORDER);
+    DrawTextEx(font, "Informations",
+               (Vector2){card_x + 20, cy + 12}, 13, 1, COL_ACCENT);
+
+    char bull[20];
+    sprintf(bull, "N %03d", bv->numero_bulletin);
+    DrawTextEx(font, bull,
+               (Vector2){card_x + 110, cy + 12}, 13, 1, COL_ACCENT);
+
+    char date_label[40];
+    sprintf(date_label, "Periode : %s", bv->mois_annee);
+    Vector2 date_sz = MeasureTextEx(font, date_label, 13, 1);
+    DrawTextEx(font, date_label,
+               (Vector2){card_x + card_w - date_sz.x - 20, cy + 12},
+               13, 1, COL_MUTED);
+
+    DrawTextEx(font, "Nom :",    (Vector2){card_x + 20, cy + 34}, 15, 1, COL_MUTED);
+    DrawTextEx(font, bv->nom,    (Vector2){card_x + 120, cy + 34}, 15, 1, COL_TEXT);
+    DrawTextEx(font, "Prenom :", (Vector2){card_x + 20, cy + 56}, 15, 1, COL_MUTED);
+    DrawTextEx(font, bv->prenom, (Vector2){card_x + 120, cy + 56}, 15, 1, COL_TEXT);
+    DrawTextEx(font, "Poste :",  (Vector2){card_x + 20, cy + 78}, 15, 1, COL_MUTED);
+    DrawTextEx(font, bv->poste,  (Vector2){card_x + 120, cy + 78}, 15, 1, COL_TEXT);
+
+    // Salary card
+    int sc_y = cy + 120;
+    DrawRectangleRounded(
+        (Rectangle){card_x, sc_y, card_w, 210},
+        0.04f, 8, COL_CARD);
+    DrawRectangleLinesEx(
+        (Rectangle){card_x, sc_y, card_w, 210},
+        1.5f, COL_BORDER);
+    DrawTextEx(font, "Calcul du salaire",
+               (Vector2){card_x + 20, sc_y + 12}, 13, 1, COL_ACCENT);
+
+    char txt[60];
+    int lx = card_x + 20;
+
+    sprintf(txt, "%.2f TND", bv->salaire_base);
+    DrawTextEx(font, "Salaire base :", (Vector2){lx, sc_y + 40}, 15, 1, COL_MUTED);
+    DrawTextEx(font, txt,              (Vector2){vx, sc_y + 40}, 15, 1, COL_TEXT);
+
+    sprintf(txt, "+ %.2f TND", bv->heures_sup * 1.5f);
+    DrawTextEx(font, "Heures sup :", (Vector2){lx, sc_y + 68}, 15, 1, COL_MUTED);
+    DrawTextEx(font, txt,            (Vector2){vx, sc_y + 68}, 15, 1, COL_SUCCESS);
+
+    sprintf(txt, "+ %.2f TND", bv->prime);
+    DrawTextEx(font, "Prime :", (Vector2){lx, sc_y + 96}, 15, 1, COL_MUTED);
+    DrawTextEx(font, txt,       (Vector2){vx, sc_y + 96}, 15, 1, COL_SUCCESS);
+
+    DrawRectangle(card_x + 20, sc_y + 122, card_w - 40, 1, COL_BORDER);
+
+    sprintf(txt, "%.2f TND", brut);
+    DrawTextEx(font, "Salaire brut :", (Vector2){lx, sc_y + 132}, 16, 1, COL_TEXT);
+    DrawTextEx(font, txt,              (Vector2){vx, sc_y + 132}, 16, 1, COL_TEXT);
+
+    sprintf(txt, "- %.2f TND", bv->cnss);
+    DrawTextEx(font, "CNSS (9.18%) :", (Vector2){lx, sc_y + 160}, 15, 1, COL_MUTED);
+    DrawTextEx(font, txt,              (Vector2){vx, sc_y + 160}, 15, 1, COL_DANGER);
+
+    sprintf(txt, "- %.2f TND", bv->ir);
+    DrawTextEx(font, "IR :", (Vector2){lx, sc_y + 186}, 15, 1, COL_MUTED);
+    DrawTextEx(font, txt,    (Vector2){vx, sc_y + 186}, 15, 1, COL_DANGER);
+
+    // Net card
+    int net_y = sc_y + 225;
+    int btn_y3 = net_y + 65;
+    DrawRectangleRounded(
+        (Rectangle){card_x, net_y, card_w, 54},
+        0.04f, 8, (Color){220, 252, 231, 255});
+    DrawRectangleLinesEx(
+        (Rectangle){card_x, net_y, card_w, 54},
+        1.5f, (Color){134, 239, 172, 255});
+    sprintf(txt, "%.2f TND", bv->salaire_net);
+    DrawTextEx(font, "SALAIRE NET :", (Vector2){lx, net_y + 17}, 18, 1, COL_TEXT);
+    DrawTextEx(font, txt,             (Vector2){vx, net_y + 17}, 20, 1, COL_SUCCESS);
+
+    // ─── Boutons ──────────────────────
+    int btn_w3 = 180;
+    int total_w3 = btn_w3 * 2 + 20;
+    int start_x3 = card_x + (card_w - total_w3) / 2;
+
+    if (GuiButton((Rectangle){start_x3, btn_y3, btn_w3, 38},
+                  "Exporter PDF")) {
+        char cmd[1024];
+        sprintf(cmd,
+            "python C:\\EasySalaire\\saves\\export_pdf.py "
+            "\"%s\" \"%s\" \"%s\" %.2f %.2f %.2f %.2f %.2f %.2f",
+            bv->nom, bv->prenom, bv->poste,
+            bv->salaire_base, bv->heures_sup * 1.5f, bv->prime,
+            bv->cnss, bv->ir, bv->salaire_net);
+        system(cmd);
+        strcpy(success_msg, "Fiche PDF generee !");
+        success_timer = 3.0f;
+    }
+
+    DrawRectangleRounded(
+        (Rectangle){start_x3 + btn_w3 + 20, btn_y3, btn_w3, 38},
+        0.3f, 8, (Color){254, 226, 226, 255});
+    if (GuiButton((Rectangle){start_x3 + btn_w3 + 20, btn_y3, btn_w3, 38},
+                  "Supprimer ce bulletin")) {
+        bulletin_delete_confirm = 1;
+    }
+
+    // ─── Popup confirmation suppression ───
+    if (bulletin_delete_confirm == 1) {
+        DrawRectangle(0, 0, W, H, (Color){0, 0, 0, 150});
+
+        int pw = 360, ph = 180;
+        int px = (W - pw) / 2;
+        int py = (H - ph) / 2;
+
+        DrawRectangleRounded(
+            (Rectangle){px, py, pw, ph},
+            0.08f, 8, COL_CARD);
+        DrawRectangleLinesEx(
+            (Rectangle){px, py, pw, ph},
+            2.0f, COL_DANGER);
+
+        DrawTextEx(font, "Supprimer ce bulletin ?",
+                   (Vector2){px + 20, py + 20}, 16, 1, COL_TEXT);
+        DrawTextEx(font, "Cette action est irreversible.",
+                   (Vector2){px + 20, py + 48}, 12, 1, COL_DANGER);
+
+        if (GuiButton((Rectangle){px + 20, py + 120, 140, 36},
+                      "Annuler")) {
+            bulletin_delete_confirm = 0;
+        }
+
+        DrawRectangleRounded(
+            (Rectangle){px + 185, py + 120, 155, 36},
+            0.3f, 8, COL_DANGER);
+        if (GuiButton((Rectangle){px + 185, py + 120, 155, 36},
+                      "Oui, supprimer")) {
+            if (employe_selectionne >= 0) {
+                Employe *owner = &employes[employe_selectionne];
+                char dossier[200];
+                sprintf(dossier,
+                    "C:\\EasySalaire\\saves\\historique\\emp_%d",
+                    owner->id);
+                char filepath[400];
+                sprintf(filepath, "%s\\%s", dossier, hist_files[bulletin_view_idx]);
+                remove(filepath);
+            }
+            bulletin_delete_confirm = 0;
+            bulletin_view_idx = -1;
+            hist_scanned = 0;
+            strcpy(success_msg, "Bulletin supprime !");
+            success_timer = 3.0f;
+            ecran_actuel = ECRAN_HISTORIQUE;
+        }
+    }
+}
+
+
+// ─── Popup choix format ───────────────────
 
 
 
@@ -2031,6 +2238,7 @@ if (popup_confirm == 1) {
 // ══════════════════════════════════════
 // SUCCESS MESSAGE
 // ══════════════════════════════════════
+
 if (success_timer > 0.0f) {
     success_timer -= GetFrameTime();
 
