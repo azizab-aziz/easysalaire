@@ -1699,7 +1699,7 @@ if (hist_confirm_del >= 0) {
         int hb_h  = 38;
         int hb_total1 = hb_w1 * 2 + 20;
         int hb_x1 = card_x + (card_w - hb_total1) / 2;
-        int hb_y1 = H - 140;
+        int hb_y1 = H - 90;
 
         DrawRectangleRounded(
             (Rectangle){hb_x1, hb_y1, hb_w1, hb_h},
@@ -1717,33 +1717,6 @@ if (hist_confirm_del >= 0) {
         if (GuiButton((Rectangle){hb_x1 + hb_w1 + 20, hb_y1, hb_w1, hb_h},
                       "Voir historique")) {
             ecran_actuel = ECRAN_DATES_AJOUT;
-        }
-
-        // ─── Actions secondaires (employe) ────
-        int hb_w2 = 150;
-        int hb_total2 = hb_w2 * 2 + 15;
-        int hb_x2 = card_x + (card_w - hb_total2) / 2;
-        int hb_y2 = hb_y1 + 50;
-
-        if (GuiButton((Rectangle){hb_x2, hb_y2, hb_w2, 32},
-                      "Modifier les informations")) {
-            strcpy(mod_nom,    e->nom);
-            strcpy(mod_prenom, e->prenom);
-            strcpy(mod_poste,  e->poste);
-            sprintf(mod_base,  "%.2f", e->salaire_base);
-            sprintf(mod_hsup,  "%.2f", e->heures_sup);
-            sprintf(mod_prime, "%.2f", e->prime);
-            champ_mod = 0;
-            champ_mod_prev = -1;
-            ecran_actuel = ECRAN_MODIFICATION;
-        }
-
-        DrawRectangleRounded(
-            (Rectangle){hb_x2 + hb_w2 + 15, hb_y2, hb_w2, 32},
-            0.3f, 8, (Color){254, 226, 226, 255});
-        if (GuiButton((Rectangle){hb_x2 + hb_w2 + 15, hb_y2, hb_w2, 32},
-                      "Supprimer cet employe")) {
-            popup_confirm = 1;
         }
     }
 
