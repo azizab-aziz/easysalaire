@@ -127,6 +127,7 @@ int main(void) {
 
     char mb_base[20] = "", mb_hsup[20] = "", mb_prime[20] = "";
     char mb_date[30] = "";
+    char mb_periode[20] = "";
     int  champ_mb = -1;
     int  save_from_bulletin = 0;
 
@@ -2101,6 +2102,7 @@ if (ecran_actuel == ECRAN_VOIR_BULLETIN && bulletin_view_idx >= 0) {
         sprintf(mb_hsup,  "%.2f", bv->heures_sup);
         sprintf(mb_prime, "%.2f", bv->prime);
         strcpy(mb_date, bv->date_ajout);
+        strcpy(mb_periode, bv->mois_annee);
         champ_mb = 0;
         ecran_actuel = ECRAN_MODIFIER_BULLETIN;
     }
@@ -2182,7 +2184,7 @@ if (ecran_actuel == ECRAN_MODIFIER_BULLETIN &&
     DrawTextEx(font, "Modifier le bulletin", (Vector2){24, 75}, 18, 1, COL_MUTED);
 
     int card_w = 500;
-    int card_h = 470;
+    int card_h = 530;
     int card_x = (W - card_w) / 2;
     int card_y = (H - card_h) / 2;
 
@@ -2209,49 +2211,52 @@ if (ecran_actuel == ECRAN_MODIFIER_BULLETIN &&
     int fy  = card_y + 100;
     int gap = 62;
 
-    Rectangle rmb_base  = {fx, fy + gap*0, fw, fh};
-    Rectangle rmb_hsup  = {fx, fy + gap*1, fw, fh};
-    Rectangle rmb_prime = {fx, fy + gap*2, fw, fh};
-    Rectangle rmb_date  = {fx, fy + gap*3, fw, fh};
+    Rectangle rmb_base    = {fx, fy + gap*0, fw, fh};
+    Rectangle rmb_hsup    = {fx, fy + gap*1, fw, fh};
+    Rectangle rmb_prime   = {fx, fy + gap*2, fw, fh};
+    Rectangle rmb_date    = {fx, fy + gap*3, fw, fh};
+    Rectangle rmb_periode = {fx, fy + gap*4, fw, fh};
 
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         Vector2 m = GetMousePosition();
-        if      (CheckCollisionPointRec(m, rmb_base))  champ_mb = 0;
-        else if (CheckCollisionPointRec(m, rmb_hsup))  champ_mb = 1;
-        else if (CheckCollisionPointRec(m, rmb_prime)) champ_mb = 2;
-        else if (CheckCollisionPointRec(m, rmb_date))  champ_mb = 3;
+        if      (CheckCollisionPointRec(m, rmb_base))    champ_mb = 0;
+        else if (CheckCollisionPointRec(m, rmb_hsup))    champ_mb = 1;
+        else if (CheckCollisionPointRec(m, rmb_prime))   champ_mb = 2;
+        else if (CheckCollisionPointRec(m, rmb_date))    champ_mb = 3;
+        else if (CheckCollisionPointRec(m, rmb_periode)) champ_mb = 4;
         else champ_mb = -1;
     }
 
     if (IsKeyPressed(KEY_TAB)) {
         if (IsKeyDown(KEY_LEFT_SHIFT))
-            champ_mb = (champ_mb - 1 + 4) % 4;
+            champ_mb = (champ_mb - 1 + 5) % 5;
         else
-            champ_mb = (champ_mb + 1) % 4;
+            champ_mb = (champ_mb + 1) % 5;
     }
     if (IsKeyPressed(KEY_DOWN))
-        champ_mb = (champ_mb + 1) % 4;
+        champ_mb = (champ_mb + 1) % 5;
     if (IsKeyPressed(KEY_UP))
-        champ_mb = (champ_mb - 1 + 4) % 4;
+        champ_mb = (champ_mb - 1 + 5) % 5;
 
     const char *mb_labels[] = {
-        "Salaire base :", "Heures sup :", "Prime :", "Date :"
+        "Salaire base :", "Heures sup :", "Prime :", "Date ajout :", "Periode :"
     };
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 5; i++)
         DrawTextEx(font, mb_labels[i],
                    (Vector2){lx, fy + gap*i + 10}, 16, 1, COL_TEXT);
 
-    Rectangle mb_rects[] = {rmb_base, rmb_hsup, rmb_prime, rmb_date};
-    for (int i = 0; i < 4; i++) {
+    Rectangle mb_rects[] = {rmb_base, rmb_hsup, rmb_prime, rmb_date, rmb_periode};
+    for (int i = 0; i < 5; i++) {
         DrawRectangleRec(mb_rects[i], COL_CARD);
         Color border = (champ_mb == i) ? COL_ACCENT : COL_BORDER;
         DrawRectangleLinesEx(mb_rects[i], 1.5f, border);
     }
 
-    GuiTextBox(rmb_base,  mb_base,  20, champ_mb == 0);
-    GuiTextBox(rmb_hsup,  mb_hsup,  20, champ_mb == 1);
-    GuiTextBox(rmb_prime, mb_prime, 20, champ_mb == 2);
-    GuiTextBox(rmb_date,  mb_date,  30, champ_mb == 3);
+    GuiTextBox(rmb_base,    mb_base,    20, champ_mb == 0);
+    GuiTextBox(rmb_hsup,    mb_hsup,    20, champ_mb == 1);
+    GuiTextBox(rmb_prime,   mb_prime,   20, champ_mb == 2);
+    GuiTextBox(rmb_date,    mb_date,    30, champ_mb == 3);
+    GuiTextBox(rmb_periode, mb_periode, 20, champ_mb == 4);
 
     int btn_y4 = card_y + card_h - 60;
     int btn_w4 = 140;
@@ -2269,6 +2274,8 @@ if (ecran_actuel == ECRAN_MODIFIER_BULLETIN &&
             bv->heures_sup   = strlen(mb_hsup)  > 0 ? atof(mb_hsup)  : 0.0f;
             bv->prime        = strlen(mb_prime) > 0 ? atof(mb_prime) : 0.0f;
             strcpy(bv->date_ajout, mb_date);
+            if (strlen(mb_periode) > 0)
+                strcpy(bv->mois_annee, mb_periode);
 
             modifierBulletin(filepath, bv);
 
