@@ -42,7 +42,7 @@ void genererRegistreBulletins(Employe tab[], int nb);
 void supprimerHistoriqueEmploye(int id);
 void modifierBulletin(const char *filepath, Employe *e);
 void ajouterEmploye(Employe tab[], int *nb, Employe e);
-void nouveauBulletin(Employe *e, float base, float hsup, float prime, const char *date_ajout);
+void nouveauBulletin(Employe *e, float base, float hsup, float prime, const char *date_ajout, const char *periode);
 void supprimerEmploye(Employe tab[], int *nb, int index);
 
 void sauvegarderFiche(Employe *e);

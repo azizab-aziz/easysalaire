@@ -2,26 +2,28 @@
       FICHE DE PAIE - EasySalaire      
 ========================================
 
-ID Employe   : 3
+ID Employe   : 1
 Bulletin N   : N003
-Periode      : Aout 2026
+Periode      : OCTOBER  2026
 
-Nom          : KADRI 
-Prenom       :  NACER
-Poste        : chef projet 
+Date ajout   : 
+
+Nom          : BRAHMI 
+Prenom       : HAMZA
+Poste        : CHEF PROJET 
 
 CALCUL DU SALAIRE
 -------------------------
 Salaire base : 6000.00 TND
-Heures sup   : + 9.00 TND
-Prime        : + 500.00 TND
-Salaire brut : 6509.00 TND
+Heures sup   : + 19.50 TND
+Prime        : + 1100.00 TND
+Salaire brut : 7119.50 TND
 
 RETENUES
 -------------------------
-CNSS (9.18%) : - 597.53 TND
-IR            : - 1923.98 TND
+CNSS (9.18%) : - 653.57 TND
+IR            : - 2137.66 TND
 
 ========================================
-SALAIRE NET  : 3987.49 TND
+SALAIRE NET  : 4328.27 TND
 ========================================

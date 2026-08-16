@@ -116,12 +116,15 @@ void ajouterEmploye(Employe tab[], int *nb, Employe e) {
 }
 
 // ─── Générer un nouveau bulletin (même employé) ─
-void nouveauBulletin(Employe *e, float base, float hsup, float prime, const char *date_ajout) {
+void nouveauBulletin(Employe *e, float base, float hsup, float prime, const char *date_ajout, const char *periode) {
     e->salaire_base = base;
     e->heures_sup   = hsup;
     e->prime        = prime;
     calculNet(e);
-    getDateActuelle(e->mois_annee);
+    if (periode != NULL && strlen(periode) > 0)
+        strcpy(e->mois_annee, periode);
+    else
+        getDateActuelle(e->mois_annee);
     e->numero_bulletin = prochainNumeroBulletin(e->id);
     strcpy(e->date_ajout, date_ajout);
     sauvegarderHistorique(e);

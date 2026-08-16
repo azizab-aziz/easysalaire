@@ -2,26 +2,28 @@
       FICHE DE PAIE - EasySalaire      
 ========================================
 
-ID Employe   : 2
-Bulletin N   : N007
+ID Employe   : 1
+Bulletin N   : N001
 Periode      : Aout 2026
 
-Nom          : BRAHMI
+Date ajout   : 16 Aout 2026 - 09:33
+
+Nom          : BRAHMI 
 Prenom       : HAMZA
 Poste        : CHEF PROJET 
 
 CALCUL DU SALAIRE
 -------------------------
 Salaire base : 6000.00 TND
-Heures sup   : + 36.00 TND
-Prime        : + 2000.00 TND
-Salaire brut : 8036.00 TND
+Heures sup   : + 18.00 TND
+Prime        : + 1000.00 TND
+Salaire brut : 7018.00 TND
 
 RETENUES
 -------------------------
-CNSS (9.18%) : - 737.70 TND
-IR            : - 2458.43 TND
+CNSS (9.18%) : - 644.25 TND
+IR            : - 2102.13 TND
 
 ========================================
-SALAIRE NET  : 4839.86 TND
+SALAIRE NET  : 4271.61 TND
 ========================================
