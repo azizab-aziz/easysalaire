@@ -2272,6 +2272,10 @@ if (ecran_actuel == ECRAN_MODIFIER_BULLETIN &&
 
             modifierBulletin(filepath, bv);
 
+            // Force le rescan complet (fichiers ET dates) au prochain
+            // affichage de l'historique ou du journal des dates
+            hist_scanned = 0;
+
             strcpy(success_msg, "Bulletin modifie !");
             success_timer = 3.0f;
             ecran_actuel = ECRAN_VOIR_BULLETIN;
