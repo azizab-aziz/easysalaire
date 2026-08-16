@@ -35,6 +35,7 @@ int chargerCSV(Employe tab[]);
 void sauvegarderHistorique(Employe *e);
 int lireFiche(const char *filepath, Employe *out);
 int  compterBulletins(int id);
+int  prochainNumeroBulletin(int id);
 void premierBulletin(int id, char *out_date);
 int  prochainId(void);   // renvoie le prochain id unique disponible
 void genererRegistreBulletins(Employe tab[], int nb);

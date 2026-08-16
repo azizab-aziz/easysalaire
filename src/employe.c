@@ -108,7 +108,7 @@ void ajouterEmploye(Employe tab[], int *nb, Employe e) {
         calculNet(&e);
         getDateActuelle(e.mois_annee);
         e.id = prochainId();
-        e.numero_bulletin = compterBulletins(e.id) + 1; // toujours 1 pour un nouvel employe
+        e.numero_bulletin = prochainNumeroBulletin(e.id); // toujours 1 pour un nouvel employe
         getDateTimeActuelle(e.date_ajout);
         tab[(*nb)++] = e;
         sauvegarderHistorique(&tab[(*nb)-1]);
@@ -122,7 +122,7 @@ void nouveauBulletin(Employe *e, float base, float hsup, float prime, const char
     e->prime        = prime;
     calculNet(e);
     getDateActuelle(e->mois_annee);
-    e->numero_bulletin = compterBulletins(e->id) + 1;
+    e->numero_bulletin = prochainNumeroBulletin(e->id);
     strcpy(e->date_ajout, date_ajout);
     sauvegarderHistorique(e);
 }
@@ -260,6 +260,34 @@ int compterBulletins(int id) {
 
     fclose(f);
     return count;
+}
+
+// ─── Prochain numero de bulletin (jamais reutilise) ───
+int prochainNumeroBulletin(int id) {
+    char dossier[200];
+    sprintf(dossier,
+        "C:\\EasySalaire\\saves\\historique\\emp_%d",
+        id);
+
+    char tmpfile[] = "C:\\EasySalaire\\saves\\tmp_maxnum.txt";
+    char cmd[400];
+    sprintf(cmd, "dir \"%s\" /B /A-D > \"%s\" 2>nul",
+            dossier, tmpfile);
+    system(cmd);
+
+    FILE *f = fopen(tmpfile, "r");
+    if (!f) return 1;
+
+    int max_num = 0;
+    char line[200];
+    while (fgets(line, sizeof(line), f)) {
+        if (line[0] == 'N' && strstr(line, ".txt")) {
+            int num = atoi(line + 1);
+            if (num > max_num) max_num = num;
+        }
+    }
+    fclose(f);
+    return max_num + 1;
 }
 
 void premierBulletin(int id, char *out_date) {
