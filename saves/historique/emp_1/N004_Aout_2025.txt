@@ -1,0 +1,29 @@
+========================================
+      FICHE DE PAIE - EasySalaire      
+========================================
+
+ID Employe   : 1
+Bulletin N   : N004
+Periode      : Aout 2025
+
+Date ajout   : 
+
+Nom          : BRAHMI 
+Prenom       : HAMZA
+Poste        : CHEF PROJET 
+
+CALCUL DU SALAIRE
+-------------------------
+Salaire base : 6500.00 TND
+Heures sup   : + 18.00 TND
+Prime        : + 1100.00 TND
+Salaire brut : 7618.00 TND
+
+RETENUES
+-------------------------
+CNSS (9.18%) : - 699.33 TND
+IR            : - 2312.13 TND
+
+========================================
+SALAIRE NET  : 4606.53 TND
+========================================

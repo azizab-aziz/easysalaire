@@ -136,6 +136,11 @@ int main(void) {
     char hist_periodes[50][20];
     char nb_date[30] = "";
 
+    char hist_annees[20][6];      // annees distinctes trouvees
+    int  hist_nb_annees = 0;
+    int  filtre_annee_idx = -1;   // -1 = "Toutes"
+
+
     nb_employes = chargerCSV(employes);
     printf("Loaded %d employees from CSV\n", nb_employes);
 
@@ -1401,6 +1406,8 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
                 dossier, tmpfile);
         system(cmd);
 
+       hist_nb_annees = 0;
+
         FILE *fl = fopen(tmpfile, "r");
         if (fl != NULL) {
             char line[200];
@@ -1420,11 +1427,40 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
                     strcpy(hist_dates[hist_nb], tmp.date_ajout);
                     strcpy(hist_periodes[hist_nb], tmp.mois_annee);
 
+                    // Extraire l'annee (les 4 derniers caracteres numeriques
+                    // de la periode, ex: "Aout 2026" -> "2026")
+                    char annee[6] = "";
+                    int len = strlen(tmp.mois_annee);
+                    if (len >= 4)
+                        strncpy(annee, tmp.mois_annee + len - 4, 4);
+                    annee[4] = '\0';
+
+                    // Ajouter a la liste des annees si pas deja presente
+                    if (strlen(annee) == 4) {
+                        int deja = 0;
+                        for (int k = 0; k < hist_nb_annees; k++)
+                            if (strcmp(hist_annees[k], annee) == 0) deja = 1;
+                        if (!deja && hist_nb_annees < 20)
+                            strcpy(hist_annees[hist_nb_annees++], annee);
+                    }
+
                     hist_nb++;
                 }
             }
             fclose(fl);
         }
+
+        // Trier les annees (les plus recentes en premier)
+        for (int a = 0; a < hist_nb_annees - 1; a++)
+            for (int b = a + 1; b < hist_nb_annees; b++)
+                if (strcmp(hist_annees[a], hist_annees[b]) < 0) {
+                    char tmp_a[6];
+                    strcpy(tmp_a, hist_annees[a]);
+                    strcpy(hist_annees[a], hist_annees[b]);
+                    strcpy(hist_annees[b], tmp_a);
+                }
+
+        filtre_annee_idx = -1; // reset sur "Toutes" a chaque scan
         hist_scanned = 1;
     }
 
@@ -1489,17 +1525,64 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
                (Vector2){card_x + 20, cy + 15},
                15, 1, WHITE);
 
-    // ─── File list ────────────────────
-    int ty = cy + 65;
+// ─── Filtre par annee ──────────────
+    int fy_btn = cy + 60;
+    int fbtn_w = 70;
+    int fbtn_h = 30;
+    int fbtn_x = card_x;
 
-    if (hist_nb == 0) {
-        DrawTextEx(font, "Aucune fiche dans l'historique.",
-                   (Vector2){card_x + 20, ty + 20},
-                   14, 1, COL_MUTED);
+    DrawRectangleRounded(
+        (Rectangle){fbtn_x, fy_btn, fbtn_w, fbtn_h},
+        0.3f, 8, (filtre_annee_idx == -1) ? COL_ACCENT : COL_BORDER);
+    if (GuiButton((Rectangle){fbtn_x, fy_btn, fbtn_w, fbtn_h}, "Toutes")) {
+        filtre_annee_idx = -1;
     }
 
-   for (int i = 0; i < hist_nb; i++) {
-    int ry = ty + i * 50;
+    for (int a = 0; a < hist_nb_annees; a++) {
+        int ax = fbtn_x + (fbtn_w + 8) * (a + 1);
+        DrawRectangleRounded(
+            (Rectangle){ax, fy_btn, fbtn_w, fbtn_h},
+            0.3f, 8, (filtre_annee_idx == a) ? COL_ACCENT : COL_BORDER);
+        Color txt_col = (filtre_annee_idx == a) ? WHITE : COL_TEXT;
+        Vector2 asz = MeasureTextEx(font, hist_annees[a], 14, 1);
+        DrawTextEx(font, hist_annees[a],
+                   (Vector2){ax + (fbtn_w - asz.x)/2, fy_btn + 8},
+                   14, 1, txt_col);
+        if (GuiButton((Rectangle){ax, fy_btn, fbtn_w, fbtn_h}, "")) {
+            filtre_annee_idx = a;
+        }
+    }
+
+    // ─── Construire la liste filtree (indices) ────
+    int hist_filtered[50];
+    int hist_nb_filtered = 0;
+    for (int i = 0; i < hist_nb; i++) {
+        if (filtre_annee_idx == -1) {
+            hist_filtered[hist_nb_filtered++] = i;
+        } else {
+            int len = strlen(hist_periodes[i]);
+            char annee[6] = "";
+            if (len >= 4) strncpy(annee, hist_periodes[i] + len - 4, 4);
+            annee[4] = '\0';
+            if (strcmp(annee, hist_annees[filtre_annee_idx]) == 0)
+                hist_filtered[hist_nb_filtered++] = i;
+        }
+    }
+
+    // ─── File list ────────────────────
+    int ty = cy + 105;
+
+    if (hist_nb_filtered == 0) {
+        DrawTextEx(font,
+            (hist_nb == 0) ? "Aucune fiche dans l'historique."
+                           : "Aucune fiche pour cette annee.",
+            (Vector2){card_x + 20, ty + 20},
+            14, 1, COL_MUTED);
+    }
+
+   for (int fi = 0; fi < hist_nb_filtered; fi++) {
+    int i  = hist_filtered[fi];
+    int ry = ty + fi * 50;
 
     // Highlight selected files in compare mode
     Color bg;
