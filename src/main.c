@@ -2591,18 +2591,19 @@ if (popup_save == 1) {
             char cmd[1024];
             sprintf(cmd,
                 "python C:\\EasySalaire\\saves\\export_pdf.py "
-                "\"%s\" \"%s\" \"%s\" %.2f %.2f %.2f %.2f %.2f %.2f",
+                "\"%s\" \"%s\" \"%s\" %.2f %.2f %.2f %.2f %.2f %.2f %d %d \"%s\"",
                 ep->nom, ep->prenom, ep->poste,
                 ep->salaire_base, ep->heures_sup * 1.5f, ep->prime,
-                ep->cnss, ep->ir, ep->salaire_net);
+                ep->cnss, ep->ir, ep->salaire_net,
+                ep->id, ep->numero_bulletin, ep->mois_annee);
             system(cmd);
         }
         popup_save = 0;
         save_from_bulletin = 0;
         strcpy(success_msg, "Fiche PDF generee !");
         success_timer = 3.0f;
+        hist_scanned = 0; // pour que le PDF apparaisse dans l'historique au retour
     }
-
     // Annuler
     if (GuiButton((Rectangle){px + 100, py + 140, 130, 36},
                   "Annuler")) {
