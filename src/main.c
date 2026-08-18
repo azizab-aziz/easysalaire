@@ -32,7 +32,8 @@ typedef enum {
     ECRAN_NOUVEAU_BULLETIN,
     ECRAN_VOIR_BULLETIN,
     ECRAN_MODIFIER_BULLETIN,
-    ECRAN_DATES_AJOUT
+    ECRAN_DATES_AJOUT,
+    ECRAN_GRAPHIQUE
 } Ecran;
 
 
@@ -136,11 +137,13 @@ int main(void) {
     char hist_periodes[50][20];
     char nb_date[30] = "";
 
-    char hist_annees[20][6];      // annees distinctes trouvees
+        char hist_annees[20][6];      // annees distinctes trouvees
     int  hist_nb_annees = 0;
     int  filtre_annee_idx = 0;    // 0 = "Toutes" (index dans la dropdown)
     char hist_annees_str[200] = "Toutes";
     bool dropdown_annee_open = false;
+
+    float hist_salaires[50];      // salaire net de chaque bulletin (meme ordre que hist_files)
 
     nb_employes = chargerCSV(employes);
     printf("Loaded %d employees from CSV\n", nb_employes);
@@ -1427,6 +1430,7 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
                     lireFiche(fp, &tmp);
                     strcpy(hist_dates[hist_nb], tmp.date_ajout);
                     strcpy(hist_periodes[hist_nb], tmp.mois_annee);
+                    hist_salaires[hist_nb] = tmp.salaire_net;
 
                     // Extraire l'annee (les 4 derniers caracteres numeriques
                     // de la periode, ex: "Aout 2026" -> "2026")
@@ -1769,11 +1773,11 @@ if (hist_confirm_del >= 0) {
         success_timer = 3.0f;
     }
 }
-   // ─── Actions principales (masquees en mode comparaison) ────
+       // ─── Actions principales (masquees en mode comparaison) ────
     if (!mode_compare) {
-        int hb_w1 = 220;
+        int hb_w1 = 170;
         int hb_h  = 38;
-        int hb_total1 = hb_w1 * 2 + 20;
+        int hb_total1 = hb_w1 * 3 + 20 * 2;
         int hb_x1 = card_x + (card_w - hb_total1) / 2;
         int hb_y1 = H - 140;
 
@@ -1781,7 +1785,7 @@ if (hist_confirm_del >= 0) {
             (Rectangle){hb_x1, hb_y1, hb_w1, hb_h},
             0.3f, 8, COL_ACCENT);
         if (GuiButton((Rectangle){hb_x1, hb_y1, hb_w1, hb_h},
-                      "Nouvelle fiche (nouveau mois)")) {
+                      "Nouvelle fiche")) {
             nb_base[0]  = '\0';
             nb_hsup[0]  = '\0';
             nb_prime[0] = '\0';
@@ -1794,6 +1798,11 @@ if (hist_confirm_del >= 0) {
         if (GuiButton((Rectangle){hb_x1 + hb_w1 + 20, hb_y1, hb_w1, hb_h},
                       "Voir historique")) {
             ecran_actuel = ECRAN_DATES_AJOUT;
+        }
+
+        if (GuiButton((Rectangle){hb_x1 + (hb_w1 + 20)*2, hb_y1, hb_w1, hb_h},
+                      "Graphique")) {
+            ecran_actuel = ECRAN_GRAPHIQUE;
         }
 
         // ─── Action secondaire : suppression de l'employe ────
@@ -1901,6 +1910,120 @@ if (ecran_actuel == ECRAN_DATES_AJOUT && employe_selectionne >= 0) {
     }
 }
 
+// ══════════════════════════════════════
+// ÉCRAN GRAPHIQUE (evolution salaire net)
+// ══════════════════════════════════════
+if (ecran_actuel == ECRAN_GRAPHIQUE && employe_selectionne >= 0) {
+
+    Employe *e = &employes[employe_selectionne];
+
+    DrawTextEx(font, "Evolution du salaire net",
+               (Vector2){24, 68}, 16, 1, COL_MUTED);
+
+    if (GuiButton((Rectangle){W - 160, 10, 135, 38},
+                  "Retour")) {
+        ecran_actuel = ECRAN_HISTORIQUE;
+    }
+
+    int card_w = (W > 900) ? W - 200 : W - 60;
+    int card_x = (W - card_w) / 2;
+    int cy     = 100;
+
+    DrawRectangleRounded(
+        (Rectangle){card_x, cy, card_w, 50},
+        0.04f, 8, COL_HEADER);
+    char title[100];
+    sprintf(title, "%s %s  —  %s", e->nom, e->prenom, e->poste);
+    DrawTextEx(font, title,
+               (Vector2){card_x + 20, cy + 15}, 15, 1, WHITE);
+
+    if (hist_nb == 0) {
+        DrawTextEx(font, "Aucun bulletin a afficher.",
+                   (Vector2){card_x + 20, cy + 80}, 14, 1, COL_MUTED);
+    } else {
+
+        // ─── Zone du graphique ─────────
+        int gx = card_x + 40;
+        int gy = cy + 90;
+        int gw = card_w - 80;
+        int gh = H - gy - 100;
+
+        // Axe de base
+        DrawRectangle(gx, gy + gh, gw, 2, COL_BORDER);
+
+        // Trouver le max pour l'echelle
+        float max_val = 0;
+        for (int i = 0; i < hist_nb; i++)
+            if (hist_salaires[i] > max_val) max_val = hist_salaires[i];
+        if (max_val <= 0) max_val = 1;
+
+        int nb_barres  = hist_nb;
+        int gap_barre  = 20;
+        int bar_w = (gw - gap_barre * (nb_barres - 1)) / nb_barres;
+        if (bar_w > 90) bar_w = 90;
+        if (bar_w < 20) bar_w = 20;
+
+        int total_barres_w = bar_w * nb_barres + gap_barre * (nb_barres - 1);
+        int start_bx = gx + (gw - total_barres_w) / 2;
+
+        for (int i = 0; i < nb_barres; i++) {
+            int bx = start_bx + i * (bar_w + gap_barre);
+            int bar_h = (int)((hist_salaires[i] / max_val) * (gh - 40));
+            int by = gy + gh - bar_h;
+
+            // Barre
+            Color bar_col = COL_ACCENT;
+            DrawRectangleRounded(
+                (Rectangle){bx, by, bar_w, bar_h},
+                0.15f, 4, bar_col);
+
+            // Valeur au-dessus de la barre
+            char val_txt[20];
+            sprintf(val_txt, "%.0f", hist_salaires[i]);
+            Vector2 vsz = MeasureTextEx(font, val_txt, 12, 1);
+            DrawTextEx(font, val_txt,
+                       (Vector2){bx + (bar_w - vsz.x)/2, by - 18},
+                       12, 1, COL_TEXT);
+
+            // Numero de bulletin sous la barre
+            char bull_num[10] = "";
+            if (strlen(hist_files[i]) >= 4)
+                strncpy(bull_num, hist_files[i], 4);
+            Vector2 nsz = MeasureTextEx(font, bull_num, 11, 1);
+            DrawTextEx(font, bull_num,
+                       (Vector2){bx + (bar_w - nsz.x)/2, gy + gh + 8},
+                       11, 1, COL_MUTED);
+
+            // Periode sous le numero (inclinee visuellement par troncature courte)
+            char periode_cut[10];
+            strncpy(periode_cut, hist_periodes[i], 9);
+            periode_cut[9] = '\0';
+            Vector2 psz = MeasureTextEx(font, periode_cut, 10, 1);
+            DrawTextEx(font, periode_cut,
+                       (Vector2){bx + (bar_w - psz.x)/2, gy + gh + 24},
+                       10, 1, COL_MUTED);
+        }
+
+        // ─── Legende evolution globale ─────
+        if (nb_barres >= 2) {
+            float diff = hist_salaires[nb_barres - 1] - hist_salaires[0];
+            char evo_txt[100];
+            Color evo_col;
+            if (diff > 0) {
+                sprintf(evo_txt, "Evolution globale : + %.2f TND depuis le premier bulletin", diff);
+                evo_col = COL_SUCCESS;
+            } else if (diff < 0) {
+                sprintf(evo_txt, "Evolution globale : - %.2f TND depuis le premier bulletin", -diff);
+                evo_col = COL_DANGER;
+            } else {
+                strcpy(evo_txt, "Aucune evolution depuis le premier bulletin");
+                evo_col = COL_MUTED;
+            }
+            DrawTextEx(font, evo_txt,
+                       (Vector2){card_x + 20, H - 50}, 13, 1, evo_col);
+        }
+    }
+}
 
 
 // ══════════════════════════════════════
