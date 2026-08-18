@@ -1412,41 +1412,30 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
 
        hist_nb_annees = 0;
 
-        FILE *fl = fopen(tmpfile, "r");
+                FILE *fl = fopen(tmpfile, "r");
         if (fl != NULL) {
             char line[200];
             while (fgets(line, sizeof(line), fl)
                    && hist_nb < 50) {
                 line[strcspn(line, "\r\n")] = 0;
-                if (strlen(line) > 0 &&
-                    strstr(line, ".txt")) {
+                if (strlen(line) > 0 && strstr(line, "N") == line) {
                     strcpy(hist_files[hist_nb], line);
 
                     // Lire la date ET la periode reelles du bulletin
-                    // (contenu du fichier, pas son nom)
-                    char fp[400];
-                    sprintf(fp, "%s\\%s", dossier, line);
-                    Employe tmp = {0};
-                    lireFiche(fp, &tmp);
-                    strcpy(hist_dates[hist_nb], tmp.date_ajout);
-                    strcpy(hist_periodes[hist_nb], tmp.mois_annee);
-                    hist_salaires[hist_nb] = tmp.salaire_net;
-
-                    // Extraire l'annee (les 4 derniers caracteres numeriques
-                    // de la periode, ex: "Aout 2026" -> "2026")
-                    char annee[6] = "";
-                    int len = strlen(tmp.mois_annee);
-                    if (len >= 4)
-                        strncpy(annee, tmp.mois_annee + len - 4, 4);
-                    annee[4] = '\0';
-
-                    // Ajouter a la liste des annees si pas deja presente
-                    if (strlen(annee) == 4) {
-                        int deja = 0;
-                        for (int k = 0; k < hist_nb_annees; k++)
-                            if (strcmp(hist_annees[k], annee) == 0) deja = 1;
-                        if (!deja && hist_nb_annees < 20)
-                            strcpy(hist_annees[hist_nb_annees++], annee);
+                    // (uniquement possible pour les .txt, qui restent
+                    //  la source de verite ; pdf/csv sont des exports)
+                    if (strstr(line, ".txt")) {
+                        char fp[400];
+                        sprintf(fp, "%s\\%s", dossier, line);
+                        Employe tmp = {0};
+                        lireFiche(fp, &tmp);
+                        strcpy(hist_dates[hist_nb], tmp.date_ajout);
+                        strcpy(hist_periodes[hist_nb], tmp.mois_annee);
+                        hist_salaires[hist_nb] = tmp.salaire_net;
+                    } else {
+                        strcpy(hist_dates[hist_nb], "");
+                        strcpy(hist_periodes[hist_nb], "");
+                        hist_salaires[hist_nb] = 0;
                     }
 
                     hist_nb++;
@@ -1454,7 +1443,6 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
             }
             fclose(fl);
         }
-
                 // Trier les annees (les plus recentes en premier)
         for (int a = 0; a < hist_nb_annees - 1; a++)
             for (int b = a + 1; b < hist_nb_annees; b++)
@@ -1595,13 +1583,31 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
                    13, 1, COL_SUCCESS);
     }
 
-    // File icon
+        // File icon — couleur/label selon le type de fichier
+    Color icon_bg, icon_txt_col;
+    const char *icon_label;
+
+    if (strstr(hist_files[i], ".pdf")) {
+        icon_bg      = (Color){254, 226, 226, 255}; // rouge clair
+        icon_txt_col = COL_DANGER;
+        icon_label   = "PDF";
+    } else if (strstr(hist_files[i], ".csv")) {
+        icon_bg      = (Color){220, 252, 231, 255}; // vert clair
+        icon_txt_col = COL_SUCCESS;
+        icon_label   = "CSV";
+    } else {
+        icon_bg      = COL_LIGHT_BLUE;               // bleu clair (txt par defaut)
+        icon_txt_col = COL_ACCENT;
+        icon_label   = "TXT";
+    }
+
     DrawRectangleRounded(
-        (Rectangle){card_x + 16, ry + 10, 28, 28},
-        0.2f, 4, COL_LIGHT_BLUE);
-    DrawTextEx(font, "F",
-               (Vector2){card_x + 25, ry + 15},
-               12, 1, COL_ACCENT);
+        (Rectangle){card_x + 16, ry + 10, 36, 28},
+        0.2f, 4, icon_bg);
+    Vector2 icon_sz = MeasureTextEx(font, icon_label, 10, 1);
+    DrawTextEx(font, icon_label,
+               (Vector2){card_x + 16 + (36 - icon_sz.x)/2, ry + 18},
+               10, 1, icon_txt_col);
 
     // Display name — construit depuis le CONTENU reel du bulletin
     // (numero extrait du nom de fichier, periode lue depuis le fichier)
@@ -1610,10 +1616,13 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
         strncpy(bull_num, hist_files[i], 4);
 
     char display[100];
-    sprintf(display, "%s %s", bull_num, hist_periodes[i]);
+    if (strlen(hist_periodes[i]) > 0)
+        sprintf(display, "%s %s", bull_num, hist_periodes[i]);
+    else
+        sprintf(display, "%s (export)", bull_num);
 
     DrawTextEx(font, display,
-               (Vector2){card_x + 54, ry + 15},
+               (Vector2){card_x + 62, ry + 15},
                14, 1, COL_TEXT);
 
     if (mode_compare) {
