@@ -138,8 +138,9 @@ int main(void) {
 
     char hist_annees[20][6];      // annees distinctes trouvees
     int  hist_nb_annees = 0;
-    int  filtre_annee_idx = -1;   // -1 = "Toutes"
-
+    int  filtre_annee_idx = 0;    // 0 = "Toutes" (index dans la dropdown)
+    char hist_annees_str[200] = "Toutes";
+    bool dropdown_annee_open = false;
 
     nb_employes = chargerCSV(employes);
     printf("Loaded %d employees from CSV\n", nb_employes);
@@ -1450,7 +1451,7 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
             fclose(fl);
         }
 
-        // Trier les annees (les plus recentes en premier)
+                // Trier les annees (les plus recentes en premier)
         for (int a = 0; a < hist_nb_annees - 1; a++)
             for (int b = a + 1; b < hist_nb_annees; b++)
                 if (strcmp(hist_annees[a], hist_annees[b]) < 0) {
@@ -1460,7 +1461,14 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
                     strcpy(hist_annees[b], tmp_a);
                 }
 
-        filtre_annee_idx = -1; // reset sur "Toutes" a chaque scan
+        // Construire la chaine pour la dropdown : "Toutes;2026;2025"
+        strcpy(hist_annees_str, "Toutes");
+        for (int a = 0; a < hist_nb_annees; a++) {
+            strcat(hist_annees_str, ";");
+            strcat(hist_annees_str, hist_annees[a]);
+        }
+
+        filtre_annee_idx = 0; // reset sur "Toutes" (index 0) a chaque scan
         hist_scanned = 1;
     }
 
@@ -1525,46 +1533,20 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
                (Vector2){card_x + 20, cy + 15},
                15, 1, WHITE);
 
-// ─── Filtre par annee ──────────────
-    int fy_btn = cy + 60;
-    int fbtn_w = 70;
-    int fbtn_h = 30;
-    int fbtn_x = card_x;
-
-    DrawRectangleRounded(
-        (Rectangle){fbtn_x, fy_btn, fbtn_w, fbtn_h},
-        0.3f, 8, (filtre_annee_idx == -1) ? COL_ACCENT : COL_BORDER);
-    if (GuiButton((Rectangle){fbtn_x, fy_btn, fbtn_w, fbtn_h}, "Toutes")) {
-        filtre_annee_idx = -1;
-    }
-
-    for (int a = 0; a < hist_nb_annees; a++) {
-        int ax = fbtn_x + (fbtn_w + 8) * (a + 1);
-        DrawRectangleRounded(
-            (Rectangle){ax, fy_btn, fbtn_w, fbtn_h},
-            0.3f, 8, (filtre_annee_idx == a) ? COL_ACCENT : COL_BORDER);
-        Color txt_col = (filtre_annee_idx == a) ? WHITE : COL_TEXT;
-        Vector2 asz = MeasureTextEx(font, hist_annees[a], 14, 1);
-        DrawTextEx(font, hist_annees[a],
-                   (Vector2){ax + (fbtn_w - asz.x)/2, fy_btn + 8},
-                   14, 1, txt_col);
-        if (GuiButton((Rectangle){ax, fy_btn, fbtn_w, fbtn_h}, "")) {
-            filtre_annee_idx = a;
-        }
-    }
-
-    // ─── Construire la liste filtree (indices) ────
+    // ─── Construire la liste filtree (indices) — AVANT le dropdown ────
+    // (calcule en premier pour que le dropdown, dessine en dernier,
+    //  s'affiche par-dessus la liste sans etre recouvert)
     int hist_filtered[50];
     int hist_nb_filtered = 0;
     for (int i = 0; i < hist_nb; i++) {
-        if (filtre_annee_idx == -1) {
+        if (filtre_annee_idx == 0) {
             hist_filtered[hist_nb_filtered++] = i;
         } else {
             int len = strlen(hist_periodes[i]);
             char annee[6] = "";
             if (len >= 4) strncpy(annee, hist_periodes[i] + len - 4, 4);
             annee[4] = '\0';
-            if (strcmp(annee, hist_annees[filtre_annee_idx]) == 0)
+            if (strcmp(annee, hist_annees[filtre_annee_idx - 1]) == 0)
                 hist_filtered[hist_nb_filtered++] = i;
         }
     }
@@ -1846,6 +1828,20 @@ else
 
 DrawTextEx(font, footer,
            (Vector2){24, H - 24}, 13, 1, COL_MUTED);
+
+// ─── Filtre par annee (dessine en dernier pour l'ouverture par-dessus) ────
+int fy_dd = cy + 60;
+int fdd_w = 150;
+int fdd_h = 32;
+
+DrawTextEx(font, "Filtrer par annee :",
+           (Vector2){card_x, fy_dd - 22}, 13, 1, COL_MUTED);
+
+if (GuiDropdownBox((Rectangle){card_x, fy_dd, fdd_w, fdd_h},
+                    hist_annees_str, &filtre_annee_idx,
+                    dropdown_annee_open)) {
+    dropdown_annee_open = !dropdown_annee_open;
+}
 
 hist_end:;
 }
