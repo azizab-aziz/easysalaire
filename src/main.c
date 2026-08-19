@@ -1394,8 +1394,10 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
 
     Employe *e = &employes[employe_selectionne];
 
-    if (popup_confirm == 1) goto hist_end;
-
+        if (popup_confirm == 1) {
+        GuiUnlock(); // securite : ne jamais laisser l'UI verrouillee
+        goto hist_end;
+    }
     // ─── Scan folder ONCE ─────────────
     if (!hist_scanned) {
         hist_nb = 0;
@@ -1410,7 +1412,7 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
                 dossier, tmpfile);
         system(cmd);
 
-       hist_nb_annees = 0;
+              hist_nb_annees = 0;
 
                 FILE *fl = fopen(tmpfile, "r");
         if (fl != NULL) {
@@ -1436,6 +1438,20 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
                         strcpy(hist_dates[hist_nb], "");
                         strcpy(hist_periodes[hist_nb], "");
                         hist_salaires[hist_nb] = 0;
+                    }
+
+                    // Extraire l'annee et l'ajouter a la liste si nouvelle
+                    if (strlen(hist_periodes[hist_nb]) >= 4) {
+                        char annee[6] = "";
+                        int len = strlen(hist_periodes[hist_nb]);
+                        strncpy(annee, hist_periodes[hist_nb] + len - 4, 4);
+                        annee[4] = '\0';
+
+                        int deja = 0;
+                        for (int k = 0; k < hist_nb_annees; k++)
+                            if (strcmp(hist_annees[k], annee) == 0) deja = 1;
+                        if (!deja && hist_nb_annees < 20)
+                            strcpy(hist_annees[hist_nb_annees++], annee);
                     }
 
                     hist_nb++;
@@ -1524,6 +1540,9 @@ if (ecran_actuel == ECRAN_HISTORIQUE && employe_selectionne >= 0) {
     DrawTextEx(font, title,
                (Vector2){card_x + 20, cy + 15},
                15, 1, WHITE);
+
+        // ─── Verrouiller le reste de l'ecran si le dropdown est ouvert ────
+    if (dropdown_annee_open) GuiLock();
 
     // ─── Construire la liste filtree (indices) — AVANT le dropdown ────
     // (calcule en premier pour que le dropdown, dessine en dernier,
@@ -1848,6 +1867,8 @@ DrawTextEx(font, footer,
            (Vector2){24, H - 24}, 13, 1, COL_MUTED);
 
 // ─── Filtre par annee (dessine en dernier pour l'ouverture par-dessus) ────
+GuiUnlock();
+
 int fy_dd = cy + 60;
 int fdd_w = 150;
 int fdd_h = 32;
